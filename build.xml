@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
-<project name="remote_api" default="test" basedir=".">
+<project name="remote_api" default="run" basedir=".">
   <property name="build.dir" value="build" />
-	<property name="main.build.dir" value="build/main" />
 	<property name="main.src.dir" value="src" />
-	<property name="test.build.dir" value="build/test" />
 	<property name="test.src.dir" value="test" />
 
 	<path id="classpath.base" />
@@ -19,23 +17,20 @@
 
 	<target name="compile">
     <mkdir dir="${build.dir}" />
-		<mkdir dir="${main.build.dir}" />
-		<javac srcdir="${main.src.dir}" destdir="${main.build.dir}"
+		<javac srcdir="${main.src.dir}" destdir="${build.dir}"
 			includeantruntime="false">
 			<classpath refid="classpath.base" />
 		</javac>
-    <jar destfile="${build.dir}/remote_api.jar"
-      basedir="${main.build.dir}"
-      includes="**/*.class" />
+		<javac srcdir="${test.src.dir}" destdir="${build.dir}"
+      includeantruntime="false">
+      <classpath refid="classpath.test" />
+    </javac>
 	</target>
 
 	<target name="build" depends="compile">
-		<mkdir dir="${test.build.dir}" />
-		<javac srcdir="${test.src.dir}" destdir="${test.build.dir}"
-			includeantruntime="false">
-			<classpath refid="classpath.test" />
-		</javac>
-		<echo message="Build done" />
+    <jar destfile="${build.dir}/remote_api.jar"
+      basedir="${build.dir}"
+      includes="remote/api/**/*.class" />
 	</target>
 
 	<!-- Test and build all files -->
@@ -44,11 +39,11 @@
 		<junit printsummary="on" haltonfailure="yes">
 			<classpath>
 				<path refid="classpath.test" />
-				<pathelement location="${test.build.dir}" />
+				<pathelement location="${build.dir}" />
 			</classpath>
 			<formatter type="brief" usefile="false" />
 			<batchtest>
-				<fileset dir="${test.src.dir}" includes="**/*Test*.java" />
+				<fileset dir="${test.src.dir}" includes="**/Test*.java" />
 			</batchtest>
 		</junit>
 	</target>
@@ -56,11 +51,6 @@
 	<!-- delete all class files -->
 	<!-- To run this: use "ant clean" -->
 	<target name="clean">
-		<delete>
-			<fileset dir="${basedir}" includes="**/*.class" />
-		</delete>
-    <delete dir="${main.build.dir}" />
-    <delete dir="${test.build.dir}" />
-		<echo message="clean done" />
+    <delete dir="${build.dir}/remote" />
 	</target>
 </project>

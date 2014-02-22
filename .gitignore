@@ -5,6 +5,3 @@
 *.ear
 .project
 .settings
-
-build/main
-build/test
