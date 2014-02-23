@@ -10,6 +10,7 @@ import java.security.InvalidKeyException;
 
 import org.junit.Test;
 
+import remote.api.Message;
 import remote.api.Packet;
 import remote.api.ServerProtocol;
 import remote.api.Protocol.PingCallback;
@@ -144,6 +145,28 @@ public class TestServerProtocol {
 		} catch (AuthenticationException e) {
 			assertEquals("Bad login", e.getMessage());
 		}
-		// TODO
+
+		// Try to process without authentication
+		try {
+			sp.process(new Ping(true).pack());
+			fail("Did not throw an exception");
+		} catch (ProtocolException e) {
+			assertEquals("Unexpected message type: " + Message.PING,
+					e.getMessage());
+		}
+
+		// Try to authenticate twice
+		sp = new ServerProtocol(authentication, Keys.privateKey, output);
+		sp.process(new AuthenticationRequest(new byte[Packet.BLOCK_KEY_SIZE],
+				"", "").pack());
+		// Not allowed to do it twice
+		try {
+			sp.process(new AuthenticationRequest(
+					new byte[Packet.BLOCK_KEY_SIZE], "", "").pack());
+			fail("Did not throw an exception");
+		} catch (ProtocolException e) {
+			assertEquals("Unexpected message type: "
+					+ Message.AUTHENTICATION_REQUEST, e.getMessage());
+		}
 	}
 }
