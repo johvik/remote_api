@@ -23,8 +23,28 @@ public class Packet {
 	private byte[] data;
 	private boolean encrypted;
 
+	/**
+	 * Constructs a non encrypted and expects a normal sized packet.
+	 * 
+	 * @param data
+	 * @throws PacketException
+	 */
 	public Packet(byte[] data) throws PacketException {
-		this(data, false);
+		this(data, false, false);
+	}
+
+	/**
+	 * Constructs a non encrypted packet with optional special length.
+	 * 
+	 * @param data
+	 * @param specialLength
+	 *            If packet is allowed to have a length that does not match the
+	 *            block size
+	 * @throws PacketException
+	 */
+	public Packet(byte[] data, boolean specialLength) throws PacketException {
+		// TODO Is it better to let the encrypt throw an exception instead?
+		this(data, specialLength, false);
 	}
 
 	/**
@@ -42,9 +62,14 @@ public class Packet {
 		return length + padding;
 	}
 
-	private Packet(byte[] data, boolean encrypted) throws PacketException {
+	private Packet(byte[] data, boolean specialLength, boolean encrypted)
+			throws PacketException {
 		if (data == null) {
-			throw new PacketException("Data is null", null);
+			throw new PacketException("Data is null", data);
+		} else if ((!specialLength || encrypted)
+				&& (data.length % BLOCK_SIZE) != 0) {
+			// Only non encrypted packets may have a special length
+			throw new PacketException("Invalid data length", data);
 		}
 		this.data = data;
 		this.encrypted = encrypted;
@@ -85,7 +110,7 @@ public class Packet {
 			} else if (buffer.remaining() >= length) {
 				byte[] data = new byte[getPacketSize(length)];
 				buffer.get(data);
-				return new Packet(data, true);
+				return new Packet(data, false, true);
 			}
 		} catch (BufferUnderflowException e) {
 			e.printStackTrace();

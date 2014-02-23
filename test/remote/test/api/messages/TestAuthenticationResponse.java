@@ -14,7 +14,7 @@ public class TestAuthenticationResponse {
 	public void testPack() throws PacketException {
 		AuthenticationResponse response = new AuthenticationResponse();
 		byte[] data = response.pack().getData();
-		assertEquals(data[0], Message.AUTHENTICATION_RESPONSE);
+		assertEquals(Message.AUTHENTICATION_RESPONSE, data[0]);
 	}
 
 	@Test
@@ -25,7 +25,7 @@ public class TestAuthenticationResponse {
 			AuthenticationResponse.unpack(data);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertEquals(e.getMessage(), "Unexpected length");
+			assertEquals("Unexpected length", e.getMessage());
 		}
 		// Correct length should not throw
 		data = new byte[AuthenticationResponse.PACKET_SIZE];
@@ -36,7 +36,7 @@ public class TestAuthenticationResponse {
 	public void testGetType() {
 		// Ensure it has the correct type
 		AuthenticationResponse response = new AuthenticationResponse();
-		assertEquals(response.getType(), Message.AUTHENTICATION_RESPONSE);
+		assertEquals(Message.AUTHENTICATION_RESPONSE, response.getType());
 	}
 
 }

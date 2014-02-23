@@ -45,30 +45,30 @@ public class TestAuthenticationRequest {
 	}
 
 	@Test
-	public void testConstructor() {
+	public void testAuthenticationRequest() {
 		try {
 			new AuthenticationRequest(null, user, password);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertEquals(e.getMessage(), "Null input data null");
+			assertEquals("Null input data null", e.getMessage());
 		}
 		try {
 			new AuthenticationRequest(key, null, password);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertEquals(e.getMessage(), "Null input data " + Utils.toHex(key));
+			assertEquals("Null input data " + Utils.toHex(key), e.getMessage());
 		}
 		try {
 			new AuthenticationRequest(key, user, null);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertEquals(e.getMessage(), "Null input data " + Utils.toHex(key));
+			assertEquals("Null input data " + Utils.toHex(key), e.getMessage());
 		}
 		try {
 			new AuthenticationRequest(new byte[0], user, password);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertEquals(e.getMessage(), "Wrong key length");
+			assertEquals("Wrong key length", e.getMessage());
 		}
 	}
 
@@ -79,10 +79,10 @@ public class TestAuthenticationRequest {
 				password);
 		byte[] data = request1.pack().getData();
 		AuthenticationRequest request2 = AuthenticationRequest.unpack(data);
-		assertEquals(data[0], Message.AUTHENTICATION_REQUEST);
-		assertEquals(request1.getUser(), user);
-		assertEquals(request1.getPassword(), password);
-		assertArrayEquals(request1.getKey(), key);
+		assertEquals(Message.AUTHENTICATION_REQUEST, data[0]);
+		assertEquals(user, request1.getUser());
+		assertEquals(password, request1.getPassword());
+		assertArrayEquals(key, request1.getKey());
 		// Check that they are the same
 		assertEquals(request1.getUser(), request2.getUser());
 		assertEquals(request1.getPassword(), request2.getPassword());
@@ -111,15 +111,15 @@ public class TestAuthenticationRequest {
 			AuthenticationRequest.unpack(data);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertEquals(e.getMessage(), "Unexpected length");
+			assertEquals("Unexpected length", e.getMessage());
 		}
 		// Correct length should not throw
 		data = new byte[AuthenticationRequest.PACKET_SIZE];
 		AuthenticationRequest request = AuthenticationRequest.unpack(data);
-		assertArrayEquals(request.getKey(),
-				new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 });
-		assertEquals(request.getUser(), "");
-		assertEquals(request.getPassword(), "");
+		assertArrayEquals(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 },
+				request.getKey());
+		assertEquals("", request.getUser());
+		assertEquals("", request.getPassword());
 
 		// Try to unpack with too long lengths
 		try {
@@ -127,8 +127,8 @@ public class TestAuthenticationRequest {
 			AuthenticationRequest.unpack(data);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertEquals(e.getMessage(),
-					"Length sum too big " + Utils.toHex(data));
+			assertEquals("Length sum too big " + Utils.toHex(data),
+					e.getMessage());
 		}
 	}
 
@@ -137,6 +137,6 @@ public class TestAuthenticationRequest {
 		// Ensure it has the correct type
 		AuthenticationRequest request = new AuthenticationRequest(key, user,
 				password);
-		assertEquals(request.getType(), Message.AUTHENTICATION_REQUEST);
+		assertEquals(Message.AUTHENTICATION_REQUEST, request.getType());
 	}
 }

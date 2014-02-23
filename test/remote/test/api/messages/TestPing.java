@@ -33,9 +33,9 @@ public class TestPing {
 		Ping ping1 = new Ping(request);
 		byte[] data = ping1.pack().getData();
 		Ping ping2 = Ping.unpack(data);
-		assertEquals(data[0], Message.PING);
-		assertEquals(ping1.isRequest(), request);
-		assertEquals(ping1.getType(), Message.PING);
+		assertEquals(Message.PING, data[0]);
+		assertEquals(request, ping1.isRequest());
+		assertEquals(Message.PING, ping1.getType());
 		// Check that they are the same
 		assertEquals(ping1.isRequest(), ping2.isRequest());
 		assertEquals(ping1.getType(), ping2.getType());
@@ -49,25 +49,25 @@ public class TestPing {
 			Ping.unpack(data);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertEquals(e.getMessage(), "Unexpected length");
+			assertEquals("Unexpected length", e.getMessage());
 		}
 		// Correct length should not throw
 		data = new byte[Ping.PACKET_SIZE];
 		data[1] = (byte) (request ? 1 : 0);
 		Ping ping = Ping.unpack(data);
-		assertEquals(ping.isRequest(), request);
+		assertEquals(request, ping.isRequest());
 	}
 
 	@Test
-	public void testRequest() {
+	public void testIsRequest() {
 		Ping ping = new Ping(request);
-		assertEquals(ping.isRequest(), request);
+		assertEquals(request, ping.isRequest());
 	}
 
 	@Test
 	public void testGetType() {
 		// Ensure it has the correct type
 		Ping ping = new Ping(request);
-		assertEquals(ping.getType(), Message.PING);
+		assertEquals(Message.PING, ping.getType());
 	}
 }

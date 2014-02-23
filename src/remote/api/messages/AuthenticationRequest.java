@@ -65,7 +65,7 @@ public class AuthenticationRequest implements Message {
 		for (int i = 0; i < passwordLength; i++, pos++) {
 			data[pos] = passwordBytes[i];
 		}
-		return new Packet(data);
+		return new Packet(data, true);
 	}
 
 	public static AuthenticationRequest unpack(byte[] data)
