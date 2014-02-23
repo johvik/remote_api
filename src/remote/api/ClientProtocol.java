@@ -15,7 +15,7 @@ public class ClientProtocol extends Protocol {
 	private byte[] key;
 
 	public ClientProtocol(PublicKey publicKey, byte[] key, OutputStream output)
-			throws GeneralSecurityException {
+			throws GeneralSecurityException, ProtocolException {
 		super(publicKey, key, output);
 		this.key = key;
 	}

@@ -36,7 +36,10 @@ public abstract class Protocol {
 	protected Cipher blockDecryptCipher;
 	protected Cipher secureCipher;
 
-	private Protocol(OutputStream output) {
+	private Protocol(OutputStream output) throws ProtocolException {
+		if (output == null) {
+			throw new ProtocolException("Output cannot be null");
+		}
 		pingRequested = false;
 		pingTime = 0;
 		this.output = output;
@@ -50,9 +53,10 @@ public abstract class Protocol {
 	 * @param key
 	 * @param output
 	 * @throws GeneralSecurityException
+	 * @throws ProtocolException
 	 */
 	protected Protocol(PublicKey publicKey, byte[] key, OutputStream output)
-			throws GeneralSecurityException {
+			throws GeneralSecurityException, ProtocolException {
 		this(output);
 		if (key.length != Packet.BLOCK_KEY_SIZE) {
 			throw new InvalidKeyException("Key has wrong length");
@@ -70,9 +74,10 @@ public abstract class Protocol {
 	 * @param privateKey
 	 * @param output
 	 * @throws GeneralSecurityException
+	 * @throws ProtocolException
 	 */
 	protected Protocol(PrivateKey privateKey, OutputStream output)
-			throws GeneralSecurityException {
+			throws GeneralSecurityException, ProtocolException {
 		this(output);
 		blockDecryptCipher = null;
 		blockEncryptCipher = null;
@@ -103,16 +108,16 @@ public abstract class Protocol {
 	 * @throws PacketException
 	 * @throws IOException
 	 */
-	public void ping(PingCallback pingCallback) throws ProtocolException,
-			PacketException, IOException {
+	public synchronized void ping(PingCallback pingCallback)
+			throws ProtocolException, PacketException, IOException {
 		if (pingRequested) {
 			throw new ProtocolException("Ping already requested");
 		}
-		pingRequested = true;
-		this.pingCallback = pingCallback;
+		deliver(new Ping(true));
 		// Measure time
 		pingTime = System.nanoTime();
-		deliver(new Ping(true));
+		pingRequested = true;
+		this.pingCallback = pingCallback;
 	}
 
 	/**

@@ -24,8 +24,11 @@ public class ServerProtocol extends Protocol {
 
 	public ServerProtocol(AuthenticationCheck authentication,
 			PrivateKey privateKey, OutputStream output)
-			throws GeneralSecurityException {
+			throws GeneralSecurityException, ProtocolException {
 		super(privateKey, output);
+		if (authentication == null) {
+			throw new ProtocolException("Authentication check cannot be null");
+		}
 		this.authentication = authentication;
 	}
 
