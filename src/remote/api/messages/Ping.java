@@ -5,8 +5,7 @@ import remote.api.Message;
 import remote.api.Packet;
 
 public class Ping implements Message {
-	private static final int LENGTH = 2;
-	public static final int PACKET_SIZE = Packet.getPacketSize(LENGTH);
+	public static final int LENGTH = 2;
 	private boolean request;
 
 	public Ping(boolean request) {
@@ -15,14 +14,14 @@ public class Ping implements Message {
 
 	@Override
 	public Packet pack() throws PacketException {
-		byte[] data = new byte[PACKET_SIZE];
+		byte[] data = new byte[LENGTH];
 		data[0] = Message.PING;
 		data[1] = (byte) (request ? 1 : 0);
 		return new Packet(data);
 	}
 
 	public static Ping unpack(byte[] data) throws PacketException {
-		if (data.length != PACKET_SIZE) {
+		if (data.length != LENGTH) {
 			throw new PacketException("Unexpected length", data);
 		}
 		return new Ping(data[1] == 1);

@@ -28,7 +28,7 @@ public class TestAuthenticationResponse {
 			assertEquals("Unexpected length", e.getMessage());
 		}
 		// Correct length should not throw
-		data = new byte[AuthenticationResponse.PACKET_SIZE];
+		data = new byte[AuthenticationResponse.LENGTH];
 		AuthenticationResponse.unpack(data);
 	}
 

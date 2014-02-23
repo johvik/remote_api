@@ -12,6 +12,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import remote.api.Message;
+import remote.api.Packet;
 import remote.api.Utils;
 import remote.api.exceptions.PacketException;
 import remote.api.messages.AuthenticationRequest;
@@ -114,10 +115,9 @@ public class TestAuthenticationRequest {
 			assertEquals("Unexpected length", e.getMessage());
 		}
 		// Correct length should not throw
-		data = new byte[AuthenticationRequest.PACKET_SIZE];
+		data = new byte[AuthenticationRequest.LENGTH];
 		AuthenticationRequest request = AuthenticationRequest.unpack(data);
-		assertArrayEquals(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 },
-				request.getKey());
+		assertArrayEquals(new byte[Packet.BLOCK_KEY_SIZE], request.getKey());
 		assertEquals("", request.getUser());
 		assertEquals("", request.getPassword());
 

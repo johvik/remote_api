@@ -1,11 +1,16 @@
 package remote.test.api;
 
 import static org.junit.Assert.*;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.IsEqual.equalTo;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Random;
+import java.security.GeneralSecurityException;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.junit.Test;
 
@@ -27,40 +32,8 @@ public class TestPacket {
 		} catch (PacketException e) {
 			assertEquals("Data is null null", e.getMessage());
 		}
-		try {
-			// Does not match block size
-			new Packet(new byte[] { 0 });
-			fail("Did not throw an exception");
-		} catch (PacketException e) {
-			assertEquals("Invalid data length 00", e.getMessage());
-		}
-		// Does not match block size
-		// But a special length
-		new Packet(new byte[] { 0 }, true);
-		try {
-			// Does not match block size
-			// And NOT a special length
-			new Packet(new byte[] { 0 }, false);
-			fail("Did not throw an exception");
-		} catch (PacketException e) {
-			assertEquals("Invalid data length 00", e.getMessage());
-		}
-	}
-
-	@Test
-	public void testGetPacketSize() {
-		// Test some numbers
-		for (int i = 0; i < 200; i++) {
-			int size = Packet.getPacketSize(i);
-			assertThat(size, greaterThanOrEqualTo(i));
-		}
-		// Check some random numbers
-		Random random = new Random();
-		for (int i = 0; i < 100; i++) {
-			int num = random.nextInt(Integer.MAX_VALUE);
-			int size = Packet.getPacketSize(num);
-			assertThat(size, greaterThanOrEqualTo(num));
-		}
+		// Valid construction
+		new Packet(new byte[] { 0 });
 	}
 
 	@Test
@@ -81,18 +54,6 @@ public class TestPacket {
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
 			assertEquals("Message too long " + Utils.toHex(buffer),
-					e.getMessage());
-		}
-
-		// Test bad block size
-		length = 7;
-		buffer[0] = (byte) ((length >> 8) & 0xFF);
-		buffer[1] = (byte) (length & 0xFF);
-		try {
-			Packet.read(buffer);
-			fail("Did not throw an exception");
-		} catch (PacketException e) {
-			assertEquals("Bad message length " + Utils.toHex(buffer),
 					e.getMessage());
 		}
 
@@ -122,28 +83,60 @@ public class TestPacket {
 		reference[1] = 8; // Length
 		System.arraycopy(data, 0, reference, 2, data.length);
 
-		Packet packet = new Packet(data, false, true);
+		Packet packet = new Packet(data, true);
 		packet.write(null, output);
 		assertArrayEquals(reference, output.toByteArray());
 	}
 
 	@Test
-	public void testWriteRead() {
+	public void testBlockEncryption() throws GeneralSecurityException,
+			PacketException, IOException {
+		byte[] key = new byte[Packet.BLOCK_KEY_SIZE];
+		for (int i = 0; i < Packet.BLOCK_KEY_SIZE; i++) {
+			key[i] = (byte) (i + 1);
+		}
+		SecretKey secretKey = new SecretKeySpec(key, Packet.BLOCK_CIPHER);
+		Cipher blockDecryptCipher = Cipher.getInstance(Packet.BLOCK_CIPHER);
+		blockDecryptCipher.init(Cipher.DECRYPT_MODE, secretKey);
+		Cipher blockEncryptCipher = Cipher.getInstance(Packet.BLOCK_CIPHER);
+		blockEncryptCipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+		// Write the data
+		Ping ping = new Ping(true);
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		Packet packet = ping.pack();
+		byte[] oldData = packet.getData();
+		packet.write(blockEncryptCipher, output);
+
+		byte[] outData = output.toByteArray();
+		// Should not be the same after encrypting
+		assertThat(oldData, not(equalTo(packet.getData())));
+
+		// Read the data
+		packet = Packet.read(outData);
+		Message message = packet.decode(blockDecryptCipher);
+		assertArrayEquals(packet.getData(), oldData);
+		assertEquals(Ping.class, message.getClass());
+		assertEquals(true, ((Ping) message).isRequest());
+	}
+
+	@Test
+	public void testSecureEncryption() {
 		// TODO
 	}
 
 	@Test
 	public void testDecodeAuthenticationRequest() throws PacketException {
-		byte[] data = new byte[AuthenticationRequest.PACKET_SIZE];
+		byte[] data = new byte[AuthenticationRequest.LENGTH];
 		data[0] = Message.AUTHENTICATION_REQUEST;
-		Message message = new Packet(data, true).decode(null);
+		Message message = new Packet(data).decode(null);
 		assertEquals(AuthenticationRequest.class, message.getClass());
 		assertEquals(Message.AUTHENTICATION_REQUEST, message.getType());
 	}
 
 	@Test
 	public void testDecodeAuthenticationResponse() throws PacketException {
-		byte[] data = new byte[AuthenticationResponse.PACKET_SIZE];
+		byte[] data = new byte[AuthenticationResponse.LENGTH];
 		data[0] = Message.AUTHENTICATION_RESPONSE;
 		Message message = new Packet(data).decode(null);
 		assertEquals(AuthenticationResponse.class, message.getClass());
@@ -152,7 +145,7 @@ public class TestPacket {
 
 	@Test
 	public void testDecodePing() throws PacketException {
-		byte[] data = new byte[Ping.PACKET_SIZE];
+		byte[] data = new byte[Ping.LENGTH];
 		data[0] = Message.PING;
 		Message message = new Packet(data).decode(null);
 		assertEquals(Ping.class, message.getClass());

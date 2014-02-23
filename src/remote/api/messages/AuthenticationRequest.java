@@ -5,8 +5,7 @@ import remote.api.Message;
 import remote.api.Packet;
 
 public class AuthenticationRequest implements Message {
-	private static final int LENGTH = 245; // 245 max size for 2048 bit RSA key
-	public static final int PACKET_SIZE = LENGTH;
+	public static final int LENGTH = 245; // 245 max size for 2048 bit RSA key
 	private byte[] key;
 	private String user;
 	private String password;
@@ -34,7 +33,7 @@ public class AuthenticationRequest implements Message {
 
 	@Override
 	public Packet pack() throws PacketException {
-		byte[] data = new byte[PACKET_SIZE];
+		byte[] data = new byte[LENGTH];
 
 		int pos = 0;
 		data[pos++] = Message.AUTHENTICATION_REQUEST;
@@ -47,7 +46,7 @@ public class AuthenticationRequest implements Message {
 		int userLength = userBytes.length;
 		int passwordLength = passwordBytes.length;
 		// Check length
-		if (calculateSize(userLength, passwordLength) > PACKET_SIZE) {
+		if (calculateSize(userLength, passwordLength) > LENGTH) {
 			throw new PacketException("Length sum too big", data);
 		}
 
@@ -68,7 +67,7 @@ public class AuthenticationRequest implements Message {
 
 	public static AuthenticationRequest unpack(byte[] data)
 			throws PacketException {
-		if (data.length != PACKET_SIZE) {
+		if (data.length != LENGTH) {
 			throw new PacketException("Unexpected length", data);
 		}
 
@@ -83,7 +82,7 @@ public class AuthenticationRequest implements Message {
 		// One byte with password length
 		int passwordLength = data[pos++] & 0xFF;
 		// Check length
-		if (calculateSize(userLength, passwordLength) > PACKET_SIZE) {
+		if (calculateSize(userLength, passwordLength) > LENGTH) {
 			throw new PacketException("Length sum too big", data);
 		}
 

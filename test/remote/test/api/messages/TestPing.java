@@ -52,7 +52,7 @@ public class TestPing {
 			assertEquals("Unexpected length", e.getMessage());
 		}
 		// Correct length should not throw
-		data = new byte[Ping.PACKET_SIZE];
+		data = new byte[Ping.LENGTH];
 		data[1] = (byte) (request ? 1 : 0);
 		Ping ping = Ping.unpack(data);
 		assertEquals(request, ping.isRequest());

@@ -5,19 +5,18 @@ import remote.api.Message;
 import remote.api.Packet;
 
 public class AuthenticationResponse implements Message {
-	private static final int LENGTH = 1;
-	public static final int PACKET_SIZE = Packet.getPacketSize(LENGTH);
+	public static final int LENGTH = 1;
 
 	@Override
 	public Packet pack() throws PacketException {
-		byte[] data = new byte[PACKET_SIZE];
+		byte[] data = new byte[LENGTH];
 		data[0] = Message.AUTHENTICATION_RESPONSE;
 		return new Packet(data);
 	}
 
 	public static AuthenticationResponse unpack(byte[] data)
 			throws PacketException {
-		if (data.length != PACKET_SIZE) {
+		if (data.length != LENGTH) {
 			throw new PacketException("Unexpected length", data);
 		}
 		return new AuthenticationResponse();
