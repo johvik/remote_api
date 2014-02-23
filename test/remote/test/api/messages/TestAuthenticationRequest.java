@@ -107,13 +107,22 @@ public class TestAuthenticationRequest {
 
 	@Test
 	public void testUnpack() throws PacketException {
-		// Check that it throws when it has wrong length
+		// Check that it throws when it is too short
 		byte[] data = new byte[0];
 		try {
 			AuthenticationRequest.unpack(data);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
 			assertEquals("Unexpected length", e.getMessage());
+		}
+		// Check that it throws when it is too long
+		data = new byte[AuthenticationRequest.MAX_LENGTH + 1];
+		try {
+			AuthenticationRequest.unpack(data);
+			fail("Did not throw an exception");
+		} catch (PacketException e) {
+			assertEquals("Unexpected length " + Utils.toHex(data),
+					e.getMessage());
 		}
 		// Correct length should not throw
 		data = new byte[AuthenticationRequest.MAX_LENGTH];
