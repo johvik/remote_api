@@ -5,7 +5,8 @@ import remote.api.Message;
 import remote.api.Packet;
 
 public class AuthenticationRequest implements Message {
-	public static final int LENGTH = 245; // 245 max size for 2048 bit RSA key
+	private static final int MIN_LENGTH = calculateSize(0, 0);
+	public static final int MAX_LENGTH = 245; // max size for 2048 bit RSA key
 	private byte[] key;
 	private String user;
 	private String password;
@@ -33,22 +34,22 @@ public class AuthenticationRequest implements Message {
 
 	@Override
 	public Packet pack() throws PacketException {
-		byte[] data = new byte[LENGTH];
+		byte[] userBytes = user.getBytes();
+		byte[] passwordBytes = password.getBytes();
+		int userLength = userBytes.length;
+		int passwordLength = passwordBytes.length;
+		// Check length
+		int size = calculateSize(userLength, passwordLength);
+		if (size > MAX_LENGTH) {
+			throw new PacketException("Length sum too big " + size, null);
+		}
+		byte[] data = new byte[size];
 
 		int pos = 0;
 		data[pos++] = Message.AUTHENTICATION_REQUEST;
 		// Write key
 		System.arraycopy(key, 0, data, pos, Packet.BLOCK_KEY_SIZE);
 		pos += Packet.BLOCK_KEY_SIZE;
-
-		byte[] userBytes = user.getBytes();
-		byte[] passwordBytes = password.getBytes();
-		int userLength = userBytes.length;
-		int passwordLength = passwordBytes.length;
-		// Check length
-		if (calculateSize(userLength, passwordLength) > LENGTH) {
-			throw new PacketException("Length sum too big", data);
-		}
 
 		// Write lengths
 		data[pos++] = (byte) (userLength & 0xFF);
@@ -62,12 +63,13 @@ public class AuthenticationRequest implements Message {
 		System.arraycopy(passwordBytes, 0, data, pos, passwordLength);
 		pos += passwordLength;
 
-		return new Packet(data, true);
+		return new Packet(data);
 	}
 
 	public static AuthenticationRequest unpack(byte[] data)
 			throws PacketException {
-		if (data.length != LENGTH) {
+		int length = data.length;
+		if (length < MIN_LENGTH || length > MAX_LENGTH) {
 			throw new PacketException("Unexpected length", data);
 		}
 
@@ -82,7 +84,7 @@ public class AuthenticationRequest implements Message {
 		// One byte with password length
 		int passwordLength = data[pos++] & 0xFF;
 		// Check length
-		if (calculateSize(userLength, passwordLength) > LENGTH) {
+		if (calculateSize(userLength, passwordLength) > MAX_LENGTH) {
 			throw new PacketException("Length sum too big", data);
 		}
 

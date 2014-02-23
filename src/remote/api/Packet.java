@@ -13,6 +13,7 @@ import remote.api.messages.Ping;
 
 public class Packet {
 	public static final String SECURE_ALGORITHM = "RSA";
+	public static final int SECURE_KEY_SIZE = 2048;
 	public static final String BLOCK_CIPHER = "Blowfish";
 	public static final int BLOCK_KEY_SIZE = 8;
 
@@ -90,6 +91,15 @@ public class Packet {
 		return null;
 	}
 
+	/**
+	 * Writes the packet data to the output including size bytes and encrypts if
+	 * needed.
+	 * 
+	 * @param cipher
+	 * @param output
+	 * @throws PacketException
+	 * @throws IOException
+	 */
 	public void write(Cipher cipher, OutputStream output)
 			throws PacketException, IOException {
 		encrypt(cipher);
@@ -99,6 +109,13 @@ public class Packet {
 		output.write(data);
 	}
 
+	/**
+	 * Transforms the packet to a message and decrypts if needed.
+	 * 
+	 * @param cipher
+	 * @return The transformed message
+	 * @throws PacketException
+	 */
 	public Message decode(Cipher cipher) throws PacketException {
 		decrypt(cipher);
 		byte type = data[0];

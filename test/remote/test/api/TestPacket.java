@@ -6,7 +6,13 @@ import static org.hamcrest.core.IsEqual.equalTo;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.RSAPrivateKeySpec;
+import java.security.spec.RSAPublicKeySpec;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -121,13 +127,57 @@ public class TestPacket {
 	}
 
 	@Test
-	public void testSecureEncryption() {
-		// TODO
+	public void testSecureEncryption() throws GeneralSecurityException,
+			PacketException, IOException {
+		// Set keys
+		KeyFactory keyFactory = KeyFactory.getInstance(Packet.SECURE_ALGORITHM);
+		PrivateKey privateKey = keyFactory
+				.generatePrivate(new RSAPrivateKeySpec(
+						new BigInteger(
+								"20134254310111876361202866314108968204981698707023098174509848016538361340068154080221226903152716741691177544895582833095778498831876368737541275589258904991959335097305652778429500233652186048642106165566875887303812745872719282270778593126721035827645927529200997010332320430882912795400722363957922171201073586391455742845187637472867650716140231631789758124448338078779761585213985819898061474683944417595284592829909793640245683782387335764464247466037661435457674665761288297726118193971702941050422552088863500561512935220236008069590989430679869890388141102277549511231670670042034121251923449954590575254103"),
+						new BigInteger(
+								"8853148701565435419698536682693411916367206488552796437048541896830583620500541619691702331021435804893642725655065237977341791672462598500232341099770722876440669537803942751667041644157575802427934958468356233035292611773717923572898160094797138859655960657475702745727550511264673360469087940585859029364984095754560027236168774026732743313514867528520286228996392525537511686947441343349492286213543086953611056820752700243661783388280121987066338534742106447852719549747575472975528705262124836175510000154934521641303333163595350884568813004235721286039700123980275751721618293657791629183976790611356694462273")));
+		PublicKey publicKey = keyFactory
+				.generatePublic(new RSAPublicKeySpec(
+						new BigInteger(
+								"20134254310111876361202866314108968204981698707023098174509848016538361340068154080221226903152716741691177544895582833095778498831876368737541275589258904991959335097305652778429500233652186048642106165566875887303812745872719282270778593126721035827645927529200997010332320430882912795400722363957922171201073586391455742845187637472867650716140231631789758124448338078779761585213985819898061474683944417595284592829909793640245683782387335764464247466037661435457674665761288297726118193971702941050422552088863500561512935220236008069590989430679869890388141102277549511231670670042034121251923449954590575254103"),
+						new BigInteger("65537")));
+		Cipher secureDecrypt = Cipher.getInstance(Packet.SECURE_ALGORITHM);
+		secureDecrypt.init(Cipher.DECRYPT_MODE, privateKey);
+		Cipher secureEncrypt = Cipher.getInstance(Packet.SECURE_ALGORITHM);
+		secureEncrypt.init(Cipher.ENCRYPT_MODE, publicKey);
+
+		// Write the data
+		byte[] key = new byte[Packet.BLOCK_KEY_SIZE];
+		for (int i = 0; i < Packet.BLOCK_KEY_SIZE; i++) {
+			key[i] = (byte) (i + 1);
+		}
+		String user = "user";
+		String password = "password";
+		AuthenticationRequest request = new AuthenticationRequest(key, user,
+				password);
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		Packet packet = request.pack();
+		byte[] oldData = packet.getData();
+		packet.write(secureEncrypt, output);
+
+		byte[] outData = output.toByteArray();
+		// Should not be the same after encrypting
+		assertThat(oldData, not(equalTo(packet.getData())));
+
+		// Read the data
+		packet = Packet.read(outData);
+		Message message = packet.decode(secureDecrypt);
+		assertArrayEquals(packet.getData(), oldData);
+		assertEquals(AuthenticationRequest.class, message.getClass());
+		assertArrayEquals(key, ((AuthenticationRequest) message).getKey());
+		assertEquals(user, ((AuthenticationRequest) message).getUser());
+		assertEquals(password, ((AuthenticationRequest) message).getPassword());
 	}
 
 	@Test
 	public void testDecodeAuthenticationRequest() throws PacketException {
-		byte[] data = new byte[AuthenticationRequest.LENGTH];
+		byte[] data = new byte[AuthenticationRequest.MAX_LENGTH];
 		data[0] = Message.AUTHENTICATION_REQUEST;
 		Message message = new Packet(data).decode(null);
 		assertEquals(AuthenticationRequest.class, message.getClass());

@@ -42,7 +42,7 @@ public class TestAuthenticationRequest {
 								"also the password is a lot longer than the other tests: "
 										+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa "
 										+ "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb "
-										+ "ccccccccccccccccccccccccccccccccccccccccc" } });
+										+ "cccccccccccccccccccccccccccccccccccccccc" } });
 	}
 
 	@Test
@@ -115,7 +115,7 @@ public class TestAuthenticationRequest {
 			assertEquals("Unexpected length", e.getMessage());
 		}
 		// Correct length should not throw
-		data = new byte[AuthenticationRequest.LENGTH];
+		data = new byte[AuthenticationRequest.MAX_LENGTH];
 		AuthenticationRequest request = AuthenticationRequest.unpack(data);
 		assertArrayEquals(new byte[Packet.BLOCK_KEY_SIZE], request.getKey());
 		assertEquals("", request.getUser());
