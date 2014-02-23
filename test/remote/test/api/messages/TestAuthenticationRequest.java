@@ -37,12 +37,13 @@ public class TestAuthenticationRequest {
 						{ new byte[] { -1, -2, -3, -4, -5, -6, -7, -8 },
 								"USER", "PASSWORD" },
 						{
+								// Exactly MAX_LENGTH
 								new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 },
 								"a longer user than the other ones",
 								"also the password is a lot longer than the other tests: "
 										+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa "
 										+ "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb "
-										+ "cccccccccccccccccccccccccccccccccccccccc" } });
+										+ "ccccccccccccccccccccccccccccccccccccccccc" } });
 	}
 
 	@Test
