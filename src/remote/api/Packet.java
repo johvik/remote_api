@@ -1,10 +1,7 @@
 package remote.api;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.BufferUnderflowException;
-import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 
 import javax.crypto.Cipher;
@@ -47,6 +44,19 @@ public class Packet {
 		this(data, specialLength, false);
 	}
 
+	public Packet(byte[] data, boolean specialLength, boolean encrypted)
+			throws PacketException {
+		if (data == null) {
+			throw new PacketException("Data is null", data);
+		} else if ((!specialLength || encrypted)
+				&& (data.length % BLOCK_SIZE) != 0) {
+			// Only non encrypted packets may have a special length
+			throw new PacketException("Invalid data length", data);
+		}
+		this.data = data;
+		this.encrypted = encrypted;
+	}
+
 	/**
 	 * Calculates the expected packet size given a length.
 	 * 
@@ -60,19 +70,6 @@ public class Packet {
 			padding = BLOCK_SIZE - padding;
 		}
 		return length + padding;
-	}
-
-	private Packet(byte[] data, boolean specialLength, boolean encrypted)
-			throws PacketException {
-		if (data == null) {
-			throw new PacketException("Data is null", data);
-		} else if ((!specialLength || encrypted)
-				&& (data.length % BLOCK_SIZE) != 0) {
-			// Only non encrypted packets may have a special length
-			throw new PacketException("Invalid data length", data);
-		}
-		this.data = data;
-		this.encrypted = encrypted;
 	}
 
 	private void decrypt(Cipher cipher) throws PacketException {
@@ -99,32 +96,37 @@ public class Packet {
 		}
 	}
 
-	public static Packet read(ByteBuffer buffer) throws PacketException {
-		buffer.mark();
-		try {
-			short length = buffer.getShort();
-			if (length > Message.MAX_LENGTH) {
-				throw new PacketException("Message too long", buffer.array());
-			} else if (length % BLOCK_SIZE != 0) {
-				throw new PacketException("Bad message length", buffer.array());
-			} else if (buffer.remaining() >= length) {
-				byte[] data = new byte[getPacketSize(length)];
-				buffer.get(data);
-				return new Packet(data, false, true);
-			}
-		} catch (BufferUnderflowException e) {
-			e.printStackTrace();
+	/**
+	 * Attempts to read a packet from the data.
+	 * 
+	 * @param data
+	 * @return A packet or null if not enough data.
+	 * @throws PacketException
+	 */
+	public static Packet read(byte[] data) throws PacketException {
+		int length = ((data[0] & 0xFF) << 8) | (data[1] & 0xFF);
+		if (length > Message.MAX_LENGTH) {
+			throw new PacketException("Message too long", data);
+		} else if (length % BLOCK_SIZE != 0) {
+			throw new PacketException("Bad message length", data);
+		} else if (data.length >= length + 2) {
+			// Copy data to new array
+			byte[] packetData = new byte[length];
+			System.arraycopy(data, 2, packetData, 0, length);
+
+			return new Packet(packetData, false, true);
 		}
-		buffer.reset();
+		// Not enough data available
 		return null;
 	}
 
 	public void write(Cipher cipher, OutputStream output)
 			throws PacketException, IOException {
 		encrypt(cipher);
-		DataOutputStream out = new DataOutputStream(output);
-		out.writeShort(data.length);
-		out.write(data);
+		int length = data.length;
+		output.write((length >> 8) & 0xFF);
+		output.write(length & 0xFF);
+		output.write(data);
 	}
 
 	public Message decode(Cipher cipher) throws PacketException {

@@ -1,5 +1,6 @@
 package remote.api;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
@@ -30,7 +31,7 @@ public abstract class Protocol {
 	private boolean pingRequested;
 	private long pingTime;
 	private PingCallback pingCallback;
-	private OutputStream output;
+	private DataOutputStream output;
 	protected boolean authenticated;
 	protected Cipher blockEncryptCipher;
 	protected Cipher blockDecryptCipher;
@@ -39,7 +40,7 @@ public abstract class Protocol {
 	private Protocol(OutputStream output) {
 		pingRequested = false;
 		pingTime = 0;
-		this.output = output;
+		this.output = new DataOutputStream(output);
 		authenticated = false;
 	}
 

@@ -3,6 +3,9 @@ package remote.api;
 import remote.api.exceptions.PacketException;
 
 public interface Message {
+	// Number of type codes used.
+	public static final int USED_CODES = 3;
+
 	public static final byte AUTHENTICATION_REQUEST = 0;
 	public static final byte AUTHENTICATION_RESPONSE = 1;
 	public static final byte PING = 2;

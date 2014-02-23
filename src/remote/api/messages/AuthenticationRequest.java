@@ -39,9 +39,8 @@ public class AuthenticationRequest implements Message {
 		int pos = 0;
 		data[pos++] = Message.AUTHENTICATION_REQUEST;
 		// Write key
-		for (int i = 0; i < Packet.BLOCK_KEY_SIZE; i++, pos++) {
-			data[pos] = key[i];
-		}
+		System.arraycopy(key, 0, data, pos, Packet.BLOCK_KEY_SIZE);
+		pos += Packet.BLOCK_KEY_SIZE;
 
 		byte[] userBytes = user.getBytes();
 		byte[] passwordBytes = password.getBytes();
@@ -57,14 +56,13 @@ public class AuthenticationRequest implements Message {
 		data[pos++] = (byte) (passwordLength & 0xFF);
 
 		// Write user
-		for (int i = 0; i < userLength; i++, pos++) {
-			data[pos] = userBytes[i];
-		}
+		System.arraycopy(userBytes, 0, data, pos, userLength);
+		pos += userLength;
 
 		// Write password
-		for (int i = 0; i < passwordLength; i++, pos++) {
-			data[pos] = passwordBytes[i];
-		}
+		System.arraycopy(passwordBytes, 0, data, pos, passwordLength);
+		pos += passwordLength;
+
 		return new Packet(data, true);
 	}
 
@@ -77,9 +75,8 @@ public class AuthenticationRequest implements Message {
 		byte[] key = new byte[Packet.BLOCK_KEY_SIZE];
 		int pos = 1; // skip type byte
 		// First BLOCK_KEY_SIZE contains the key
-		for (int i = 0; i < Packet.BLOCK_KEY_SIZE; i++, pos++) {
-			key[i] = data[pos];
-		}
+		System.arraycopy(data, pos, key, 0, Packet.BLOCK_KEY_SIZE);
+		pos += Packet.BLOCK_KEY_SIZE;
 
 		// One byte with user length
 		int userLength = data[pos++] & 0xFF;
@@ -93,15 +90,13 @@ public class AuthenticationRequest implements Message {
 		// Rest is user + password bytes
 		byte[] user = new byte[userLength];
 		// Read user
-		for (int i = 0; i < userLength; i++, pos++) {
-			user[i] = data[pos];
-		}
+		System.arraycopy(data, pos, user, 0, userLength);
+		pos += userLength;
 
 		byte[] password = new byte[passwordLength];
 		// Read password
-		for (int i = 0; i < passwordLength; i++, pos++) {
-			password[i] = data[pos];
-		}
+		System.arraycopy(data, pos, password, 0, passwordLength);
+		pos += passwordLength;
 
 		String userString = new String(user);
 		String passwordString = new String(password);
