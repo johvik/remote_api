@@ -16,6 +16,7 @@ import remote.api.Packet;
 import remote.api.Utils;
 import remote.api.exceptions.PacketException;
 import remote.api.messages.AuthenticationRequest;
+import remote.test.api.Misc;
 
 @RunWith(Parameterized.class)
 public class TestAuthenticationRequest {
@@ -33,12 +34,14 @@ public class TestAuthenticationRequest {
 	public static Collection<Object[]> data() {
 		return Arrays
 				.asList(new Object[][] {
-						{ new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }, "", "" },
-						{ new byte[] { -1, -2, -3, -4, -5, -6, -7, -8 },
-								"USER", "PASSWORD" },
+						{ Misc.getSequence(1, Packet.BLOCK_KEY_SIZE), "", "" },
+						{
+								Misc.getSequence(-Packet.BLOCK_KEY_SIZE,
+										Packet.BLOCK_KEY_SIZE), "USER",
+								"PASSWORD" },
 						{
 								// Exactly MAX_LENGTH
-								new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 },
+								new byte[Packet.BLOCK_KEY_SIZE],
 								"a longer user than the other ones",
 								"also the password is a lot longer than the other tests: "
 										+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa "

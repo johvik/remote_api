@@ -34,10 +34,7 @@ public class TestPacket {
 
 	@Test
 	public void testRead() throws PacketException {
-		byte[] reference = new byte[8];
-		for (int i = 0; i < reference.length; i++) {
-			reference[i] = (byte) (i + 1);
-		}
+		byte[] reference = Misc.getSequence(1, 8);
 		byte[] buffer = new byte[10];
 		System.arraycopy(reference, 0, buffer, 2, reference.length);
 
@@ -71,10 +68,7 @@ public class TestPacket {
 	@Test
 	public void testWrite() throws PacketException, IOException {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		byte[] data = new byte[8];
-		for (int i = 0; i < data.length; i++) {
-			data[i] = (byte) (i + 1);
-		}
+		byte[] data = Misc.getSequence(1, 8);
 		byte[] reference = new byte[10];
 		reference[1] = 8; // Length
 		System.arraycopy(data, 0, reference, 2, data.length);
@@ -92,7 +86,7 @@ public class TestPacket {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		Packet packet = ping.pack();
 		byte[] oldData = packet.getData();
-		packet.write(Keys.blockEncryptCipher, output);
+		packet.write(Misc.blockEncryptCipher, output);
 
 		byte[] outData = output.toByteArray();
 		// Should not be the same after encrypting
@@ -100,7 +94,7 @@ public class TestPacket {
 
 		// Read the data
 		packet = Packet.read(outData);
-		Message message = packet.decode(Keys.blockDecryptCipher);
+		Message message = packet.decode(Misc.blockDecryptCipher);
 		assertArrayEquals(packet.getData(), oldData);
 		assertEquals(Ping.class, message.getClass());
 		assertEquals(true, ((Ping) message).isRequest());
@@ -110,10 +104,7 @@ public class TestPacket {
 	public void testSecureEncryption() throws GeneralSecurityException,
 			PacketException, IOException {
 		// Write the data
-		byte[] key = new byte[Packet.BLOCK_KEY_SIZE];
-		for (int i = 0; i < Packet.BLOCK_KEY_SIZE; i++) {
-			key[i] = (byte) (i + 1);
-		}
+		byte[] key = Misc.getSequence(1, Packet.BLOCK_KEY_SIZE);
 		String user = "user";
 		String password = "password";
 		AuthenticationRequest request = new AuthenticationRequest(key, user,
@@ -121,7 +112,7 @@ public class TestPacket {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		Packet packet = request.pack();
 		byte[] oldData = packet.getData();
-		packet.write(Keys.secureEncrypt, output);
+		packet.write(Misc.secureEncrypt, output);
 
 		byte[] outData = output.toByteArray();
 		// Should not be the same after encrypting
@@ -129,7 +120,7 @@ public class TestPacket {
 
 		// Read the data
 		packet = Packet.read(outData);
-		Message message = packet.decode(Keys.secureDecrypt);
+		Message message = packet.decode(Misc.secureDecrypt);
 		assertArrayEquals(packet.getData(), oldData);
 		assertEquals(AuthenticationRequest.class, message.getClass());
 		assertArrayEquals(key, ((AuthenticationRequest) message).getKey());

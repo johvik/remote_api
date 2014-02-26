@@ -47,7 +47,7 @@ public class TestServerProtocol {
 			ProtocolException {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
-			new ServerProtocol(null, Keys.privateKey, output);
+			new ServerProtocol(null, Misc.privateKey, output);
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			assertEquals("Authentication check cannot be null", e.getMessage());
@@ -59,7 +59,7 @@ public class TestServerProtocol {
 			// Skip checking this one
 		}
 		try {
-			new ServerProtocol(authentication, Keys.privateKey, null);
+			new ServerProtocol(authentication, Misc.privateKey, null);
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			assertEquals("Output cannot be null", e.getMessage());
@@ -70,7 +70,7 @@ public class TestServerProtocol {
 	public void testPing() throws GeneralSecurityException, ProtocolException,
 			PacketException, IOException {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		ServerProtocol sp = new ServerProtocol(authentication, Keys.privateKey,
+		ServerProtocol sp = new ServerProtocol(authentication, Misc.privateKey,
 				output);
 		// Authenticate
 		sp.process(new AuthenticationRequest(new byte[Packet.BLOCK_KEY_SIZE],
@@ -120,7 +120,7 @@ public class TestServerProtocol {
 	public void testNotAuthenticated() throws GeneralSecurityException,
 			ProtocolException, PacketException, IOException {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		ServerProtocol sp = new ServerProtocol(authentication, Keys.privateKey,
+		ServerProtocol sp = new ServerProtocol(authentication, Misc.privateKey,
 				output);
 		// Not authenticated
 		try {
@@ -136,7 +136,7 @@ public class TestServerProtocol {
 			ProtocolException, PacketException, IOException {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ServerProtocol sp = new ServerProtocol(authenticationFail,
-				Keys.privateKey, output);
+				Misc.privateKey, output);
 		// Fail to authenticate
 		try {
 			sp.process(new AuthenticationRequest(
@@ -156,7 +156,7 @@ public class TestServerProtocol {
 		}
 
 		// Try to authenticate twice
-		sp = new ServerProtocol(authentication, Keys.privateKey, output);
+		sp = new ServerProtocol(authentication, Misc.privateKey, output);
 		sp.process(new AuthenticationRequest(new byte[Packet.BLOCK_KEY_SIZE],
 				"", "").pack());
 		// Not allowed to do it twice

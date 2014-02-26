@@ -14,7 +14,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import remote.api.Packet;
 
-public class Keys {
+public class Misc {
 	public static PrivateKey privateKey;
 	public static PublicKey publicKey;
 	public static SecretKey secretKey;
@@ -44,16 +44,32 @@ public class Keys {
 			secretKey = new SecretKeySpec(key, Packet.BLOCK_CIPHER);
 
 			blockDecryptCipher = Cipher.getInstance(Packet.BLOCK_CIPHER);
-			blockDecryptCipher.init(Cipher.DECRYPT_MODE, Keys.secretKey);
+			blockDecryptCipher.init(Cipher.DECRYPT_MODE, Misc.secretKey);
 			blockEncryptCipher = Cipher.getInstance(Packet.BLOCK_CIPHER);
-			blockEncryptCipher.init(Cipher.ENCRYPT_MODE, Keys.secretKey);
+			blockEncryptCipher.init(Cipher.ENCRYPT_MODE, Misc.secretKey);
 
 			secureDecrypt = Cipher.getInstance(Packet.SECURE_ALGORITHM);
-			secureDecrypt.init(Cipher.DECRYPT_MODE, Keys.privateKey);
+			secureDecrypt.init(Cipher.DECRYPT_MODE, Misc.privateKey);
 			secureEncrypt = Cipher.getInstance(Packet.SECURE_ALGORITHM);
-			secureEncrypt.init(Cipher.ENCRYPT_MODE, Keys.publicKey);
+			secureEncrypt.init(Cipher.ENCRYPT_MODE, Misc.publicKey);
 		} catch (GeneralSecurityException e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Generates a sequence starting at start and each element is increased by
+	 * one. Note that it will wrap and start over at 0 when it wraps.
+	 * 
+	 * @param start
+	 * @param length
+	 * @return A byte array of size equal to length.
+	 */
+	public static byte[] getSequence(int start, int length) {
+		byte[] sequence = new byte[length];
+		for (int i = 0; i < length; i++) {
+			sequence[i] = (byte) (i + start);
+		}
+		return sequence;
 	}
 }
