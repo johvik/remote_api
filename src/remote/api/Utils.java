@@ -1,5 +1,7 @@
 package remote.api;
 
+import java.util.Random;
+
 public class Utils {
 	public static String toHex(byte[] data) {
 		if (data == null) {
@@ -15,5 +17,13 @@ public class Utils {
 			sb.append(' ');
 		}
 		return sb.toString().toUpperCase().trim();
+	}
+
+	public static byte[] generateRandom(int length) {
+		// Generate a random key
+		Random random = new Random();
+		byte[] key = new byte[length];
+		random.nextBytes(key);
+		return key;
 	}
 }

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
-import java.util.Random;
 
 import remote.api.exceptions.AuthenticationException;
 import remote.api.exceptions.PacketException;
@@ -18,14 +17,6 @@ public class ClientProtocol extends Protocol {
 			throws GeneralSecurityException, ProtocolException {
 		super(publicKey, key, output);
 		this.key = key;
-	}
-
-	public static byte[] generateKey() {
-		// Generate a random key
-		Random random = new Random();
-		byte[] key = new byte[Packet.BLOCK_KEY_SIZE];
-		random.nextBytes(key);
-		return key;
 	}
 
 	public void authenticate(String user, String password)
