@@ -191,10 +191,7 @@ public class TestPacket {
 	@Test
 	public void testGetData() throws PacketException {
 		int length = 8;
-		byte[] data = new byte[length];
-		for (int i = 0; i < length; i++) {
-			data[i] = (byte) (i + 1);
-		}
+		byte[] data = Misc.getSequence(1, length);
 		Packet packet = new Packet(data);
 		assertArrayEquals(data, packet.getData());
 	}
@@ -202,10 +199,7 @@ public class TestPacket {
 	@Test
 	public void testToString() throws PacketException {
 		int length = 8;
-		byte[] data = new byte[length];
-		for (int i = 0; i < length; i++) {
-			data[i] = (byte) (i + 1);
-		}
+		byte[] data = Misc.getSequence(1, length);
 		Packet packet = new Packet(data);
 		assertEquals(Utils.toHex(data), packet.toString());
 	}
