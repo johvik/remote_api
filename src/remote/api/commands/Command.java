@@ -1,5 +1,7 @@
 package remote.api.commands;
 
+import remote.api.exceptions.CommandException;
+
 public abstract class Command {
 	// Number of type codes used.
 	public static final int USED_CODES = 1;
@@ -11,8 +13,9 @@ public abstract class Command {
 	 * for the packet type.
 	 * 
 	 * @param data
+	 * @throws CommandException
 	 */
-	public abstract void write(byte[] data);
+	public abstract void write(byte[] data) throws CommandException;
 
 	/**
 	 * Gets the type byte of the command. This has to be unique across commands.

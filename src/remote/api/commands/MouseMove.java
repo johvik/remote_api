@@ -14,7 +14,10 @@ public class MouseMove extends Command {
 	}
 
 	@Override
-	public void write(byte[] data) {
+	public void write(byte[] data) throws CommandException {
+		if (data.length != LENGTH + 1) {
+			throw new CommandException("Unexpected length", data);
+		}
 		data[1] = MOUSE_MOVE;
 		data[2] = (byte) ((dx >> 8) & 0xFF);
 		data[3] = (byte) (dx & 0xFF);

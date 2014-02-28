@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import remote.api.Utils;
 import remote.api.commands.MouseMove;
 import remote.api.exceptions.CommandException;
 
@@ -50,6 +51,42 @@ public class TestMouseMove {
 		assertEquals(mm.getType(), read.getType());
 		assertEquals(mm.getDx(), read.getDx());
 		assertEquals(mm.getDy(), read.getDy());
+	}
+
+	@Test
+	public void testWrite() {
+		byte[] data = new byte[MouseMove.LENGTH];
+		try {
+			mm.write(data);
+			fail("Did not throw an exception");
+		} catch (CommandException e) {
+			assertEquals("Unexpected length " + Utils.toHex(data),
+					e.getMessage());
+		}
+		try {
+			mm.write(new byte[0]);
+			fail("Did not throw an exception");
+		} catch (CommandException e) {
+			assertEquals("Unexpected length", e.getMessage());
+		}
+	}
+
+	@Test
+	public void testRead() {
+		byte[] data = new byte[MouseMove.LENGTH];
+		try {
+			MouseMove.read(data);
+			fail("Did not throw an exception");
+		} catch (CommandException e) {
+			assertEquals("Unexpected length " + Utils.toHex(data),
+					e.getMessage());
+		}
+		try {
+			MouseMove.read(new byte[0]);
+			fail("Did not throw an exception");
+		} catch (CommandException e) {
+			assertEquals("Unexpected length", e.getMessage());
+		}
 	}
 
 	@Test
