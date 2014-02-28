@@ -33,7 +33,6 @@ public class TestUtils {
 		byte[] data2 = Utils.generateRandom(length);
 		// If tried up to 100 times it is highly unlikely and must be a fault
 		for (int i = 0; equalTo(data1).matches(data2) && i < 100; i++) {
-			data1 = Utils.generateRandom(length);
 			data2 = Utils.generateRandom(length);
 		}
 		assertEquals(length, data1.length);
