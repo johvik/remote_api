@@ -3,13 +3,13 @@ package remote.api.messages;
 import remote.api.exceptions.PacketException;
 import remote.api.Packet;
 
-public class AuthenticationResponse implements Message {
+public class AuthenticationResponse extends Message {
 	public static final int LENGTH = 1;
 
 	@Override
 	public Packet pack() throws PacketException {
 		byte[] data = new byte[LENGTH];
-		data[0] = Message.AUTHENTICATION_RESPONSE;
+		data[0] = AUTHENTICATION_RESPONSE;
 		return new Packet(data);
 	}
 
@@ -23,6 +23,6 @@ public class AuthenticationResponse implements Message {
 
 	@Override
 	public byte getType() {
-		return Message.AUTHENTICATION_RESPONSE;
+		return AUTHENTICATION_RESPONSE;
 	}
 }

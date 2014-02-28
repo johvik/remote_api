@@ -3,7 +3,7 @@ package remote.api.messages;
 import remote.api.exceptions.PacketException;
 import remote.api.Packet;
 
-public class AuthenticationRequest implements Message {
+public class AuthenticationRequest extends Message {
 	private static final int MIN_LENGTH = calculateSize(0, 0);
 	public static final int MAX_LENGTH = 245; // max size for 2048 bit RSA key
 	private byte[] key;
@@ -45,7 +45,7 @@ public class AuthenticationRequest implements Message {
 		byte[] data = new byte[size];
 
 		int pos = 0;
-		data[pos++] = Message.AUTHENTICATION_REQUEST;
+		data[pos++] = AUTHENTICATION_REQUEST;
 		// Write key
 		System.arraycopy(key, 0, data, pos, Packet.BLOCK_KEY_SIZE);
 		pos += Packet.BLOCK_KEY_SIZE;
@@ -105,7 +105,7 @@ public class AuthenticationRequest implements Message {
 
 	@Override
 	public byte getType() {
-		return Message.AUTHENTICATION_REQUEST;
+		return AUTHENTICATION_REQUEST;
 	}
 
 	public byte[] getKey() {

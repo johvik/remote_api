@@ -3,7 +3,7 @@ package remote.api.messages;
 import remote.api.Packet;
 import remote.api.exceptions.PacketException;
 
-public interface Message {
+public abstract class Message {
 	// Number of type codes used.
 	public static final int USED_CODES = 3;
 
@@ -23,12 +23,12 @@ public interface Message {
 	 * @throws PacketException
 	 *             If packing the message fails.
 	 */
-	public Packet pack() throws PacketException;
+	public abstract Packet pack() throws PacketException;
 
 	/**
 	 * Gets the type byte of the message. This has to be unique across messages.
 	 * 
 	 * @return A byte identifying the message.
 	 */
-	public byte getType();
+	public abstract byte getType();
 }
