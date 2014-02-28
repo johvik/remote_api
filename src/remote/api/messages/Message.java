@@ -1,5 +1,6 @@
-package remote.api;
+package remote.api.messages;
 
+import remote.api.Packet;
 import remote.api.exceptions.PacketException;
 
 public interface Message {

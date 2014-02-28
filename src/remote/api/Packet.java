@@ -9,6 +9,7 @@ import javax.crypto.Cipher;
 import remote.api.exceptions.PacketException;
 import remote.api.messages.AuthenticationRequest;
 import remote.api.messages.AuthenticationResponse;
+import remote.api.messages.Message;
 import remote.api.messages.Ping;
 
 public class Packet {

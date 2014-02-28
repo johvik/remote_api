@@ -14,6 +14,7 @@ import javax.management.openmbean.InvalidKeyException;
 import remote.api.exceptions.AuthenticationException;
 import remote.api.exceptions.PacketException;
 import remote.api.exceptions.ProtocolException;
+import remote.api.messages.Message;
 import remote.api.messages.Ping;
 
 public abstract class Protocol {

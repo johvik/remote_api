@@ -11,11 +11,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import remote.api.Message;
 import remote.api.Packet;
 import remote.api.Utils;
 import remote.api.exceptions.PacketException;
 import remote.api.messages.AuthenticationRequest;
+import remote.api.messages.Message;
 import remote.test.api.Misc;
 
 @RunWith(Parameterized.class)

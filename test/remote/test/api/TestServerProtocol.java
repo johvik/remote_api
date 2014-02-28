@@ -10,7 +10,6 @@ import java.security.InvalidKeyException;
 
 import org.junit.Test;
 
-import remote.api.Message;
 import remote.api.Packet;
 import remote.api.ServerProtocol;
 import remote.api.Protocol.PingCallback;
@@ -19,6 +18,7 @@ import remote.api.exceptions.AuthenticationException;
 import remote.api.exceptions.PacketException;
 import remote.api.exceptions.ProtocolException;
 import remote.api.messages.AuthenticationRequest;
+import remote.api.messages.Message;
 import remote.api.messages.Ping;
 
 public class TestServerProtocol {

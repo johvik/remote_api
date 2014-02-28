@@ -1,7 +1,6 @@
 package remote.api.messages;
 
 import remote.api.exceptions.PacketException;
-import remote.api.Message;
 import remote.api.Packet;
 
 public class AuthenticationResponse implements Message {

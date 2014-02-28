@@ -4,9 +4,9 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import remote.api.Message;
 import remote.api.exceptions.PacketException;
 import remote.api.messages.AuthenticationResponse;
+import remote.api.messages.Message;
 
 public class TestAuthenticationResponse {
 

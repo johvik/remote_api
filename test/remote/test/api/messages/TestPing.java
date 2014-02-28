@@ -10,8 +10,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import remote.api.Message;
 import remote.api.exceptions.PacketException;
+import remote.api.messages.Message;
 import remote.api.messages.Ping;
 
 @RunWith(Parameterized.class)
