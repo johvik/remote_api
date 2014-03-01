@@ -62,10 +62,9 @@ public class TestMouseMove {
 			mm.write(data, offset);
 			fail("Did not throw an exception");
 		} catch (CommandException e) {
-			assertEquals(
-					new CommandException("Invalid write", data, offset)
-							.getMessage(),
-					e.getMessage());
+			CommandException ex = new CommandException("Invalid write", data,
+					offset);
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		data = new byte[0];
 		offset = -MouseMove.LENGTH;
@@ -73,10 +72,9 @@ public class TestMouseMove {
 			mm.write(data, offset);
 			fail("Did not throw an exception");
 		} catch (CommandException e) {
-			assertEquals(
-					new CommandException("Invalid write", data, offset)
-							.getMessage(),
-					e.getMessage());
+			CommandException ex = new CommandException("Invalid write", data,
+					offset);
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 	}
 
@@ -88,10 +86,9 @@ public class TestMouseMove {
 			MouseMove.read(data, offset);
 			fail("Did not throw an exception");
 		} catch (CommandException e) {
-			assertEquals(
-					new CommandException("Invalid read", data, offset)
-							.getMessage(),
-					e.getMessage());
+			CommandException ex = new CommandException("Invalid read", data,
+					offset);
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		data = new byte[0];
 		offset = -MouseMove.LENGTH;
@@ -99,10 +96,9 @@ public class TestMouseMove {
 			MouseMove.read(data, offset);
 			fail("Did not throw an exception");
 		} catch (CommandException e) {
-			assertEquals(
-					new CommandException("Invalid read", data, offset)
-							.getMessage(),
-					e.getMessage());
+			CommandException ex = new CommandException("Invalid read", data,
+					offset);
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 	}
 

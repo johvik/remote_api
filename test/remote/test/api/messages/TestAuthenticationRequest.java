@@ -12,7 +12,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import remote.api.Packet;
-import remote.api.Utils;
 import remote.api.exceptions.PacketException;
 import remote.api.messages.AuthenticationRequest;
 import remote.api.messages.Message;
@@ -55,25 +54,30 @@ public class TestAuthenticationRequest {
 			new AuthenticationRequest(null, user, password);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertEquals("Null input data null", e.getMessage());
+			PacketException ex = new PacketException("Null input data", null);
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		try {
 			new AuthenticationRequest(key, null, password);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertEquals("Null input data " + Utils.toHex(key), e.getMessage());
+			PacketException ex = new PacketException("Null input data", key);
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		try {
 			new AuthenticationRequest(key, user, null);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertEquals("Null input data " + Utils.toHex(key), e.getMessage());
+			PacketException ex = new PacketException("Null input data", key);
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		try {
 			new AuthenticationRequest(new byte[0], user, password);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertEquals("Wrong key length", e.getMessage());
+			PacketException ex = new PacketException("Wrong key length",
+					new byte[0]);
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 	}
 
@@ -116,7 +120,8 @@ public class TestAuthenticationRequest {
 			AuthenticationRequest.unpack(data);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertEquals("Unexpected length", e.getMessage());
+			PacketException ex = new PacketException("Unexpected length", data);
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		// Check that it throws when it is too long
 		data = new byte[AuthenticationRequest.MAX_LENGTH + 1];
@@ -124,8 +129,8 @@ public class TestAuthenticationRequest {
 			AuthenticationRequest.unpack(data);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertEquals("Unexpected length " + Utils.toHex(data),
-					e.getMessage());
+			PacketException ex = new PacketException("Unexpected length", data);
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		// Correct length should not throw
 		data = new byte[AuthenticationRequest.MAX_LENGTH];
@@ -140,8 +145,8 @@ public class TestAuthenticationRequest {
 			AuthenticationRequest.unpack(data);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertEquals("Length sum too big " + Utils.toHex(data),
-					e.getMessage());
+			PacketException ex = new PacketException("Length sum too big", data);
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 	}
 

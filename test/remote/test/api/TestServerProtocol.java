@@ -50,7 +50,9 @@ public class TestServerProtocol {
 			new ServerProtocol(null, Misc.privateKey, output);
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
-			assertEquals("Authentication check cannot be null", e.getMessage());
+			ProtocolException ex = new ProtocolException(
+					"Authentication check cannot be null");
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		try {
 			new ServerProtocol(authentication, null, output);
@@ -62,7 +64,9 @@ public class TestServerProtocol {
 			new ServerProtocol(authentication, Misc.privateKey, null);
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
-			assertEquals("Output cannot be null", e.getMessage());
+			ProtocolException ex = new ProtocolException(
+					"Output cannot be null");
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 	}
 
@@ -84,7 +88,9 @@ public class TestServerProtocol {
 			sp.ping(null);
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
-			assertEquals("Ping already requested", e.getMessage());
+			ProtocolException ex = new ProtocolException(
+					"Ping already requested");
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		// Respond to requested ping
 		sp.process(new Ping(false).pack());
@@ -94,7 +100,8 @@ public class TestServerProtocol {
 			sp.process(new Ping(false).pack());
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
-			assertEquals("Ping not requested", e.getMessage());
+			ProtocolException ex = new ProtocolException("Ping not requested");
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 
 		// Measure the ping time a couple of times
@@ -127,7 +134,9 @@ public class TestServerProtocol {
 			sp.ping(null);
 			fail("Did not throw an exception");
 		} catch (AuthenticationException e) {
-			assertEquals("Expecting authentication", e.getMessage());
+			AuthenticationException ex = new AuthenticationException(
+					"Expecting authentication");
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 	}
 
@@ -143,7 +152,9 @@ public class TestServerProtocol {
 					new byte[Packet.BLOCK_KEY_SIZE], "", "").pack());
 			fail("Did not throw an exception");
 		} catch (AuthenticationException e) {
-			assertEquals("Bad login", e.getMessage());
+			AuthenticationException ex = new AuthenticationException(
+					"Bad login");
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 
 		// Try to process without authentication
@@ -151,8 +162,9 @@ public class TestServerProtocol {
 			sp.process(new Ping(true).pack());
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
-			assertEquals("Unexpected message type: " + Message.PING,
-					e.getMessage());
+			ProtocolException ex = new ProtocolException(
+					"Unexpected message type: " + Message.PING);
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 
 		// Try to authenticate twice
@@ -165,8 +177,10 @@ public class TestServerProtocol {
 					new byte[Packet.BLOCK_KEY_SIZE], "", "").pack());
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
-			assertEquals("Unexpected message type: "
-					+ Message.AUTHENTICATION_REQUEST, e.getMessage());
+			ProtocolException ex = new ProtocolException(
+					"Unexpected message type: "
+							+ Message.AUTHENTICATION_REQUEST);
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 	}
 }

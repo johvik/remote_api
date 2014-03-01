@@ -26,7 +26,8 @@ public class TestPacket {
 			new Packet(null);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertEquals("Data is null null", e.getMessage());
+			PacketException ex = new PacketException("Data is null", null);
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		// Valid construction
 		new Packet(new byte[] { 0 });
@@ -46,8 +47,8 @@ public class TestPacket {
 			Packet.read(buffer);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertEquals("Message too long " + Utils.toHex(buffer),
-					e.getMessage());
+			PacketException ex = new PacketException("Message too long", buffer);
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 
 		// Test not enough data
@@ -168,12 +169,14 @@ public class TestPacket {
 				String message = e.getMessage();
 				if (message.indexOf("Unexpected length") == 0) {
 					codes++; // OK but wrong length
-					assertEquals("Unexpected length " + Utils.toHex(data),
-							e.getMessage());
+					PacketException ex = new PacketException(
+							"Unexpected length", data);
+					assertEquals(ex.getMessage(), e.getMessage());
 				} else {
 					// Not OK, wrong code
-					assertEquals("Unknown message " + Utils.toHex(data),
-							e.getMessage());
+					PacketException ex = new PacketException("Unknown message",
+							data);
+					assertEquals(ex.getMessage(), e.getMessage());
 				}
 			}
 		}

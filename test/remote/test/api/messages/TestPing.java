@@ -49,7 +49,8 @@ public class TestPing {
 			Ping.unpack(data);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertEquals("Unexpected length", e.getMessage());
+			PacketException ex = new PacketException("Unexpected length", data);
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		// Correct length should not throw
 		data = new byte[Ping.LENGTH];
