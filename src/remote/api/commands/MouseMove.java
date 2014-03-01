@@ -14,23 +14,25 @@ public class MouseMove extends Command {
 	}
 
 	@Override
-	public void write(byte[] data) throws CommandException {
-		if (data.length != LENGTH + 1) {
-			throw new CommandException("Unexpected length", data);
+	public void write(byte[] data, int offset) throws CommandException {
+		if (offset < 0 || data.length < LENGTH + offset) {
+			throw new CommandException("Invalid write", data, offset);
 		}
-		data[1] = MOUSE_MOVE;
-		data[2] = (byte) ((dx >> 8) & 0xFF);
-		data[3] = (byte) (dx & 0xFF);
-		data[4] = (byte) ((dy >> 8) & 0xFF);
-		data[5] = (byte) (dy & 0xFF);
+		data[offset] = MOUSE_MOVE;
+		data[offset + 1] = (byte) ((dx >> 8) & 0xFF);
+		data[offset + 2] = (byte) (dx & 0xFF);
+		data[offset + 3] = (byte) ((dy >> 8) & 0xFF);
+		data[offset + 4] = (byte) (dy & 0xFF);
 	}
 
-	public static MouseMove read(byte[] data) throws CommandException {
-		if (data.length != LENGTH + 1) {
-			throw new CommandException("Unexpected length", data);
+	public static MouseMove read(byte[] data, int offset)
+			throws CommandException {
+		if (offset < 0 || data.length < LENGTH + offset) {
+			throw new CommandException("Invalid read", data, offset);
 		}
-		short dx = (short) (((data[2] & 0xFF) << 8) | (data[3] & 0xFF));
-		short dy = (short) (((data[4] & 0xFF) << 8) | (data[5] & 0xFF));
+		// First byte is type
+		short dx = (short) (((data[offset + 1] & 0xFF) << 8) | (data[offset + 2] & 0xFF));
+		short dy = (short) (((data[offset + 3] & 0xFF) << 8) | (data[offset + 4] & 0xFF));
 		return new MouseMove(dx, dy);
 	}
 

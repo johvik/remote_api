@@ -13,9 +13,10 @@ public abstract class Command {
 	 * for the packet type.
 	 * 
 	 * @param data
+	 * @param offset
 	 * @throws CommandException
 	 */
-	public abstract void write(byte[] data) throws CommandException;
+	public abstract void write(byte[] data, int offset) throws CommandException;
 
 	/**
 	 * Gets the type byte of the command. This has to be unique across commands.

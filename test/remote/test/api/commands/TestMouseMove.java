@@ -11,7 +11,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import remote.api.Utils;
 import remote.api.commands.MouseMove;
 import remote.api.exceptions.CommandException;
 
@@ -42,50 +41,68 @@ public class TestMouseMove {
 
 	@Test
 	public void testWriteRead() throws CommandException {
-		byte[] data = new byte[MouseMove.LENGTH + 1];
-		mm.write(data);
-		MouseMove read = MouseMove.read(data);
-		assertEquals(MouseMove.MOUSE_MOVE, read.getType());
-		assertEquals(dx, read.getDx());
-		assertEquals(dy, read.getDy());
-		assertEquals(mm.getType(), read.getType());
-		assertEquals(mm.getDx(), read.getDx());
-		assertEquals(mm.getDy(), read.getDy());
+		for (int i = 0; i < 10; i++) {
+			byte[] data = new byte[MouseMove.LENGTH + i];
+			mm.write(data, i);
+			MouseMove read = MouseMove.read(data, i);
+			assertEquals(MouseMove.MOUSE_MOVE, read.getType());
+			assertEquals(dx, read.getDx());
+			assertEquals(dy, read.getDy());
+			assertEquals(mm.getType(), read.getType());
+			assertEquals(mm.getDx(), read.getDx());
+			assertEquals(mm.getDy(), read.getDy());
+		}
 	}
 
 	@Test
 	public void testWrite() {
 		byte[] data = new byte[MouseMove.LENGTH];
+		int offset = 1;
 		try {
-			mm.write(data);
+			mm.write(data, offset);
 			fail("Did not throw an exception");
 		} catch (CommandException e) {
-			assertEquals("Unexpected length " + Utils.toHex(data),
+			assertEquals(
+					new CommandException("Invalid write", data, offset)
+							.getMessage(),
 					e.getMessage());
 		}
+		data = new byte[0];
+		offset = -MouseMove.LENGTH;
 		try {
-			mm.write(new byte[0]);
+			mm.write(data, offset);
 			fail("Did not throw an exception");
 		} catch (CommandException e) {
-			assertEquals("Unexpected length", e.getMessage());
+			assertEquals(
+					new CommandException("Invalid write", data, offset)
+							.getMessage(),
+					e.getMessage());
 		}
 	}
 
 	@Test
 	public void testRead() {
 		byte[] data = new byte[MouseMove.LENGTH];
+		int offset = 1;
 		try {
-			MouseMove.read(data);
+			MouseMove.read(data, offset);
 			fail("Did not throw an exception");
 		} catch (CommandException e) {
-			assertEquals("Unexpected length " + Utils.toHex(data),
+			assertEquals(
+					new CommandException("Invalid read", data, offset)
+							.getMessage(),
 					e.getMessage());
 		}
+		data = new byte[0];
+		offset = -MouseMove.LENGTH;
 		try {
-			MouseMove.read(new byte[0]);
+			MouseMove.read(data, offset);
 			fail("Did not throw an exception");
 		} catch (CommandException e) {
-			assertEquals("Unexpected length", e.getMessage());
+			assertEquals(
+					new CommandException("Invalid read", data, offset)
+							.getMessage(),
+					e.getMessage());
 		}
 	}
 
