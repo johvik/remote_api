@@ -12,7 +12,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import remote.api.commands.MouseMove;
-import remote.api.exceptions.CommandException;
+import remote.api.exceptions.PacketException;
 
 @RunWith(Parameterized.class)
 public class TestMouseMove {
@@ -40,7 +40,7 @@ public class TestMouseMove {
 	}
 
 	@Test
-	public void testWriteRead() throws CommandException {
+	public void testWriteRead() throws PacketException {
 		for (int i = 0; i < 10; i++) {
 			byte[] data = new byte[MouseMove.LENGTH + i];
 			mm.write(data, i);
@@ -61,9 +61,9 @@ public class TestMouseMove {
 		try {
 			mm.write(data, offset);
 			fail("Did not throw an exception");
-		} catch (CommandException e) {
-			CommandException ex = new CommandException("Invalid write", data,
-					offset);
+		} catch (PacketException e) {
+			PacketException ex = new PacketException("Invalid write " + offset,
+					data);
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		data = new byte[0];
@@ -71,9 +71,9 @@ public class TestMouseMove {
 		try {
 			mm.write(data, offset);
 			fail("Did not throw an exception");
-		} catch (CommandException e) {
-			CommandException ex = new CommandException("Invalid write", data,
-					offset);
+		} catch (PacketException e) {
+			PacketException ex = new PacketException("Invalid write " + offset,
+					data);
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 	}
@@ -85,9 +85,9 @@ public class TestMouseMove {
 		try {
 			MouseMove.read(data, offset);
 			fail("Did not throw an exception");
-		} catch (CommandException e) {
-			CommandException ex = new CommandException("Invalid read", data,
-					offset);
+		} catch (PacketException e) {
+			PacketException ex = new PacketException("Invalid read " + offset,
+					data);
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		data = new byte[0];
@@ -95,9 +95,9 @@ public class TestMouseMove {
 		try {
 			MouseMove.read(data, offset);
 			fail("Did not throw an exception");
-		} catch (CommandException e) {
-			CommandException ex = new CommandException("Invalid read", data,
-					offset);
+		} catch (PacketException e) {
+			PacketException ex = new PacketException("Invalid read " + offset,
+					data);
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 	}

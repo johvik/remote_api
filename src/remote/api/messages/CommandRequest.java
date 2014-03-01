@@ -3,7 +3,6 @@ package remote.api.messages;
 import remote.api.Packet;
 import remote.api.commands.Command;
 import remote.api.commands.MouseMove;
-import remote.api.exceptions.CommandException;
 import remote.api.exceptions.PacketException;
 
 public class CommandRequest extends Message {
@@ -21,12 +20,8 @@ public class CommandRequest extends Message {
 	public Packet pack() throws PacketException {
 		byte[] data = new byte[STATIC_LENGTH + command.getLength()];
 		data[0] = COMMAND_REQUEST;
-		try {
-			command.write(data, STATIC_LENGTH);
-			return new Packet(data);
-		} catch (CommandException e) {
-			throw new PacketException(e.getMessage(), data);
-		}
+		command.write(data, STATIC_LENGTH);
+		return new Packet(data);
 	}
 
 	public static CommandRequest unpack(byte[] data) throws PacketException {
@@ -34,15 +29,11 @@ public class CommandRequest extends Message {
 			throw new PacketException("Unexpected length", data);
 		}
 		byte type = data[1];
-		try {
-			switch (type) {
-			case Command.MOUSE_MOVE:
-				return new CommandRequest(MouseMove.read(data, STATIC_LENGTH));
-			default:
-				throw new PacketException("Unknown command message", data);
-			}
-		} catch (CommandException e) {
-			throw new PacketException(e.getMessage(), data);
+		switch (type) {
+		case Command.MOUSE_MOVE:
+			return new CommandRequest(MouseMove.read(data, STATIC_LENGTH));
+		default:
+			throw new PacketException("Unknown command message", data);
 		}
 	}
 

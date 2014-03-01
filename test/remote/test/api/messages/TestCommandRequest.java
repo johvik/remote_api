@@ -1,7 +1,6 @@
 package remote.test.api.messages;
 
 import static org.junit.Assert.*;
-import static org.hamcrest.Matchers.startsWith;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,7 +12,6 @@ import org.junit.runners.Parameterized.Parameters;
 
 import remote.api.commands.Command;
 import remote.api.commands.MouseMove;
-import remote.api.exceptions.CommandException;
 import remote.api.exceptions.PacketException;
 import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
@@ -56,8 +54,8 @@ public class TestCommandRequest {
 
 				@Override
 				public void write(byte[] data, int offset)
-						throws CommandException {
-					throw new CommandException("Expected exception", null, 0);
+						throws PacketException {
+					throw new PacketException("Expected exception", null);
 				}
 
 				@Override
@@ -72,7 +70,8 @@ public class TestCommandRequest {
 			}).pack();
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			assertThat(e.getMessage(), startsWith("Expected exception"));
+			PacketException ex = new PacketException("Expected exception", null);
+			assertEquals(ex.getMessage(), e.getMessage());
 		}
 	}
 
@@ -95,7 +94,7 @@ public class TestCommandRequest {
 	}
 
 	@Test
-	public void testUnpack() throws CommandException, PacketException {
+	public void testUnpack() throws PacketException {
 		// Check that it throws when it has wrong static length
 		byte[] data = new byte[0];
 		try {
@@ -112,9 +111,8 @@ public class TestCommandRequest {
 			CommandRequest.unpack(data);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
-			PacketException ex = new PacketException(
-					new CommandException("Invalid read", data,
-							CommandRequest.STATIC_LENGTH).getMessage(), data);
+			PacketException ex = new PacketException("Invalid read "
+					+ CommandRequest.STATIC_LENGTH, data);
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 
@@ -147,7 +145,9 @@ public class TestCommandRequest {
 				String message = e.getMessage();
 				if (message.indexOf("Invalid read") == 0) {
 					codes++; // OK but wrong length
-					assertThat(message, startsWith("Invalid read"));
+					PacketException ex = new PacketException("Invalid read "
+							+ CommandRequest.STATIC_LENGTH, data);
+					assertEquals(ex.getMessage(), message);
 				} else {
 					// Not OK, wrong code
 					PacketException ex = new PacketException(

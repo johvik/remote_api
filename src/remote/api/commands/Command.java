@@ -1,6 +1,6 @@
 package remote.api.commands;
 
-import remote.api.exceptions.CommandException;
+import remote.api.exceptions.PacketException;
 
 public abstract class Command implements Comparable<Command> {
 	// Number of type codes used.
@@ -14,9 +14,9 @@ public abstract class Command implements Comparable<Command> {
 	 * 
 	 * @param data
 	 * @param offset
-	 * @throws CommandException
+	 * @throws PacketException
 	 */
-	public abstract void write(byte[] data, int offset) throws CommandException;
+	public abstract void write(byte[] data, int offset) throws PacketException;
 
 	/**
 	 * Calculates the length of the command.

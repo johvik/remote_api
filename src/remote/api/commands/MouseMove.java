@@ -1,6 +1,6 @@
 package remote.api.commands;
 
-import remote.api.exceptions.CommandException;
+import remote.api.exceptions.PacketException;
 
 public class MouseMove extends Command {
 	public static final int LENGTH = 5;
@@ -14,9 +14,9 @@ public class MouseMove extends Command {
 	}
 
 	@Override
-	public void write(byte[] data, int offset) throws CommandException {
+	public void write(byte[] data, int offset) throws PacketException {
 		if (offset < 0 || data.length < LENGTH + offset) {
-			throw new CommandException("Invalid write", data, offset);
+			throw new PacketException("Invalid write " + offset, data);
 		}
 		data[offset] = MOUSE_MOVE;
 		data[offset + 1] = (byte) ((dx >> 8) & 0xFF);
@@ -26,9 +26,9 @@ public class MouseMove extends Command {
 	}
 
 	public static MouseMove read(byte[] data, int offset)
-			throws CommandException {
+			throws PacketException {
 		if (offset < 0 || data.length < LENGTH + offset) {
-			throw new CommandException("Invalid read", data, offset);
+			throw new PacketException("Invalid read " + offset, data);
 		}
 		// First byte is type
 		short dx = (short) (((data[offset + 1] & 0xFF) << 8) | (data[offset + 2] & 0xFF));
