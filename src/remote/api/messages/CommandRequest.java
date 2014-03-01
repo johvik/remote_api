@@ -1,0 +1,57 @@
+package remote.api.messages;
+
+import remote.api.Packet;
+import remote.api.commands.Command;
+import remote.api.commands.MouseMove;
+import remote.api.exceptions.CommandException;
+import remote.api.exceptions.PacketException;
+
+public class CommandRequest extends Message {
+	public static final int STATIC_LENGTH = 1;
+	private Command command;
+
+	public CommandRequest(Command command) throws PacketException {
+		if (command == null) {
+			throw new PacketException("Command is null", null);
+		}
+		this.command = command;
+	}
+
+	@Override
+	public Packet pack() throws PacketException {
+		byte[] data = new byte[STATIC_LENGTH + command.getLength()];
+		data[0] = COMMAND_REQUEST;
+		try {
+			command.write(data, STATIC_LENGTH);
+			return new Packet(data);
+		} catch (CommandException e) {
+			throw new PacketException(e.getMessage(), data);
+		}
+	}
+
+	public static CommandRequest unpack(byte[] data) throws PacketException {
+		if (data.length <= STATIC_LENGTH) {
+			throw new PacketException("Unexpected length", data);
+		}
+		byte type = data[1];
+		try {
+			switch (type) {
+			case Command.MOUSE_MOVE:
+				return new CommandRequest(MouseMove.read(data, STATIC_LENGTH));
+			default:
+				throw new PacketException("Unknown command message", data);
+			}
+		} catch (CommandException e) {
+			throw new PacketException(e.getMessage(), data);
+		}
+	}
+
+	@Override
+	public byte getType() {
+		return COMMAND_REQUEST;
+	}
+
+	public Command getCommand() {
+		return command;
+	}
+}

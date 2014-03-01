@@ -171,12 +171,12 @@ public class TestPacket {
 					codes++; // OK but wrong length
 					PacketException ex = new PacketException(
 							"Unexpected length", data);
-					assertEquals(ex.getMessage(), e.getMessage());
+					assertEquals(ex.getMessage(), message);
 				} else {
 					// Not OK, wrong code
 					PacketException ex = new PacketException("Unknown message",
 							data);
-					assertEquals(ex.getMessage(), e.getMessage());
+					assertEquals(ex.getMessage(), message);
 				}
 			}
 		}

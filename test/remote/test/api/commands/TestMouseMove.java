@@ -102,6 +102,10 @@ public class TestMouseMove {
 		}
 	}
 
+	public void testGetLength() {
+		assertEquals(MouseMove.LENGTH, mm.getLength());
+	}
+
 	@Test
 	public void testGetType() {
 		assertEquals(MouseMove.MOUSE_MOVE, mm.getType());
@@ -115,5 +119,23 @@ public class TestMouseMove {
 	@Test
 	public void testGetDy() {
 		assertEquals(dy, mm.getDy());
+	}
+
+	@Test
+	public void testCompareTo() {
+		// Check against object with another dx
+		MouseMove other = new MouseMove((short) (dx - 1), dy);
+		assertNotEquals(0, mm.compareTo(other));
+
+		// Check against object with another dy
+		other = new MouseMove(dx, (short) (dy - 1));
+		assertNotEquals(0, mm.compareTo(other));
+
+		// Compare to object with same parameters
+		other = new MouseMove(dx, dy);
+		assertEquals(0, mm.compareTo(other));
+
+		// Compare to self
+		assertEquals(0, mm.compareTo(mm));
 	}
 }

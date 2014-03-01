@@ -37,6 +37,11 @@ public class MouseMove extends Command {
 	}
 
 	@Override
+	public int getLength() {
+		return LENGTH;
+	}
+
+	@Override
 	public byte getType() {
 		return MOUSE_MOVE;
 	}
@@ -47,5 +52,15 @@ public class MouseMove extends Command {
 
 	public short getDy() {
 		return dy;
+	}
+
+	@Override
+	public int compareTo(Command o) {
+		MouseMove other = (MouseMove) o;
+		int cmp = Short.valueOf(dx).compareTo(other.dx);
+		if (cmp == 0) {
+			cmp = Short.valueOf(dy).compareTo(other.dy);
+		}
+		return cmp;
 	}
 }

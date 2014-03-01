@@ -2,7 +2,7 @@ package remote.api.commands;
 
 import remote.api.exceptions.CommandException;
 
-public abstract class Command {
+public abstract class Command implements Comparable<Command> {
 	// Number of type codes used.
 	public static final int USED_CODES = 1;
 
@@ -17,6 +17,13 @@ public abstract class Command {
 	 * @throws CommandException
 	 */
 	public abstract void write(byte[] data, int offset) throws CommandException;
+
+	/**
+	 * Calculates the length of the command.
+	 * 
+	 * @return Number of bytes required for the command.
+	 */
+	public abstract int getLength();
 
 	/**
 	 * Gets the type byte of the command. This has to be unique across commands.

@@ -5,11 +5,12 @@ import remote.api.exceptions.PacketException;
 
 public abstract class Message {
 	// Number of type codes used.
-	public static final int USED_CODES = 3;
+	public static final int USED_CODES = 4;
 
 	public static final byte AUTHENTICATION_REQUEST = 0;
 	public static final byte AUTHENTICATION_RESPONSE = 1;
 	public static final byte PING = 2;
+	public static final byte COMMAND_REQUEST = 3;
 
 	/**
 	 * Packet will throw exception if this length is exceeded.
