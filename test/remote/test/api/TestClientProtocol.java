@@ -35,7 +35,7 @@ public class TestClientProtocol {
 
 	@Test
 	public void testClientProtocol() throws GeneralSecurityException,
-			ProtocolException, PacketException {
+			ProtocolException {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
 			new ClientProtocol(null, Misc.key, output);
