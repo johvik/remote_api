@@ -5,6 +5,7 @@ import remote.api.commands.Command;
 import remote.api.commands.MouseMove;
 import remote.api.commands.MousePress;
 import remote.api.commands.MouseRelease;
+import remote.api.commands.MouseWheel;
 import remote.api.exceptions.PacketException;
 
 public class CommandRequest extends Message {
@@ -38,6 +39,8 @@ public class CommandRequest extends Message {
 			return new CommandRequest(MousePress.read(data, STATIC_LENGTH));
 		case Command.MOUSE_RELEASE:
 			return new CommandRequest(MouseRelease.read(data, STATIC_LENGTH));
+		case Command.MOUSE_WHEEL:
+			return new CommandRequest(MouseWheel.read(data, STATIC_LENGTH));
 		}
 		throw new PacketException("Unknown command message", data);
 	}

@@ -15,6 +15,7 @@ import remote.api.commands.Command;
 import remote.api.commands.MouseMove;
 import remote.api.commands.MousePress;
 import remote.api.commands.MouseRelease;
+import remote.api.commands.MouseWheel;
 import remote.api.exceptions.PacketException;
 import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
@@ -35,7 +36,8 @@ public class TestCommandRequest {
 		List<Object[]> list = Arrays.asList(new Object[][] {
 				{ new MouseMove((short) -1, (short) 100) },
 				{ new MousePress(0x12345678) },
-				{ new MouseRelease(0x87654321) } });
+				{ new MouseRelease(0x87654321) },
+				{ new MouseWheel(0xFFFFFFFF) } });
 		assertEquals(Command.USED_CODES, list.size());
 		return list;
 	}
