@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +16,7 @@ import remote.api.commands.MouseMove;
 import remote.api.exceptions.PacketException;
 import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
+import remote.api.messages.Ping;
 
 @RunWith(Parameterized.class)
 public class TestCommandRequest {
@@ -28,8 +30,10 @@ public class TestCommandRequest {
 
 	@Parameters
 	public static Collection<Object[]> data() {
-		return Arrays.asList(new Object[][] { { new MouseMove((short) -1,
-				(short) 100) } });
+		List<Object[]> list = Arrays.asList(new Object[][] { { new MouseMove(
+				(short) -1, (short) 100) } });
+		assertEquals(Command.USED_CODES, list.size());
+		return list;
 	}
 
 	@Test
@@ -157,5 +161,27 @@ public class TestCommandRequest {
 			}
 		}
 		assertEquals(Command.USED_CODES, codes);
+	}
+
+	@Test
+	public void testCompareTo() throws PacketException {
+		try {
+			request.compareTo(null);
+			fail("Did not throw an exception");
+		} catch (NullPointerException e) {
+		}
+		try {
+			request.compareTo(new Ping(false));
+			fail("Did not throw an exception");
+		} catch (ClassCastException e) {
+		}
+
+		// Check against object with another command
+		CommandRequest other = new CommandRequest(new MouseMove((short) 0,
+				(short) 0));
+		assertNotEquals(0, request.compareTo(other));
+
+		// Compare to self
+		assertEquals(0, request.compareTo(request));
 	}
 }

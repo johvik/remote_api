@@ -26,4 +26,25 @@ public class Utils {
 		random.nextBytes(key);
 		return key;
 	}
+
+	public static int compare(byte[] b1, byte[] b2) {
+		if (b1 == null) {
+			if (b2 == null) {
+				return 0;
+			}
+			return -1;
+		} else if (b2 == null) {
+			return 1;
+		} else {
+			// Arrays are not null
+			int length = b1.length;
+			int cmp = Integer.valueOf(length).compareTo(b2.length);
+			// Compare the byte arrays
+			// Same length if cmp == 0
+			for (int i = 0; cmp == 0 && i < length; i++) {
+				cmp = Byte.valueOf(b1[i]).compareTo(b2[i]);
+			}
+			return cmp;
+		}
+	}
 }

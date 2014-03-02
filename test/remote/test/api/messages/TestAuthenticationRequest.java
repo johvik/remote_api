@@ -15,6 +15,7 @@ import remote.api.Packet;
 import remote.api.exceptions.PacketException;
 import remote.api.messages.AuthenticationRequest;
 import remote.api.messages.Message;
+import remote.api.messages.Ping;
 import remote.test.api.Misc;
 
 @RunWith(Parameterized.class)
@@ -156,5 +157,43 @@ public class TestAuthenticationRequest {
 		AuthenticationRequest request = new AuthenticationRequest(key, user,
 				password);
 		assertEquals(Message.AUTHENTICATION_REQUEST, request.getType());
+	}
+
+	@Test
+	public void testCompareTo() throws PacketException {
+		AuthenticationRequest request = new AuthenticationRequest(key, user,
+				password);
+		try {
+			request.compareTo(null);
+			fail("Did not throw an exception");
+		} catch (NullPointerException e) {
+		}
+		try {
+			request.compareTo(new Ping(false));
+			fail("Did not throw an exception");
+		} catch (ClassCastException e) {
+		}
+
+		// Check against object with another key
+		AuthenticationRequest other = new AuthenticationRequest(
+				Misc.getSequence(500, Packet.BLOCK_KEY_SIZE), user, password);
+		assertEquals(request.getUser(), other.getUser());
+		assertEquals(request.getPassword(), other.getPassword());
+		assertNotEquals(0, request.compareTo(other));
+
+		// Check against object with another user
+		other = new AuthenticationRequest(key, user + "a", password);
+		assertArrayEquals(request.getKey(), other.getKey());
+		assertEquals(request.getPassword(), other.getPassword());
+		assertNotEquals(0, request.compareTo(other));
+
+		// Check against object with another password
+		other = new AuthenticationRequest(key, user, password + "a");
+		assertArrayEquals(request.getKey(), other.getKey());
+		assertEquals(request.getUser(), other.getUser());
+		assertNotEquals(0, request.compareTo(other));
+
+		// Compare to self
+		assertEquals(0, request.compareTo(request));
 	}
 }

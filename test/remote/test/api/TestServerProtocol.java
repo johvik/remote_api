@@ -88,6 +88,9 @@ public class TestServerProtocol {
 					"Output cannot be null");
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
+		// Correct
+		new ServerProtocol(authentication, commandHandler, Misc.privateKey,
+				output);
 	}
 
 	@Test

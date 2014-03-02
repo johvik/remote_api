@@ -5,10 +5,14 @@ import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 
+import remote.api.commands.Command;
 import remote.api.exceptions.AuthenticationException;
 import remote.api.exceptions.PacketException;
 import remote.api.exceptions.ProtocolException;
 import remote.api.messages.AuthenticationRequest;
+import remote.api.messages.CommandRequest;
+import remote.api.messages.Message;
+import remote.api.messages.Ping;
 
 public class ClientProtocol extends Protocol {
 	private byte[] key;
@@ -19,7 +23,7 @@ public class ClientProtocol extends Protocol {
 		this.key = key;
 	}
 
-	public void authenticate(String user, String password)
+	public synchronized void authenticate(String user, String password)
 			throws ProtocolException, PacketException, IOException {
 		if (authenticated) {
 			throw new AuthenticationException("Already authenticated");
@@ -27,9 +31,35 @@ public class ClientProtocol extends Protocol {
 		writeSecure(new AuthenticationRequest(key, user, password).pack());
 	}
 
+	public synchronized void commandRequest(Command command)
+			throws PacketException, IOException, ProtocolException {
+		deliver(new CommandRequest(command));
+	}
+
 	@Override
-	public void process(Packet packet) throws PacketException, IOException,
-			ProtocolException {
-		// TODO Auto-generated method stub
+	public synchronized void process(Packet packet) throws PacketException,
+			IOException, ProtocolException {
+		if (authenticated) {
+			Message message = packet.decode(blockDecryptCipher);
+			byte type = message.getType();
+			switch (type) {
+			case Message.PING:
+				processPing((Ping) message);
+				break;
+			default:
+				throw new ProtocolException("Unexpected message type: " + type);
+			}
+		} else {
+			// Only accept authentication responses
+			Message message = packet.decode(secureCipher);
+			byte type = message.getType();
+			switch (type) {
+			case Message.AUTHENTICATION_RESPONSE:
+				authenticated = true;
+				break;
+			default:
+				throw new ProtocolException("Unexpected message type: " + type);
+			}
+		}
 	}
 }

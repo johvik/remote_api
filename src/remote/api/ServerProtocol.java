@@ -46,8 +46,8 @@ public class ServerProtocol extends Protocol {
 	}
 
 	@Override
-	public void process(Packet packet) throws PacketException, IOException,
-			ProtocolException {
+	public synchronized void process(Packet packet) throws PacketException,
+			IOException, ProtocolException {
 		if (authenticated) {
 			Message message = packet.decode(blockDecryptCipher);
 			byte type = message.getType();

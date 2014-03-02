@@ -7,6 +7,7 @@ import org.junit.Test;
 import remote.api.exceptions.PacketException;
 import remote.api.messages.AuthenticationResponse;
 import remote.api.messages.Message;
+import remote.api.messages.Ping;
 
 public class TestAuthenticationResponse {
 
@@ -40,4 +41,21 @@ public class TestAuthenticationResponse {
 		assertEquals(Message.AUTHENTICATION_RESPONSE, response.getType());
 	}
 
+	@Test
+	public void testCompareTo() {
+		AuthenticationResponse response = new AuthenticationResponse();
+		try {
+			response.compareTo(null);
+			fail("Did not throw an exception");
+		} catch (NullPointerException e) {
+		}
+		try {
+			response.compareTo(new Ping(false));
+			fail("Did not throw an exception");
+		} catch (ClassCastException e) {
+		}
+
+		// Compare to self
+		assertEquals(0, response.compareTo(response));
+	}
 }

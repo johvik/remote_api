@@ -3,13 +3,13 @@ package remote.api;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import javax.management.openmbean.InvalidKeyException;
 
 import remote.api.exceptions.AuthenticationException;
 import remote.api.exceptions.PacketException;
@@ -59,6 +59,9 @@ public abstract class Protocol {
 	protected Protocol(PublicKey publicKey, byte[] key, OutputStream output)
 			throws GeneralSecurityException, ProtocolException {
 		this(output);
+		if (key == null) {
+			throw new InvalidKeyException("Key cannot be null");
+		}
 		if (key.length != Packet.BLOCK_KEY_SIZE) {
 			throw new InvalidKeyException("Key has wrong length");
 		}

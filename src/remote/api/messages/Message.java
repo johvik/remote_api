@@ -3,7 +3,7 @@ package remote.api.messages;
 import remote.api.Packet;
 import remote.api.exceptions.PacketException;
 
-public abstract class Message {
+public abstract class Message implements Comparable<Message> {
 	// Number of type codes used.
 	public static final int USED_CODES = 4;
 

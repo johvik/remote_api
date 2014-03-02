@@ -43,4 +43,30 @@ public class TestUtils {
 		assertEquals(data1.length, data2.length);
 		assertThat(data1, not(equalTo(data2)));
 	}
+
+	@Test
+	public void testCompare() {
+		// Same array
+		assertEquals(0,
+				Utils.compare(Misc.getSequence(1, 10), Misc.getSequence(1, 10)));
+		assertEquals(0, Utils.compare(new byte[0], new byte[0]));
+
+		// Different lengths
+		assertEquals(-1, Utils.compare(new byte[0], new byte[1]));
+		assertEquals(1, Utils.compare(new byte[1], new byte[0]));
+
+		// Less than
+		assertEquals(-1,
+				Utils.compare(new byte[] { 1, 0 }, new byte[] { 1, 1 }));
+		assertEquals(-1, Utils.compare(new byte[] { 0 }, new byte[] { 1 }));
+
+		// Greater than
+		assertEquals(1, Utils.compare(new byte[] { 1, 1 }, new byte[] { 1, 0 }));
+		assertEquals(1, Utils.compare(new byte[] { 1 }, new byte[] { 0 }));
+
+		// Different null
+		assertEquals(0, Utils.compare(null, null));
+		assertEquals(-1, Utils.compare(null, new byte[0]));
+		assertEquals(1, Utils.compare(new byte[0], null));
+	}
 }

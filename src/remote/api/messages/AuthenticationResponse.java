@@ -25,4 +25,11 @@ public class AuthenticationResponse extends Message {
 	public byte getType() {
 		return AUTHENTICATION_RESPONSE;
 	}
+
+	@Override
+	public int compareTo(Message o) {
+		AuthenticationResponse other = (AuthenticationResponse) o;
+		other.getType(); // Dummy to create null pointer exception
+		return 0;
+	}
 }

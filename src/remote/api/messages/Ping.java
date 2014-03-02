@@ -39,4 +39,10 @@ public class Ping extends Message {
 	public boolean isRequest() {
 		return request;
 	}
+
+	@Override
+	public int compareTo(Message o) {
+		Ping other = (Ping) o;
+		return Boolean.valueOf(request).compareTo(other.request);
+	}
 }

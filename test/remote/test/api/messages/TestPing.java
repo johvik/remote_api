@@ -11,6 +11,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import remote.api.exceptions.PacketException;
+import remote.api.messages.AuthenticationResponse;
 import remote.api.messages.Message;
 import remote.api.messages.Ping;
 
@@ -70,5 +71,27 @@ public class TestPing {
 		// Ensure it has the correct type
 		Ping ping = new Ping(request);
 		assertEquals(Message.PING, ping.getType());
+	}
+
+	@Test
+	public void testCompareTo() {
+		Ping ping = new Ping(request);
+		try {
+			ping.compareTo(null);
+			fail("Did not throw an exception");
+		} catch (NullPointerException e) {
+		}
+		try {
+			ping.compareTo(new AuthenticationResponse());
+			fail("Did not throw an exception");
+		} catch (ClassCastException e) {
+		}
+
+		// Check against object with another request
+		Ping other = new Ping(!request);
+		assertNotEquals(0, ping.compareTo(other));
+
+		// Compare to self
+		assertEquals(0, ping.compareTo(ping));
 	}
 }

@@ -45,4 +45,10 @@ public class CommandRequest extends Message {
 	public Command getCommand() {
 		return command;
 	}
+
+	@Override
+	public int compareTo(Message o) {
+		CommandRequest other = (CommandRequest) o;
+		return command.compareTo(other.getCommand());
+	}
 }

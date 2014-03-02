@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import remote.api.commands.Command;
 import remote.api.commands.MouseMove;
 import remote.api.exceptions.PacketException;
 
@@ -123,12 +124,26 @@ public class TestMouseMove {
 
 	@Test
 	public void testCompareTo() {
+		try {
+			mm.compareTo(null);
+			fail("Did not throw an exception");
+		} catch (NullPointerException e) {
+		}
+		try {
+			// TODO Change when there are other commands
+			mm.compareTo((Command) new Object());
+			fail("Did not throw an exception");
+		} catch (ClassCastException e) {
+		}
+
 		// Check against object with another dx
 		MouseMove other = new MouseMove((short) (dx - 1), dy);
+		assertEquals(mm.getDy(), other.getDy());
 		assertNotEquals(0, mm.compareTo(other));
 
 		// Check against object with another dy
 		other = new MouseMove(dx, (short) (dy - 1));
+		assertEquals(mm.getDx(), other.getDx());
 		assertNotEquals(0, mm.compareTo(other));
 
 		// Compare to object with same parameters

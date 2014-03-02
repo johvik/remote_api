@@ -2,6 +2,7 @@ package remote.api.messages;
 
 import remote.api.exceptions.PacketException;
 import remote.api.Packet;
+import remote.api.Utils;
 
 public class AuthenticationRequest extends Message {
 	private static final int MIN_LENGTH = calculateSize(0, 0);
@@ -118,5 +119,18 @@ public class AuthenticationRequest extends Message {
 
 	public String getPassword() {
 		return password;
+	}
+
+	@Override
+	public int compareTo(Message o) {
+		AuthenticationRequest other = (AuthenticationRequest) o;
+		int cmp = Utils.compare(key, other.key);
+		if (cmp == 0) {
+			cmp = user.compareTo(other.user);
+			if (cmp == 0) {
+				cmp = password.compareTo(other.password);
+			}
+		}
+		return cmp;
 	}
 }
