@@ -13,16 +13,16 @@ import org.junit.runners.Parameterized.Parameters;
 
 import remote.api.commands.Command;
 import remote.api.commands.MouseMove;
-import remote.api.commands.MousePress;
+import remote.api.commands.MouseRelease;
 import remote.api.exceptions.PacketException;
 
 @RunWith(Parameterized.class)
-public class TestMousePress {
+public class TestMouseRelease {
 	private int buttons;
 
-	private MousePress mp;
+	private MouseRelease mr;
 
-	public TestMousePress(int buttons) {
+	public TestMouseRelease(int buttons) {
 		this.buttons = buttons;
 	}
 
@@ -34,28 +34,28 @@ public class TestMousePress {
 
 	@Before
 	public void setUp() throws Exception {
-		mp = new MousePress(buttons);
+		mr = new MouseRelease(buttons);
 	}
 
 	@Test
 	public void testWriteRead() throws PacketException {
 		for (int i = 0; i < 10; i++) {
-			byte[] data = new byte[mp.getLength() + i];
-			mp.write(data, i);
-			MousePress read = MousePress.read(data, i);
-			assertEquals(Command.MOUSE_PRESS, read.getType());
+			byte[] data = new byte[mr.getLength() + i];
+			mr.write(data, i);
+			MouseRelease read = MouseRelease.read(data, i);
+			assertEquals(Command.MOUSE_RELEASE, read.getType());
 			assertEquals(buttons, read.getButtons());
-			assertEquals(mp.getType(), read.getType());
-			assertEquals(mp.getButtons(), read.getButtons());
+			assertEquals(mr.getType(), read.getType());
+			assertEquals(mr.getButtons(), read.getButtons());
 		}
 	}
 
 	@Test
 	public void testWrite() {
-		byte[] data = new byte[mp.getLength()];
+		byte[] data = new byte[mr.getLength()];
 		int offset = 1;
 		try {
-			mp.write(data, offset);
+			mr.write(data, offset);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
 			PacketException ex = new PacketException("Invalid write " + offset,
@@ -63,9 +63,9 @@ public class TestMousePress {
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		data = new byte[0];
-		offset = -mp.getLength();
+		offset = -mr.getLength();
 		try {
-			mp.write(data, offset);
+			mr.write(data, offset);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
 			PacketException ex = new PacketException("Invalid write " + offset,
@@ -76,10 +76,10 @@ public class TestMousePress {
 
 	@Test
 	public void testRead() {
-		byte[] data = new byte[mp.getLength()];
+		byte[] data = new byte[mr.getLength()];
 		int offset = 1;
 		try {
-			MousePress.read(data, offset);
+			MouseRelease.read(data, offset);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
 			PacketException ex = new PacketException("Invalid read " + offset,
@@ -87,9 +87,9 @@ public class TestMousePress {
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		data = new byte[0];
-		offset = -mp.getLength();
+		offset = -mr.getLength();
 		try {
-			MousePress.read(data, offset);
+			MouseRelease.read(data, offset);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
 			PacketException ex = new PacketException("Invalid read " + offset,
@@ -99,41 +99,41 @@ public class TestMousePress {
 	}
 
 	public void testGetLength() {
-		assertEquals(MousePress.LENGTH, mp.getLength());
+		assertEquals(MouseRelease.LENGTH, mr.getLength());
 	}
 
 	@Test
 	public void testGetType() {
-		assertEquals(Command.MOUSE_PRESS, mp.getType());
+		assertEquals(Command.MOUSE_RELEASE, mr.getType());
 	}
 
 	@Test
 	public void testGetButtons() {
-		assertEquals(buttons, mp.getButtons());
+		assertEquals(buttons, mr.getButtons());
 	}
 
 	@Test
 	public void testCompareTo() {
 		try {
-			mp.compareTo(null);
+			mr.compareTo(null);
 			fail("Did not throw an exception");
 		} catch (NullPointerException e) {
 		}
 		try {
-			mp.compareTo(new MouseMove((short) 0, (short) 0));
+			mr.compareTo(new MouseMove((short) 0, (short) 0));
 			fail("Did not throw an exception");
 		} catch (ClassCastException e) {
 		}
 
 		// Check against object with another buttons
-		MousePress other = new MousePress(buttons - 1);
-		assertNotEquals(0, mp.compareTo(other));
+		MouseRelease other = new MouseRelease(buttons - 1);
+		assertNotEquals(0, mr.compareTo(other));
 
 		// Compare to object with same parameters
-		other = new MousePress(buttons);
-		assertEquals(0, mp.compareTo(other));
+		other = new MouseRelease(buttons);
+		assertEquals(0, mr.compareTo(other));
 
 		// Compare to self
-		assertEquals(0, mp.compareTo(mp));
+		assertEquals(0, mr.compareTo(mr));
 	}
 }

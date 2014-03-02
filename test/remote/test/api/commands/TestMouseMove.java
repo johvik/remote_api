@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import remote.api.commands.Command;
 import remote.api.commands.MouseMove;
 import remote.api.commands.MousePress;
 import remote.api.exceptions.PacketException;
@@ -46,7 +47,7 @@ public class TestMouseMove {
 			byte[] data = new byte[mm.getLength() + i];
 			mm.write(data, i);
 			MouseMove read = MouseMove.read(data, i);
-			assertEquals(MouseMove.MOUSE_MOVE, read.getType());
+			assertEquals(Command.MOUSE_MOVE, read.getType());
 			assertEquals(dx, read.getDx());
 			assertEquals(dy, read.getDy());
 			assertEquals(mm.getType(), read.getType());
@@ -109,7 +110,7 @@ public class TestMouseMove {
 
 	@Test
 	public void testGetType() {
-		assertEquals(MouseMove.MOUSE_MOVE, mm.getType());
+		assertEquals(Command.MOUSE_MOVE, mm.getType());
 	}
 
 	@Test
