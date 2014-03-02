@@ -74,14 +74,10 @@ public class ServerProtocol extends Protocol {
 					byte[] key = authentication.getKey();
 					SecretKey secretKey = new SecretKeySpec(key,
 							Packet.BLOCK_CIPHER);
-					try {
-						blockCipherInit(secretKey);
-						authenticated = true;
-						deliver(new AuthenticationResponse());
-					} catch (GeneralSecurityException e) {
-						throw new PacketException("Failed to set block cipher",
-								key, e);
-					}
+					// Initialize the block cipher
+					blockCipherInit(secretKey);
+					authenticated = true;
+					deliver(new AuthenticationResponse());
 				} else {
 					throw new AuthenticationException("Bad login");
 				}

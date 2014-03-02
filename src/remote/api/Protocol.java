@@ -96,11 +96,15 @@ public abstract class Protocol {
 	 * @throws GeneralSecurityException
 	 */
 	protected void blockCipherInit(SecretKey secretKey)
-			throws GeneralSecurityException {
-		blockDecryptCipher = Cipher.getInstance(Packet.BLOCK_CIPHER);
-		blockDecryptCipher.init(Cipher.DECRYPT_MODE, secretKey);
-		blockEncryptCipher = Cipher.getInstance(Packet.BLOCK_CIPHER);
-		blockEncryptCipher.init(Cipher.ENCRYPT_MODE, secretKey);
+			throws ProtocolException {
+		try {
+			blockDecryptCipher = Cipher.getInstance(Packet.BLOCK_CIPHER);
+			blockDecryptCipher.init(Cipher.DECRYPT_MODE, secretKey);
+			blockEncryptCipher = Cipher.getInstance(Packet.BLOCK_CIPHER);
+			blockEncryptCipher.init(Cipher.ENCRYPT_MODE, secretKey);
+		} catch (GeneralSecurityException e) {
+			throw new ProtocolException("Failed to set block cipher", e);
+		}
 	}
 
 	/**
