@@ -13,6 +13,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import remote.api.commands.Command;
 import remote.api.commands.KeyPress;
+import remote.api.commands.KeyRelease;
 import remote.api.commands.MouseMove;
 import remote.api.commands.MousePress;
 import remote.api.commands.MouseRelease;
@@ -38,7 +39,8 @@ public class TestCommandRequest {
 				{ new MouseMove((short) -1, (short) 100) },
 				{ new MousePress(0x12345678) },
 				{ new MouseRelease(0x87654321) },
-				{ new MouseWheel(0xFFFFFFFF) }, { new KeyPress(1) } });
+				{ new MouseWheel(0xFFFFFFFF) }, { new KeyPress(1) },
+				{ new KeyRelease(-1234567890) } });
 		assertEquals(Command.USED_CODES, list.size());
 		return list;
 	}
