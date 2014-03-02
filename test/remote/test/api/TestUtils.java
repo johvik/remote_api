@@ -9,6 +9,10 @@ import org.junit.Test;
 import remote.api.Utils;
 
 public class TestUtils {
+	@Test
+	public void testUtils() {
+		new Utils();
+	}
 
 	@Test
 	public void testToHex() {

@@ -8,4 +8,9 @@ public class PacketException extends Exception {
 	public PacketException(String message, byte[] data) {
 		super((message + " " + Utils.toHex(data)).trim());
 	}
+
+	public PacketException(String message, byte[] data, Throwable t) {
+		super((message + " " + Utils.toHex(data)).trim() + "\n"
+				+ t.getMessage(), t);
+	}
 }

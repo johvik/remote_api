@@ -1,6 +1,7 @@
 package remote.test.api;
 
 import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsEqual.equalTo;
 
@@ -127,6 +128,34 @@ public class TestPacket {
 		assertArrayEquals(key, ((AuthenticationRequest) message).getKey());
 		assertEquals(user, ((AuthenticationRequest) message).getUser());
 		assertEquals(password, ((AuthenticationRequest) message).getPassword());
+	}
+
+	@Test
+	public void testEncodeFail() throws IOException {
+		byte[] data = new byte[1];
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		try {
+			// Try with decryption cipher...
+			new Packet(data).write(Misc.blockDecryptCipher, output);
+			fail("Did not throw an exception");
+		} catch (PacketException e) {
+			PacketException ex = new PacketException(
+					"Failed to encrypt packet", data);
+			assertThat(e.getMessage(), startsWith(ex.getMessage()));
+		}
+	}
+
+	@Test
+	public void testDecodeFail() {
+		byte[] data = new byte[1];
+		try {
+			new Packet(data, true).decode(Misc.blockDecryptCipher);
+			fail("Did not throw an exception");
+		} catch (PacketException e) {
+			PacketException ex = new PacketException(
+					"Failed to decrypt packet", data);
+			assertThat(e.getMessage(), startsWith(ex.getMessage()));
+		}
 	}
 
 	@Test

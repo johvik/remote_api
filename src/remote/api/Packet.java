@@ -53,8 +53,7 @@ public class Packet {
 				data = cipher.doFinal(data);
 				encrypted = false;
 			} catch (GeneralSecurityException e) {
-				e.printStackTrace();
-				throw new PacketException("Failed to decrypt packet", data);
+				throw new PacketException("Failed to decrypt packet", data, e);
 			}
 		}
 	}
@@ -65,8 +64,7 @@ public class Packet {
 				data = cipher.doFinal(data);
 				encrypted = true;
 			} catch (GeneralSecurityException e) {
-				e.printStackTrace();
-				throw new PacketException("Failed to encrypt packet", data);
+				throw new PacketException("Failed to encrypt packet", data, e);
 			}
 		}
 	}

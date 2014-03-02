@@ -80,9 +80,8 @@ public class ServerProtocol extends Protocol {
 						authenticated = true;
 						deliver(new AuthenticationResponse());
 					} catch (GeneralSecurityException e) {
-						e.printStackTrace();
 						throw new PacketException("Failed to set block cipher",
-								key);
+								key, e);
 					}
 				} else {
 					throw new AuthenticationException("Bad login");
