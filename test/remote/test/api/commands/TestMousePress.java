@@ -39,7 +39,7 @@ public class TestMousePress {
 	@Test
 	public void testWriteRead() throws PacketException {
 		for (int i = 0; i < 10; i++) {
-			byte[] data = new byte[MousePress.LENGTH + i];
+			byte[] data = new byte[mp.getLength() + i];
 			mp.write(data, i);
 			MousePress read = MousePress.read(data, i);
 			assertEquals(MousePress.MOUSE_PRESS, read.getType());
@@ -51,7 +51,7 @@ public class TestMousePress {
 
 	@Test
 	public void testWrite() {
-		byte[] data = new byte[MousePress.LENGTH];
+		byte[] data = new byte[mp.getLength()];
 		int offset = 1;
 		try {
 			mp.write(data, offset);
@@ -62,7 +62,7 @@ public class TestMousePress {
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		data = new byte[0];
-		offset = -MousePress.LENGTH;
+		offset = -mp.getLength();
 		try {
 			mp.write(data, offset);
 			fail("Did not throw an exception");
@@ -75,7 +75,7 @@ public class TestMousePress {
 
 	@Test
 	public void testRead() {
-		byte[] data = new byte[MousePress.LENGTH];
+		byte[] data = new byte[mp.getLength()];
 		int offset = 1;
 		try {
 			MousePress.read(data, offset);
@@ -86,7 +86,7 @@ public class TestMousePress {
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		data = new byte[0];
-		offset = -MousePress.LENGTH;
+		offset = -mp.getLength();
 		try {
 			MousePress.read(data, offset);
 			fail("Did not throw an exception");
