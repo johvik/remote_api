@@ -2,6 +2,7 @@ package remote.api.messages;
 
 import remote.api.Packet;
 import remote.api.commands.Command;
+import remote.api.commands.KeyPress;
 import remote.api.commands.MouseMove;
 import remote.api.commands.MousePress;
 import remote.api.commands.MouseRelease;
@@ -41,6 +42,8 @@ public class CommandRequest extends Message {
 			return new CommandRequest(MouseRelease.read(data, STATIC_LENGTH));
 		case Command.MOUSE_WHEEL:
 			return new CommandRequest(MouseWheel.read(data, STATIC_LENGTH));
+		case Command.KEY_PRESS:
+			return new CommandRequest(KeyPress.read(data, STATIC_LENGTH));
 		}
 		throw new PacketException("Unknown command message", data);
 	}

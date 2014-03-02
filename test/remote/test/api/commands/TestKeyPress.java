@@ -12,18 +12,18 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import remote.api.commands.Command;
+import remote.api.commands.KeyPress;
 import remote.api.commands.MouseMove;
-import remote.api.commands.MouseWheel;
 import remote.api.exceptions.PacketException;
 
 @RunWith(Parameterized.class)
-public class TestMouseWheel {
-	private int wheelAmt;
+public class TestKeyPress {
+	private int keycode;
 
-	private MouseWheel mw;
+	private KeyPress kp;
 
-	public TestMouseWheel(int wheelAmt) {
-		this.wheelAmt = wheelAmt;
+	public TestKeyPress(int keycode) {
+		this.keycode = keycode;
 	}
 
 	@Parameters
@@ -34,28 +34,28 @@ public class TestMouseWheel {
 
 	@Before
 	public void setUp() throws Exception {
-		mw = new MouseWheel(wheelAmt);
+		kp = new KeyPress(keycode);
 	}
 
 	@Test
 	public void testWriteRead() throws PacketException {
 		for (int i = 0; i < 10; i++) {
-			byte[] data = new byte[mw.getLength() + i];
-			mw.write(data, i);
-			MouseWheel read = MouseWheel.read(data, i);
-			assertEquals(Command.MOUSE_WHEEL, read.getType());
-			assertEquals(wheelAmt, read.getWheelAmt());
-			assertEquals(mw.getType(), read.getType());
-			assertEquals(mw.getWheelAmt(), read.getWheelAmt());
+			byte[] data = new byte[kp.getLength() + i];
+			kp.write(data, i);
+			KeyPress read = KeyPress.read(data, i);
+			assertEquals(Command.KEY_PRESS, read.getType());
+			assertEquals(keycode, read.getKeycode());
+			assertEquals(kp.getType(), read.getType());
+			assertEquals(kp.getKeycode(), read.getKeycode());
 		}
 	}
 
 	@Test
 	public void testWrite() {
-		byte[] data = new byte[mw.getLength()];
+		byte[] data = new byte[kp.getLength()];
 		int offset = 1;
 		try {
-			mw.write(data, offset);
+			kp.write(data, offset);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
 			PacketException ex = new PacketException("Invalid write " + offset,
@@ -63,9 +63,9 @@ public class TestMouseWheel {
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		data = new byte[0];
-		offset = -mw.getLength();
+		offset = -kp.getLength();
 		try {
-			mw.write(data, offset);
+			kp.write(data, offset);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
 			PacketException ex = new PacketException("Invalid write " + offset,
@@ -76,10 +76,10 @@ public class TestMouseWheel {
 
 	@Test
 	public void testRead() {
-		byte[] data = new byte[mw.getLength()];
+		byte[] data = new byte[kp.getLength()];
 		int offset = 1;
 		try {
-			MouseWheel.read(data, offset);
+			KeyPress.read(data, offset);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
 			PacketException ex = new PacketException("Invalid read " + offset,
@@ -87,9 +87,9 @@ public class TestMouseWheel {
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		data = new byte[0];
-		offset = -mw.getLength();
+		offset = -kp.getLength();
 		try {
-			MouseWheel.read(data, offset);
+			KeyPress.read(data, offset);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
 			PacketException ex = new PacketException("Invalid read " + offset,
@@ -99,41 +99,41 @@ public class TestMouseWheel {
 	}
 
 	public void testGetLength() {
-		assertEquals(MouseWheel.LENGTH, mw.getLength());
+		assertEquals(KeyPress.LENGTH, kp.getLength());
 	}
 
 	@Test
 	public void testGetType() {
-		assertEquals(Command.MOUSE_WHEEL, mw.getType());
+		assertEquals(Command.KEY_PRESS, kp.getType());
 	}
 
 	@Test
 	public void testGetButtons() {
-		assertEquals(wheelAmt, mw.getWheelAmt());
+		assertEquals(keycode, kp.getKeycode());
 	}
 
 	@Test
 	public void testCompareTo() {
 		try {
-			mw.compareTo(null);
+			kp.compareTo(null);
 			fail("Did not throw an exception");
 		} catch (NullPointerException e) {
 		}
 		try {
-			mw.compareTo(new MouseMove((short) 0, (short) 0));
+			kp.compareTo(new MouseMove((short) 0, (short) 0));
 			fail("Did not throw an exception");
 		} catch (ClassCastException e) {
 		}
 
-		// Check against object with another wheel amount
-		MouseWheel other = new MouseWheel(wheelAmt - 1);
-		assertNotEquals(0, mw.compareTo(other));
+		// Check against object with another key code
+		KeyPress other = new KeyPress(keycode - 1);
+		assertNotEquals(0, kp.compareTo(other));
 
 		// Compare to object with same parameters
-		other = new MouseWheel(wheelAmt);
-		assertEquals(0, mw.compareTo(other));
+		other = new KeyPress(keycode);
+		assertEquals(0, kp.compareTo(other));
 
 		// Compare to self
-		assertEquals(0, mw.compareTo(mw));
+		assertEquals(0, kp.compareTo(kp));
 	}
 }
