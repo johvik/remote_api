@@ -13,6 +13,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import remote.api.commands.Command;
 import remote.api.commands.MouseMove;
+import remote.api.commands.MousePress;
 import remote.api.exceptions.PacketException;
 import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
@@ -30,8 +31,9 @@ public class TestCommandRequest {
 
 	@Parameters
 	public static Collection<Object[]> data() {
-		List<Object[]> list = Arrays.asList(new Object[][] { { new MouseMove(
-				(short) -1, (short) 100) } });
+		List<Object[]> list = Arrays.asList(new Object[][] {
+				{ new MouseMove((short) -1, (short) 100) },
+				{ new MousePress(0x12345678) } });
 		assertEquals(Command.USED_CODES, list.size());
 		return list;
 	}

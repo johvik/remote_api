@@ -3,6 +3,7 @@ package remote.api.messages;
 import remote.api.Packet;
 import remote.api.commands.Command;
 import remote.api.commands.MouseMove;
+import remote.api.commands.MousePress;
 import remote.api.exceptions.PacketException;
 
 public class CommandRequest extends Message {
@@ -32,6 +33,8 @@ public class CommandRequest extends Message {
 		switch (type) {
 		case Command.MOUSE_MOVE:
 			return new CommandRequest(MouseMove.read(data, STATIC_LENGTH));
+		case Command.MOUSE_PRESS:
+			return new CommandRequest(MousePress.read(data, STATIC_LENGTH));
 		default:
 			throw new PacketException("Unknown command message", data);
 		}
@@ -49,6 +52,13 @@ public class CommandRequest extends Message {
 	@Override
 	public int compareTo(Message o) {
 		CommandRequest other = (CommandRequest) o;
-		return command.compareTo(other.getCommand());
+		Command otherCommand = other.command;
+		// "Class" check
+		int cmp = Byte.valueOf(command.getType()).compareTo(
+				otherCommand.getType());
+		if (cmp == 0) {
+			cmp = command.compareTo(otherCommand);
+		}
+		return cmp;
 	}
 }
