@@ -54,13 +54,12 @@ public class ServerProtocol extends Protocol {
 			switch (type) {
 			case Message.PING:
 				processPing((Ping) message);
-				break;
+				return;
 			case Message.COMMAND_REQUEST:
 				commandHandler.handle(((CommandRequest) message).getCommand());
-				break;
-			default:
-				throw new ProtocolException("Unexpected message type: " + type);
+				return;
 			}
+			throw new ProtocolException("Unexpected message type: " + type);
 		} else {
 			// Only accept authentication requests
 			Message message = packet.decode(secureCipher);
@@ -86,10 +85,9 @@ public class ServerProtocol extends Protocol {
 				} else {
 					throw new AuthenticationException("Bad login");
 				}
-				break;
-			default:
-				throw new ProtocolException("Unexpected message type: " + type);
+				return;
 			}
+			throw new ProtocolException("Unexpected message type: " + type);
 		}
 	}
 }

@@ -45,10 +45,9 @@ public class ClientProtocol extends Protocol {
 			switch (type) {
 			case Message.PING:
 				processPing((Ping) message);
-				break;
-			default:
-				throw new ProtocolException("Unexpected message type: " + type);
+				return;
 			}
+			throw new ProtocolException("Unexpected message type: " + type);
 		} else {
 			// Only accept authentication responses
 			Message message = packet.decode(secureCipher);
@@ -56,10 +55,9 @@ public class ClientProtocol extends Protocol {
 			switch (type) {
 			case Message.AUTHENTICATION_RESPONSE:
 				authenticated = true;
-				break;
-			default:
-				throw new ProtocolException("Unexpected message type: " + type);
+				return;
 			}
+			throw new ProtocolException("Unexpected message type: " + type);
 		}
 	}
 }

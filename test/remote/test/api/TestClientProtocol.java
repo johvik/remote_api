@@ -87,6 +87,7 @@ public class TestClientProtocol {
 					"Expecting authentication");
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
+		assertArrayEquals(new byte[0], output.toByteArray());
 	}
 
 	@Test
@@ -116,6 +117,7 @@ public class TestClientProtocol {
 							+ Message.AUTHENTICATION_RESPONSE);
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
+		assertArrayEquals(new byte[0], output.toByteArray());
 	}
 
 	@Test
@@ -136,6 +138,7 @@ public class TestClientProtocol {
 		assertEquals(user, r.getUser());
 		assertEquals(password, r.getPassword());
 
+		output.reset();
 		// Authenticate
 		cp.process(new AuthenticationResponse().pack());
 
@@ -147,6 +150,7 @@ public class TestClientProtocol {
 					"Already authenticated");
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
+		assertArrayEquals(new byte[0], output.toByteArray());
 	}
 
 	@Test
@@ -175,6 +179,10 @@ public class TestClientProtocol {
 
 		// Send a ping
 		cp.ping(null);
+		// Check that it was written
+		Packet p = Packet.read(output.toByteArray());
+		Ping ping = (Ping) p.decode(Misc.blockDecryptCipher);
+		assertEquals(0, ping.compareTo(new Ping(true)));
 
 		// Try to ping twice (not allowed)
 		try {
@@ -185,8 +193,11 @@ public class TestClientProtocol {
 					"Ping already requested");
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
-		// Respond to requested ping
+
+		output.reset();
+		// Fake response to requested ping
 		cp.process(new Ping(false).pack());
+		assertArrayEquals(new byte[0], output.toByteArray());
 
 		// Process twice (not allowed)
 		try {
@@ -196,6 +207,7 @@ public class TestClientProtocol {
 			ProtocolException ex = new ProtocolException("Ping not requested");
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
+		assertArrayEquals(new byte[0], output.toByteArray());
 
 		// Measure the ping time a couple of times
 		for (int i = 0; i < 5; i++) {
@@ -203,16 +215,25 @@ public class TestClientProtocol {
 			long start = System.nanoTime();
 			// Request with callback
 			cp.ping(pingCallback);
+			// Check that it was written
+			p = Packet.read(output.toByteArray());
+			ping = (Ping) p.decode(Misc.blockDecryptCipher);
+			assertEquals(0, ping.compareTo(new Ping(true)));
 			// Check that the callback wasn't called before the response
 			assertEquals(-1, pingDiff);
 
-			// Respond
+			// Fake response
 			cp.process(new Ping(false).pack());
 			long diff = System.nanoTime() - start;
 			assertThat(pingDiff, lessThanOrEqualTo(diff));
 		}
 
-		// Fake respond to a request
+		output.reset();
+		// Respond to a request
 		cp.process(new Ping(true).pack());
+		// Check that it was written
+		p = Packet.read(output.toByteArray());
+		ping = (Ping) p.decode(Misc.blockDecryptCipher);
+		assertEquals(0, ping.compareTo(new Ping(false)));
 	}
 }

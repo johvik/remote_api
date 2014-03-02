@@ -21,6 +21,7 @@ import remote.api.exceptions.AuthenticationException;
 import remote.api.exceptions.PacketException;
 import remote.api.exceptions.ProtocolException;
 import remote.api.messages.AuthenticationRequest;
+import remote.api.messages.AuthenticationResponse;
 import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
 import remote.api.messages.Ping;
@@ -100,11 +101,15 @@ public class TestServerProtocol {
 		ServerProtocol sp = new ServerProtocol(authentication, commandHandler,
 				Misc.privateKey, output);
 		// Authenticate
-		sp.process(new AuthenticationRequest(new byte[Packet.BLOCK_KEY_SIZE],
-				"", "").pack());
+		sp.process(new AuthenticationRequest(Misc.key, "", "").pack());
+		output.reset();
 
 		// Send a ping
 		sp.ping(null);
+		// Check that it was written
+		Packet p = Packet.read(output.toByteArray());
+		Ping ping = (Ping) p.decode(Misc.blockDecryptCipher);
+		assertEquals(0, ping.compareTo(new Ping(true)));
 
 		// Try to ping twice (not allowed)
 		try {
@@ -115,8 +120,11 @@ public class TestServerProtocol {
 					"Ping already requested");
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
-		// Respond to requested ping
+
+		output.reset();
+		// Fake response to requested ping
 		sp.process(new Ping(false).pack());
+		assertArrayEquals(new byte[0], output.toByteArray());
 
 		// Process twice (not allowed)
 		try {
@@ -126,6 +134,7 @@ public class TestServerProtocol {
 			ProtocolException ex = new ProtocolException("Ping not requested");
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
+		assertArrayEquals(new byte[0], output.toByteArray());
 
 		// Measure the ping time a couple of times
 		for (int i = 0; i < 5; i++) {
@@ -133,6 +142,10 @@ public class TestServerProtocol {
 			long start = System.nanoTime();
 			// Request with callback
 			sp.ping(pingCallback);
+			// Check that it was written
+			p = Packet.read(output.toByteArray());
+			ping = (Ping) p.decode(Misc.blockDecryptCipher);
+			assertEquals(0, ping.compareTo(new Ping(true)));
 			// Check that the callback wasn't called before the response
 			assertEquals(-1, pingDiff);
 
@@ -142,8 +155,13 @@ public class TestServerProtocol {
 			assertThat(pingDiff, lessThanOrEqualTo(diff));
 		}
 
-		// Fake respond to a request
+		output.reset();
+		// Respond to a request
 		sp.process(new Ping(true).pack());
+		// Check that it was written
+		p = Packet.read(output.toByteArray());
+		ping = (Ping) p.decode(Misc.blockDecryptCipher);
+		assertEquals(0, ping.compareTo(new Ping(false)));
 	}
 
 	@Test
@@ -156,10 +174,12 @@ public class TestServerProtocol {
 		sp.process(new AuthenticationRequest(new byte[Packet.BLOCK_KEY_SIZE],
 				"", "").pack());
 
+		output.reset();
 		assertEquals(false, commandHandled);
 		// Send a command request
 		sp.process(new CommandRequest(new MouseMove((short) 0, (short) 0))
 				.pack());
+		assertArrayEquals(new byte[0], output.toByteArray());
 		assertEquals(true, commandHandled);
 		commandHandled = false;
 	}
@@ -179,6 +199,7 @@ public class TestServerProtocol {
 					"Expecting authentication");
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
+		assertArrayEquals(new byte[0], output.toByteArray());
 	}
 
 	@Test
@@ -197,6 +218,7 @@ public class TestServerProtocol {
 					"Bad login");
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
+		assertArrayEquals(new byte[0], output.toByteArray());
 
 		// Try to process without authentication
 		try {
@@ -207,12 +229,18 @@ public class TestServerProtocol {
 					"Unexpected message type: " + Message.PING);
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
+		assertArrayEquals(new byte[0], output.toByteArray());
 
 		// Try to authenticate twice
 		sp = new ServerProtocol(authentication, commandHandler,
 				Misc.privateKey, output);
-		sp.process(new AuthenticationRequest(new byte[Packet.BLOCK_KEY_SIZE],
-				"", "").pack());
+		sp.process(new AuthenticationRequest(Misc.key, "", "").pack());
+		Packet p = Packet.read(output.toByteArray());
+		AuthenticationResponse r = (AuthenticationResponse) p
+				.decode(Misc.blockDecryptCipher);
+		assertEquals(0, r.compareTo(new AuthenticationResponse()));
+
+		output.reset();
 		// Not allowed to do it twice
 		try {
 			sp.process(new AuthenticationRequest(
@@ -224,5 +252,6 @@ public class TestServerProtocol {
 							+ Message.AUTHENTICATION_REQUEST);
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
+		assertArrayEquals(new byte[0], output.toByteArray());
 	}
 }
