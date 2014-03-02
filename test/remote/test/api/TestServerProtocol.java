@@ -14,10 +14,14 @@ import remote.api.Packet;
 import remote.api.ServerProtocol;
 import remote.api.Protocol.PingCallback;
 import remote.api.ServerProtocol.AuthenticationCheck;
+import remote.api.ServerProtocol.CommandHandler;
+import remote.api.commands.Command;
+import remote.api.commands.MouseMove;
 import remote.api.exceptions.AuthenticationException;
 import remote.api.exceptions.PacketException;
 import remote.api.exceptions.ProtocolException;
 import remote.api.messages.AuthenticationRequest;
+import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
 import remote.api.messages.Ping;
 
@@ -34,6 +38,13 @@ public class TestServerProtocol {
 			return false;
 		}
 	};
+	private boolean commandHandled = false;
+	private CommandHandler commandHandler = new CommandHandler() {
+		@Override
+		public void handle(Command command) {
+			commandHandled = true;
+		}
+	};
 	private long pingDiff = -1;
 	private PingCallback pingCallback = new PingCallback() {
 		@Override
@@ -47,7 +58,7 @@ public class TestServerProtocol {
 			ProtocolException {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
-			new ServerProtocol(null, Misc.privateKey, output);
+			new ServerProtocol(null, commandHandler, Misc.privateKey, output);
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException(
@@ -55,13 +66,22 @@ public class TestServerProtocol {
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		try {
-			new ServerProtocol(authentication, null, output);
+			new ServerProtocol(authentication, null, Misc.privateKey, output);
+			fail("Did not throw an exception");
+		} catch (ProtocolException e) {
+			ProtocolException ex = new ProtocolException(
+					"Command handler cannot be null");
+			assertEquals(ex.getMessage(), e.getMessage());
+		}
+		try {
+			new ServerProtocol(authentication, commandHandler, null, output);
 			fail("Did not throw an exception");
 		} catch (InvalidKeyException e) {
 			// Skip checking this one
 		}
 		try {
-			new ServerProtocol(authentication, Misc.privateKey, null);
+			new ServerProtocol(authentication, commandHandler, Misc.privateKey,
+					null);
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException(
@@ -74,8 +94,8 @@ public class TestServerProtocol {
 	public void testPing() throws GeneralSecurityException, ProtocolException,
 			PacketException, IOException {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		ServerProtocol sp = new ServerProtocol(authentication, Misc.privateKey,
-				output);
+		ServerProtocol sp = new ServerProtocol(authentication, commandHandler,
+				Misc.privateKey, output);
 		// Authenticate
 		sp.process(new AuthenticationRequest(new byte[Packet.BLOCK_KEY_SIZE],
 				"", "").pack());
@@ -124,11 +144,29 @@ public class TestServerProtocol {
 	}
 
 	@Test
+	public void testCommandRequest() throws GeneralSecurityException,
+			ProtocolException, PacketException, IOException {
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		ServerProtocol sp = new ServerProtocol(authentication, commandHandler,
+				Misc.privateKey, output);
+		// Authenticate
+		sp.process(new AuthenticationRequest(new byte[Packet.BLOCK_KEY_SIZE],
+				"", "").pack());
+
+		assertEquals(false, commandHandled);
+		// Send a command request
+		sp.process(new CommandRequest(new MouseMove((short) 0, (short) 0))
+				.pack());
+		assertEquals(true, commandHandled);
+		commandHandled = false;
+	}
+
+	@Test
 	public void testNotAuthenticated() throws GeneralSecurityException,
 			ProtocolException, PacketException, IOException {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		ServerProtocol sp = new ServerProtocol(authentication, Misc.privateKey,
-				output);
+		ServerProtocol sp = new ServerProtocol(authentication, commandHandler,
+				Misc.privateKey, output);
 		// Not authenticated
 		try {
 			sp.ping(null);
@@ -145,7 +183,7 @@ public class TestServerProtocol {
 			ProtocolException, PacketException, IOException {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ServerProtocol sp = new ServerProtocol(authenticationFail,
-				Misc.privateKey, output);
+				commandHandler, Misc.privateKey, output);
 		// Fail to authenticate
 		try {
 			sp.process(new AuthenticationRequest(
@@ -168,7 +206,8 @@ public class TestServerProtocol {
 		}
 
 		// Try to authenticate twice
-		sp = new ServerProtocol(authentication, Misc.privateKey, output);
+		sp = new ServerProtocol(authentication, commandHandler,
+				Misc.privateKey, output);
 		sp.process(new AuthenticationRequest(new byte[Packet.BLOCK_KEY_SIZE],
 				"", "").pack());
 		// Not allowed to do it twice
