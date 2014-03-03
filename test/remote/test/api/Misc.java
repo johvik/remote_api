@@ -70,4 +70,19 @@ public class Misc {
 		}
 		return sequence;
 	}
+
+	/**
+	 * Creates a new string by repeating the input.
+	 * 
+	 * @param c
+	 * @param times
+	 * @return The repeated string
+	 */
+	public static String repeat(char c, int times) {
+		StringBuffer b = new StringBuffer();
+		for (int i = 0; i < times; i++) {
+			b.append(c);
+		}
+		return b.toString();
+	}
 }

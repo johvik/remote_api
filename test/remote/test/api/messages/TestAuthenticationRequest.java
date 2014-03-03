@@ -32,21 +32,16 @@ public class TestAuthenticationRequest {
 
 	@Parameters
 	public static Collection<Object[]> data() {
-		return Arrays
-				.asList(new Object[][] {
-						{ Misc.getSequence(1, Packet.BLOCK_KEY_SIZE), "", "" },
-						{
-								Misc.getSequence(-Packet.BLOCK_KEY_SIZE,
-										Packet.BLOCK_KEY_SIZE), "USER",
-								"PASSWORD" },
-						{
-								// Exactly MAX_LENGTH
-								new byte[Packet.BLOCK_KEY_SIZE],
-								"a longer user than the other ones",
-								"also the password is a lot longer than the other tests: "
-										+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa "
-										+ "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb "
-										+ "ccccccccccccccccccccccccccccccccccccccccc" } });
+		return Arrays.asList(new Object[][] {
+				{ Misc.getSequence(1, Packet.BLOCK_KEY_SIZE), "", "" },
+				{
+						Misc.getSequence(-Packet.BLOCK_KEY_SIZE,
+								Packet.BLOCK_KEY_SIZE), "USER", "PASSWORD" }, {
+						// Exactly MAX_LENGTH
+						new byte[Packet.BLOCK_KEY_SIZE], Misc.repeat('a', 100),
+						// 245 = 1 + BLOCK_KEY_SIZE + 2 + 100 + x
+						// => x = 142 - BLOCK_KEY_SIZE
+						Misc.repeat('b', 142 - Packet.BLOCK_KEY_SIZE) } });
 	}
 
 	@Test
@@ -142,7 +137,7 @@ public class TestAuthenticationRequest {
 
 		// Try to unpack with too long lengths
 		try {
-			data[10] = (byte) 0xFF;
+			data[Packet.BLOCK_KEY_SIZE + 1] = (byte) 0xFF;
 			AuthenticationRequest.unpack(data);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
