@@ -65,6 +65,35 @@ public class TestPacket {
 		buffer[1] = (byte) (length & 0xFF);
 		packet = Packet.read(buffer);
 		assertArrayEquals(reference, packet.getData());
+
+		// Test different offset and length
+		for (int i = 0; i < 8; i++) {
+			length = 8 - i;
+			buffer[i] = (byte) ((length >> 8) & 0xFF);
+			buffer[i + 1] = (byte) (length & 0xFF);
+			packet = Packet.read(buffer, i, length + 2);
+			assertArrayEquals(Misc.getSequence(i + 1, length), packet.getData());
+		}
+
+		// Test invalid offset and length
+		try {
+			Packet.read(buffer, 1, buffer.length);
+			fail("Did not throw an exception");
+		} catch (PacketException e) {
+			PacketException ex = new PacketException("Length less than: " + 1
+					+ " + " + buffer.length, buffer);
+			assertEquals(ex.getMessage(), e.getMessage());
+		}
+
+		// Test invalid offset and length
+		try {
+			Packet.read(buffer, 0, buffer.length + 1);
+			fail("Did not throw an exception");
+		} catch (PacketException e) {
+			PacketException ex = new PacketException("Length less than: " + 0
+					+ " + " + (buffer.length + 1), buffer);
+			assertEquals(ex.getMessage(), e.getMessage());
+		}
 	}
 
 	@Test

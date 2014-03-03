@@ -73,22 +73,39 @@ public class Packet {
 	 * Attempts to read a packet from the data.
 	 * 
 	 * @param data
+	 * @param off
+	 * @param len
 	 * @return A packet or null if not enough data.
 	 * @throws PacketException
 	 */
-	public static Packet read(byte[] data) throws PacketException {
-		int length = ((data[0] & 0xFF) << 8) | (data[1] & 0xFF);
-		if (length > Message.MAX_LENGTH) {
+	public static Packet read(byte[] data, int off, int len)
+			throws PacketException {
+		int packetLength = ((data[off] & 0xFF) << 8) | (data[off + 1] & 0xFF);
+		if (packetLength > Message.MAX_LENGTH) {
 			throw new PacketException("Message too long", data);
-		} else if (data.length >= length + 2) {
+		} else if (data.length < off + len) {
+			throw new PacketException("Length less than: " + off + " + " + len,
+					data);
+		} else if (len >= packetLength + 2) {
 			// Copy data to new array
-			byte[] packetData = new byte[length];
-			System.arraycopy(data, 2, packetData, 0, length);
+			byte[] packetData = new byte[packetLength];
+			System.arraycopy(data, 2 + off, packetData, 0, packetLength);
 
 			return new Packet(packetData, true);
 		}
 		// Not enough data available
 		return null;
+	}
+
+	/**
+	 * Same as read with offset as 0 and length as data.length.
+	 * 
+	 * @param data
+	 * @return A packet or null if not enough data.
+	 * @throws PacketException
+	 */
+	public static Packet read(byte[] data) throws PacketException {
+		return read(data, 0, data.length);
 	}
 
 	/**
