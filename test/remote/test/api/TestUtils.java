@@ -1,6 +1,7 @@
 package remote.test.api;
 
 import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsEqual.equalTo;
 
@@ -22,6 +23,11 @@ public class TestUtils {
 		assertEquals("00", Utils.toHex(new byte[] { 0 }));
 		assertEquals("", Utils.toHex(new byte[] {}));
 		assertEquals("null", Utils.toHex(null));
+		// Test a longer array
+		int size = 8192;
+		String hex = Utils.toHex(new byte[size]);
+		assertEquals(size * 3 - 1, hex.length());
+		assertThat(hex, startsWith("00 00 00 00 00 00 00 00"));
 	}
 
 	@Test
