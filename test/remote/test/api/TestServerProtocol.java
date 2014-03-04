@@ -101,7 +101,8 @@ public class TestServerProtocol {
 		ServerProtocol sp = new ServerProtocol(authentication, commandHandler,
 				Misc.privateKey, output);
 		// Authenticate
-		sp.process(new AuthenticationRequest(Misc.key, "", "").pack());
+		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key, "",
+				"").pack()));
 		output.reset();
 
 		// Send a ping
@@ -123,12 +124,12 @@ public class TestServerProtocol {
 
 		output.reset();
 		// Fake response to requested ping
-		sp.process(new Ping(false).pack());
+		sp.process(Misc.encryptBlock(new Ping(false).pack()));
 		assertArrayEquals(new byte[0], output.toByteArray());
 
 		// Process twice (not allowed)
 		try {
-			sp.process(new Ping(false).pack());
+			sp.process(Misc.encryptBlock(new Ping(false).pack()));
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException("Ping not requested");
@@ -150,14 +151,14 @@ public class TestServerProtocol {
 			assertEquals(-1, pingDiff);
 
 			// Respond
-			sp.process(new Ping(false).pack());
+			sp.process(Misc.encryptBlock(new Ping(false).pack()));
 			long diff = System.nanoTime() - start;
 			assertThat(pingDiff, lessThanOrEqualTo(diff));
 		}
 
 		output.reset();
 		// Respond to a request
-		sp.process(new Ping(true).pack());
+		sp.process(Misc.encryptBlock(new Ping(true).pack()));
 		// Check that it was written
 		p = Packet.read(output.toByteArray());
 		ping = (Ping) p.decode(Misc.blockDecryptCipher);
@@ -171,14 +172,14 @@ public class TestServerProtocol {
 		ServerProtocol sp = new ServerProtocol(authentication, commandHandler,
 				Misc.privateKey, output);
 		// Authenticate
-		sp.process(new AuthenticationRequest(new byte[Packet.BLOCK_KEY_SIZE],
-				"", "").pack());
+		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key, "",
+				"").pack()));
 
 		output.reset();
 		assertEquals(false, commandHandled);
 		// Send a command request
-		sp.process(new CommandRequest(new MouseMove((short) 0, (short) 0))
-				.pack());
+		sp.process(Misc.encryptBlock(new CommandRequest(new MouseMove(
+				(short) 0, (short) 0)).pack()));
 		assertArrayEquals(new byte[0], output.toByteArray());
 		assertEquals(true, commandHandled);
 		commandHandled = false;
@@ -210,8 +211,8 @@ public class TestServerProtocol {
 				commandHandler, Misc.privateKey, output);
 		// Fail to authenticate
 		try {
-			sp.process(new AuthenticationRequest(
-					new byte[Packet.BLOCK_KEY_SIZE], "", "").pack());
+			sp.process(Misc.encryptSecure(new AuthenticationRequest(
+					new byte[Packet.BLOCK_KEY_SIZE], "", "").pack()));
 			fail("Did not throw an exception");
 		} catch (AuthenticationException e) {
 			AuthenticationException ex = new AuthenticationException(
@@ -222,6 +223,7 @@ public class TestServerProtocol {
 
 		// Try to process without authentication
 		try {
+			// No encryption on the packet
 			sp.process(new Ping(true).pack());
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
@@ -234,7 +236,8 @@ public class TestServerProtocol {
 		// Try to authenticate twice
 		sp = new ServerProtocol(authentication, commandHandler,
 				Misc.privateKey, output);
-		sp.process(new AuthenticationRequest(Misc.key, "", "").pack());
+		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key, "",
+				"").pack()));
 		Packet p = Packet.read(output.toByteArray());
 		AuthenticationResponse r = (AuthenticationResponse) p
 				.decode(Misc.blockDecryptCipher);
@@ -243,8 +246,9 @@ public class TestServerProtocol {
 		output.reset();
 		// Not allowed to do it twice
 		try {
-			sp.process(new AuthenticationRequest(
-					new byte[Packet.BLOCK_KEY_SIZE], "", "").pack());
+			// Block encryption to allow decode
+			sp.process(Misc.encryptBlock(new AuthenticationRequest(
+					new byte[Packet.BLOCK_KEY_SIZE], "", "").pack()));
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException(

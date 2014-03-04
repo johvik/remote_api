@@ -1,5 +1,7 @@
 package remote.test.api;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
@@ -13,6 +15,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import remote.api.Packet;
+import remote.api.exceptions.PacketException;
 
 public class Misc {
 	public static PrivateKey privateKey;
@@ -84,5 +87,29 @@ public class Misc {
 			b.append(c);
 		}
 		return b.toString();
+	}
+
+	public static Packet encryptBlock(Packet packet) throws PacketException,
+			IOException {
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		packet.write(blockEncryptCipher, output);
+		// Remove first two bytes
+		byte[] data = output.toByteArray();
+		byte[] res = new byte[data.length - 2];
+		System.arraycopy(data, 2, res, 0, res.length);
+
+		return new Packet(res, true);
+	}
+
+	public static Packet encryptSecure(Packet packet) throws PacketException,
+			IOException {
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		packet.write(secureEncrypt, output);
+		// Remove first two bytes
+		byte[] data = output.toByteArray();
+		byte[] res = new byte[data.length - 2];
+		System.arraycopy(data, 2, res, 0, res.length);
+
+		return new Packet(res, true);
 	}
 }

@@ -50,7 +50,7 @@ public class ClientProtocol extends Protocol {
 			throw new ProtocolException("Unexpected message type: " + type);
 		} else {
 			// Only accept authentication responses
-			Message message = packet.decode(secureCipher);
+			Message message = packet.decode(blockDecryptCipher);
 			byte type = message.getType();
 			switch (type) {
 			case Message.AUTHENTICATION_RESPONSE:

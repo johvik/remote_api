@@ -98,7 +98,7 @@ public class TestClientProtocol {
 
 		// Try to process without authentication
 		try {
-			cp.process(new Ping(true).pack());
+			cp.process(Misc.encryptBlock(new Ping(true).pack()));
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException(
@@ -107,10 +107,10 @@ public class TestClientProtocol {
 		}
 
 		// Try to authenticate twice
-		cp.process(new AuthenticationResponse().pack());
+		cp.process(Misc.encryptBlock(new AuthenticationResponse().pack()));
 		// Not allowed to do it twice
 		try {
-			cp.process(new AuthenticationResponse().pack());
+			cp.process(Misc.encryptBlock(new AuthenticationResponse().pack()));
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException(
 					"Unexpected message type: "
@@ -140,7 +140,7 @@ public class TestClientProtocol {
 
 		output.reset();
 		// Authenticate
-		cp.process(new AuthenticationResponse().pack());
+		cp.process(Misc.encryptBlock(new AuthenticationResponse().pack()));
 
 		// Should not work to authenticate twice
 		try {
@@ -159,7 +159,7 @@ public class TestClientProtocol {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, output);
 		// Authenticate
-		cp.process(new AuthenticationResponse().pack());
+		cp.process(Misc.encryptBlock(new AuthenticationResponse().pack()));
 
 		// Send a mouse move
 		Command command = new MouseMove((short) 1, (short) -1);
@@ -175,7 +175,7 @@ public class TestClientProtocol {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, output);
 		// Authenticate
-		cp.process(new AuthenticationResponse().pack());
+		cp.process(Misc.encryptBlock(new AuthenticationResponse().pack()));
 
 		// Send a ping
 		cp.ping(null);
@@ -196,12 +196,12 @@ public class TestClientProtocol {
 
 		output.reset();
 		// Fake response to requested ping
-		cp.process(new Ping(false).pack());
+		cp.process(Misc.encryptBlock(new Ping(false).pack()));
 		assertArrayEquals(new byte[0], output.toByteArray());
 
 		// Process twice (not allowed)
 		try {
-			cp.process(new Ping(false).pack());
+			cp.process(Misc.encryptBlock(new Ping(false).pack()));
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException("Ping not requested");
@@ -223,14 +223,14 @@ public class TestClientProtocol {
 			assertEquals(-1, pingDiff);
 
 			// Fake response
-			cp.process(new Ping(false).pack());
+			cp.process(Misc.encryptBlock(new Ping(false).pack()));
 			long diff = System.nanoTime() - start;
 			assertThat(pingDiff, lessThanOrEqualTo(diff));
 		}
 
 		output.reset();
 		// Respond to a request
-		cp.process(new Ping(true).pack());
+		cp.process(Misc.encryptBlock(new Ping(true).pack()));
 		// Check that it was written
 		p = Packet.read(output.toByteArray());
 		ping = (Ping) p.decode(Misc.blockDecryptCipher);
