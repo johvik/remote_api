@@ -48,7 +48,9 @@ public class TestPacketScanner {
 						packet.write(Misc.blockEncryptCipher, output);
 					}
 					output.flush();
-				} catch (PacketException | IOException e) {
+				} catch (PacketException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
