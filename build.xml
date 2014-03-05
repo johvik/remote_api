@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
-<project name="remote_api" default="run" basedir=".">
-  <property name="build.dir" value="build" />
+<project name="remote_api" default="release" basedir=".">
+	<property name="build.dir" value="build" />
 	<property name="main.src.dir" value="src" />
 	<property name="test.src.dir" value="test" />
+	<property name="build.doc.dir" value="build/doc" />
 
 	<path id="classpath.base" />
 
@@ -14,29 +15,36 @@
 		<path refid="classpath.base" />
 	</path>
 
-	<target name="test" depends="run, clean" />
+	<target name="release" depends="test, doc" />
 
 	<target name="compile">
-    <mkdir dir="${build.dir}" />
+		<mkdir dir="${build.dir}" />
 		<javac srcdir="${main.src.dir}" destdir="${build.dir}"
 			includeantruntime="false">
 			<classpath refid="classpath.base" />
 		</javac>
 		<javac srcdir="${test.src.dir}" destdir="${build.dir}"
-      includeantruntime="false">
-      <classpath refid="classpath.test" />
-    </javac>
+			includeantruntime="false">
+			<classpath refid="classpath.test" />
+		</javac>
 	</target>
 
 	<target name="build" depends="compile">
-    <jar destfile="${build.dir}/remote_api.jar"
-      basedir="${build.dir}"
-      includes="remote/api/**/*.class" />
+		<jar destfile="${build.dir}/remote_api.jar" basedir="${build.dir}"
+			includes="remote/api/**/*.class" />
+	</target>
+
+	<target name="javadoc">
+		<javadoc sourcepath="${main.src.dir}" destdir="${build.doc.dir}" />
+	</target>
+
+	<target name="doc" depends="javadoc">
+		<jar destfile="${build.dir}/remote_api_doc.jar" basedir="${build.doc.dir}" />
 	</target>
 
 	<!-- Test and build all files -->
 	<!-- To run this: use "ant" (default) or "ant run" -->
-	<target name="run" depends="build">
+	<target name="test" depends="build">
 		<junit printsummary="on" haltonfailure="yes">
 			<classpath>
 				<path refid="classpath.test" />
@@ -52,6 +60,7 @@
 	<!-- delete all class files -->
 	<!-- To run this: use "ant clean" -->
 	<target name="clean">
-    <delete dir="${build.dir}/remote" />
+		<delete dir="${build.dir}/doc" />
+		<delete dir="${build.dir}/remote" />
 	</target>
 </project>
