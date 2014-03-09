@@ -15,19 +15,42 @@ import remote.api.messages.AuthenticationResponse;
 import remote.api.messages.Message;
 import remote.api.messages.Ping;
 
+/**
+ * Test class for {@link Ping}.
+ */
 @RunWith(Parameterized.class)
 public class TestPing {
+	/**
+	 * The request parameter.
+	 */
 	private boolean request;
 
+	/**
+	 * Constructs the ping from the parameter.
+	 * 
+	 * @param request
+	 *            The request.
+	 */
 	public TestPing(boolean request) {
 		this.request = request;
 	}
 
+	/**
+	 * Creates input parameters.
+	 * 
+	 * @return The parameters.
+	 */
 	@Parameters
 	public static Collection<Object[]> data() {
 		return Arrays.asList(new Object[][] { { true }, { false } });
 	}
 
+	/**
+	 * Test method for {@link Ping#pack()}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testPack() throws PacketException {
 		// Test by packing followed by unpacking
@@ -42,6 +65,12 @@ public class TestPing {
 		assertEquals(ping1.getType(), ping2.getType());
 	}
 
+	/**
+	 * Test method for {@link Ping#unpack(byte[])}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testUnpack() throws PacketException {
 		// Check that it throws when it has wrong length
@@ -60,12 +89,18 @@ public class TestPing {
 		assertEquals(request, ping.isRequest());
 	}
 
+	/**
+	 * Test method for {@link Ping#isRequest()}.
+	 */
 	@Test
 	public void testIsRequest() {
 		Ping ping = new Ping(request);
 		assertEquals(request, ping.isRequest());
 	}
 
+	/**
+	 * Test method for {@link Ping#getType()}.
+	 */
 	@Test
 	public void testGetType() {
 		// Ensure it has the correct type
@@ -73,6 +108,9 @@ public class TestPing {
 		assertEquals(Message.PING, ping.getType());
 	}
 
+	/**
+	 * Test method for {@link Ping#compareTo(Message)}.
+	 */
 	@Test
 	public void testCompareTo() {
 		Ping ping = new Ping(request);
