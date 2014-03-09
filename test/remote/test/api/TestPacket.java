@@ -23,7 +23,6 @@ import remote.api.messages.Ping;
  * Test class for {@link Packet}.
  */
 public class TestPacket {
-
 	/**
 	 * Test method for {@link Packet#Packet(byte[])}.
 	 * 

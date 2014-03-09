@@ -20,7 +20,6 @@ import remote.api.exceptions.ProtocolException;
  * Test class for {@link Protocol}.
  */
 public class TestProtocol {
-
 	/**
 	 * Test method for blockCipherInit in {@link Protocol}.
 	 * 
