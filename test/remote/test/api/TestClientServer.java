@@ -64,7 +64,7 @@ public class TestClientServer {
 			public void run() {
 				try {
 					cp.authenticate("user", "password");
-				} catch (ProtocolException | PacketException | IOException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
@@ -77,7 +77,7 @@ public class TestClientServer {
 			public void run() {
 				try {
 					sp.process(authenticationPacket);
-				} catch (PacketException | IOException | ProtocolException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
@@ -95,7 +95,7 @@ public class TestClientServer {
 			public void run() {
 				try {
 					cp.commandRequest(mm);
-				} catch (PacketException | IOException | ProtocolException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
@@ -114,7 +114,7 @@ public class TestClientServer {
 				try {
 					cp.ping(null);
 					sp.ping(null);
-				} catch (ProtocolException | PacketException | IOException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
@@ -130,7 +130,7 @@ public class TestClientServer {
 				try {
 					cp.process(clientPing);
 					sp.process(serverPing);
-				} catch (PacketException | IOException | ProtocolException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
