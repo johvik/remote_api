@@ -9,8 +9,16 @@ import remote.api.messages.AuthenticationResponse;
 import remote.api.messages.Message;
 import remote.api.messages.Ping;
 
+/**
+ * Test class for {@link AuthenticationResponse}.
+ */
 public class TestAuthenticationResponse {
-
+	/**
+	 * Test method for {@link AuthenticationResponse#pack()}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testPack() throws PacketException {
 		AuthenticationResponse response = new AuthenticationResponse();
@@ -18,6 +26,12 @@ public class TestAuthenticationResponse {
 		assertEquals(Message.AUTHENTICATION_RESPONSE, data[0]);
 	}
 
+	/**
+	 * Test method for {@link AuthenticationResponse#unpack(byte[])}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testUnpack() throws PacketException {
 		// Check that it throws when it has wrong length
@@ -34,6 +48,9 @@ public class TestAuthenticationResponse {
 		AuthenticationResponse.unpack(data);
 	}
 
+	/**
+	 * Test method for {@link AuthenticationResponse#getType()}.
+	 */
 	@Test
 	public void testGetType() {
 		// Ensure it has the correct type
@@ -41,6 +58,9 @@ public class TestAuthenticationResponse {
 		assertEquals(Message.AUTHENTICATION_RESPONSE, response.getType());
 	}
 
+	/**
+	 * Test method for {@link AuthenticationResponse#compareTo(Message)}.
+	 */
 	@Test
 	public void testCompareTo() {
 		AuthenticationResponse response = new AuthenticationResponse();

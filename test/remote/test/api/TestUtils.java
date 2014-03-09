@@ -9,12 +9,21 @@ import org.junit.Test;
 
 import remote.api.Utils;
 
+/**
+ * Test class for {@link Utils}.
+ */
 public class TestUtils {
+	/**
+	 * Test method for {@link Utils#Utils()}.
+	 */
 	@Test
 	public void testUtils() {
 		new Utils();
 	}
 
+	/**
+	 * Test method for {@link Utils#toHex(byte[])}.
+	 */
 	@Test
 	public void testToHex() {
 		byte[] data = new byte[] { 0x01, 0x23, 0x45, 0x67, (byte) 0x89,
@@ -30,6 +39,9 @@ public class TestUtils {
 		assertThat(hex, startsWith("00 00 00 00 00 00 00 00"));
 	}
 
+	/**
+	 * Test method for {@link Utils#generateRandom(int)}.
+	 */
 	@Test
 	public void testGenerateRandom() {
 		// Check that the length works
@@ -50,6 +62,9 @@ public class TestUtils {
 		assertThat(data1, not(equalTo(data2)));
 	}
 
+	/**
+	 * Test method for {@link Utils#compare(byte[], byte[])}.
+	 */
 	@Test
 	public void testCompare() {
 		// Same array

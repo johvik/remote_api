@@ -18,18 +18,65 @@ import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
 import remote.api.messages.Ping;
 
+/**
+ * Server side of the protocol.
+ */
 public class ServerProtocol extends Protocol {
+	/**
+	 * Interface to check authentication.
+	 */
 	public interface AuthenticationCheck {
+		/**
+		 * Checks if the user with password is allowed to authenticate.
+		 * 
+		 * @param user
+		 *            The user.
+		 * @param password
+		 *            The password.
+		 * @return True if user and password is allowed to authenticate.
+		 */
 		public boolean check(String user, String password);
 	}
 
+	/**
+	 * Interface to handle commands.
+	 */
 	public interface CommandHandler {
+		/**
+		 * Handles the command.
+		 * 
+		 * @param command
+		 *            The command to handle.
+		 */
 		public void handle(Command command);
 	}
 
+	/**
+	 * The authentication checker.
+	 */
 	private AuthenticationCheck authentication;
+	/**
+	 * The command handler.
+	 */
 	private CommandHandler commandHandler;
 
+	/**
+	 * Constructs a new server protocol.
+	 * 
+	 * @param authentication
+	 *            The authentication checker.
+	 * @param commandHandler
+	 *            The command handler.
+	 * @param privateKey
+	 *            The private key of the secure algorithm.
+	 * @param output
+	 *            The output stream of the server. This is used to respond and
+	 *            send data to the client.
+	 * @throws GeneralSecurityException
+	 *             If it fails to initialize the secure cipher.
+	 * @throws ProtocolException
+	 *             If arguments is null.
+	 */
 	public ServerProtocol(AuthenticationCheck authentication,
 			CommandHandler commandHandler, PrivateKey privateKey,
 			OutputStream output) throws GeneralSecurityException,

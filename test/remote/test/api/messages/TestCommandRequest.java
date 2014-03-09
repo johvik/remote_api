@@ -23,16 +23,38 @@ import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
 import remote.api.messages.Ping;
 
+/**
+ * Test class for {@link CommandRequest}.
+ */
 @RunWith(Parameterized.class)
 public class TestCommandRequest {
+	/**
+	 * The command parameter.
+	 */
 	private Command command;
+	/**
+	 * The command request constructed by the parameter.
+	 */
 	private CommandRequest request;
 
+	/**
+	 * Constructs the command request from the parameter.
+	 * 
+	 * @param command
+	 *            The command.
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	public TestCommandRequest(Command command) throws PacketException {
 		this.command = command;
 		request = new CommandRequest(command);
 	}
 
+	/**
+	 * Creates input parameters.
+	 * 
+	 * @return The parameters.
+	 */
 	@Parameters
 	public static Collection<Object[]> data() {
 		List<Object[]> list = Arrays.asList(new Object[][] {
@@ -45,6 +67,12 @@ public class TestCommandRequest {
 		return list;
 	}
 
+	/**
+	 * Test method for {@link CommandRequest#pack()}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testPack() throws PacketException {
 		// Test by packing followed by unpacking
@@ -88,12 +116,24 @@ public class TestCommandRequest {
 		}
 	}
 
+	/**
+	 * Test method for {@link CommandRequest#getType()}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testGetType() throws PacketException {
 		// Ensure it has the correct type
 		assertEquals(Message.COMMAND_REQUEST, request.getType());
 	}
 
+	/**
+	 * Test method for {@link CommandRequest#CommandRequest(Command)}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testCommandRequest() throws PacketException {
 		try {
@@ -106,6 +146,12 @@ public class TestCommandRequest {
 		new CommandRequest(command);
 	}
 
+	/**
+	 * Test method for {@link CommandRequest#unpack(byte[])}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testUnpack() throws PacketException {
 		// Check that it throws when it has wrong static length
@@ -137,6 +183,9 @@ public class TestCommandRequest {
 		assertEquals(0, command.compareTo(r.getCommand()));
 	}
 
+	/**
+	 * Test method for {@link CommandRequest#getCommand()}.
+	 */
 	@Test
 	public void testGetCommand() {
 		assertEquals(command.getClass(), request.getCommand().getClass());
@@ -145,6 +194,9 @@ public class TestCommandRequest {
 		assertEquals(0, command.compareTo(request.getCommand()));
 	}
 
+	/**
+	 * Test method for {@link Command#USED_CODES}.
+	 */
 	@Test
 	public void testUnknownCommandTypes() {
 		int codes = 0; // Count number of correct codes
@@ -172,6 +224,12 @@ public class TestCommandRequest {
 		assertEquals(Command.USED_CODES, codes);
 	}
 
+	/**
+	 * Test method for {@link CommandRequest#compareTo(Message)}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testCompareTo() throws PacketException {
 		try {

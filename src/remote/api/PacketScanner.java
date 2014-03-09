@@ -6,15 +6,47 @@ import java.io.InputStream;
 import remote.api.exceptions.PacketException;
 import remote.api.messages.Message;
 
+/**
+ * A class that scans an input stream for packets.
+ */
 public class PacketScanner {
+	/**
+	 * The size of the read buffer.
+	 */
 	public static final int BUFFER_SIZE = 1024;
+	/**
+	 * The read buffer.
+	 */
 	private byte[] buffer;
+	/**
+	 * The input stream.
+	 */
 	private InputStream input;
+	/**
+	 * Position in the buffer.
+	 */
 	private int bufferOffset;
+	/**
+	 * Bytes left in the buffer.
+	 */
 	private int bufferAvailable;
+	/**
+	 * Scan position in the buffer.
+	 */
 	private int scanOffset;
+	/**
+	 * Bytes left for the scanner.
+	 */
 	private int scanAvailable;
 
+	/**
+	 * Constructs a new packet scanner.
+	 * 
+	 * @param input
+	 *            The input stream to read from.
+	 * @throws PacketException
+	 *             If input is null.
+	 */
 	public PacketScanner(InputStream input) throws PacketException {
 		if (input == null) {
 			throw new PacketException("Input stream is null", null);
@@ -32,7 +64,9 @@ public class PacketScanner {
 	 * 
 	 * @return The next packet or null if -1 is read.
 	 * @throws IOException
+	 *             If it fails while reading data.
 	 * @throws PacketException
+	 *             If it fails while reading the packet.
 	 */
 	public Packet nextPacket() throws IOException, PacketException {
 		while (true) {
@@ -64,6 +98,7 @@ public class PacketScanner {
 	 * 
 	 * @return The packet if available otherwise null
 	 * @throws PacketException
+	 *             If it fails while reading the packet.
 	 */
 	private Packet checkForPacket() throws PacketException {
 		Packet packet = Packet.read(buffer, scanOffset, scanAvailable);

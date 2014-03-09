@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -16,27 +15,49 @@ import remote.api.commands.MouseMove;
 import remote.api.commands.MouseWheel;
 import remote.api.exceptions.PacketException;
 
+/**
+ * Test class for {@link MouseWheel}.
+ */
 @RunWith(Parameterized.class)
 public class TestMouseWheel {
+	/**
+	 * The wheelAmt parameter.
+	 */
 	private int wheelAmt;
 
+	/**
+	 * The mouse wheel constructed by the parameter.
+	 */
 	private MouseWheel mw;
 
+	/**
+	 * Constructs the mouse wheel from the parameter.
+	 * 
+	 * @param wheelAmt
+	 *            The wheelAmt.
+	 */
 	public TestMouseWheel(int wheelAmt) {
 		this.wheelAmt = wheelAmt;
+		mw = new MouseWheel(wheelAmt);
 	}
 
+	/**
+	 * Creates input parameters.
+	 * 
+	 * @return The parameters.
+	 */
 	@Parameters
 	public static Collection<Object[]> data() {
 		return Arrays.asList(new Object[][] { { 0 }, { Integer.MIN_VALUE },
 				{ Integer.MAX_VALUE } });
 	}
 
-	@Before
-	public void setUp() throws Exception {
-		mw = new MouseWheel(wheelAmt);
-	}
-
+	/**
+	 * Tests writing and reading the command.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testWriteRead() throws PacketException {
 		for (int i = 0; i < 10; i++) {
@@ -50,6 +71,9 @@ public class TestMouseWheel {
 		}
 	}
 
+	/**
+	 * Test method for {@link MouseWheel#write(byte[], int)}.
+	 */
 	@Test
 	public void testWrite() {
 		byte[] data = new byte[mw.getLength()];
@@ -74,6 +98,9 @@ public class TestMouseWheel {
 		}
 	}
 
+	/**
+	 * Test method for {@link MouseWheel#read(byte[], int)}.
+	 */
 	@Test
 	public void testRead() {
 		byte[] data = new byte[mw.getLength()];
@@ -98,20 +125,32 @@ public class TestMouseWheel {
 		}
 	}
 
+	/**
+	 * Test method for {@link MouseWheel#getLength()}.
+	 */
 	public void testGetLength() {
 		assertEquals(MouseWheel.LENGTH, mw.getLength());
 	}
 
+	/**
+	 * Test method for {@link MouseWheel#getType()}.
+	 */
 	@Test
 	public void testGetType() {
 		assertEquals(Command.MOUSE_WHEEL, mw.getType());
 	}
 
+	/**
+	 * Test method for {@link MouseWheel#getWheelAmt()}.
+	 */
 	@Test
-	public void testGetButtons() {
+	public void testGetWheelAmt() {
 		assertEquals(wheelAmt, mw.getWheelAmt());
 	}
 
+	/**
+	 * Test method for {@link MouseWheel#compareTo(Command)}.
+	 */
 	@Test
 	public void testCompareTo() {
 		try {

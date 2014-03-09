@@ -17,14 +17,41 @@ import javax.crypto.spec.SecretKeySpec;
 import remote.api.Packet;
 import remote.api.exceptions.PacketException;
 
+/**
+ * A helper class for the tests.
+ */
 public class Misc {
+	/**
+	 * The private key.
+	 */
 	public static PrivateKey privateKey;
+	/**
+	 * The public key.
+	 */
 	public static PublicKey publicKey;
+	/**
+	 * The key for the block cipher.
+	 */
 	public static byte[] key;
+	/**
+	 * The secret key for the block cipher.
+	 */
 	public static SecretKey secretKey;
-	public static Cipher blockDecryptCipher;
-	public static Cipher blockEncryptCipher;
+	/**
+	 * The block decrypt cipher.
+	 */
+	public static Cipher blockDecrypt;
+	/**
+	 * The block encrypt cipher.
+	 */
+	public static Cipher blockEncrypt;
+	/**
+	 * The secure decrypt cipher.
+	 */
 	public static Cipher secureDecrypt;
+	/**
+	 * The secure encrypt cipher.
+	 */
 	public static Cipher secureEncrypt;
 	static {
 		try {
@@ -44,10 +71,10 @@ public class Misc {
 			key = Misc.getSequence(1, Packet.BLOCK_KEY_SIZE);
 			secretKey = new SecretKeySpec(key, Packet.BLOCK_CIPHER);
 
-			blockDecryptCipher = Cipher.getInstance(Packet.BLOCK_CIPHER);
-			blockDecryptCipher.init(Cipher.DECRYPT_MODE, Misc.secretKey);
-			blockEncryptCipher = Cipher.getInstance(Packet.BLOCK_CIPHER);
-			blockEncryptCipher.init(Cipher.ENCRYPT_MODE, Misc.secretKey);
+			blockDecrypt = Cipher.getInstance(Packet.BLOCK_CIPHER);
+			blockDecrypt.init(Cipher.DECRYPT_MODE, Misc.secretKey);
+			blockEncrypt = Cipher.getInstance(Packet.BLOCK_CIPHER);
+			blockEncrypt.init(Cipher.ENCRYPT_MODE, Misc.secretKey);
 
 			secureDecrypt = Cipher.getInstance(Packet.SECURE_ALGORITHM);
 			secureDecrypt.init(Cipher.DECRYPT_MODE, Misc.privateKey);
@@ -63,7 +90,9 @@ public class Misc {
 	 * one. Note that it will wrap and start over at 0 when it wraps.
 	 * 
 	 * @param start
+	 *            Number to start at.
 	 * @param length
+	 *            Length of the sequence.
 	 * @return A byte array of size equal to length.
 	 */
 	public static byte[] getSequence(int start, int length) {
@@ -78,8 +107,10 @@ public class Misc {
 	 * Creates a new string by repeating the input.
 	 * 
 	 * @param c
+	 *            The char to repeat.
 	 * @param times
-	 * @return The repeated string
+	 *            The number of times to repeat.
+	 * @return The repeated string.
 	 */
 	public static String repeat(char c, int times) {
 		StringBuffer b = new StringBuffer();
@@ -89,10 +120,21 @@ public class Misc {
 		return b.toString();
 	}
 
+	/**
+	 * Encrypts a packet with the block cipher.
+	 * 
+	 * @param packet
+	 *            The packet to encrypt.
+	 * @return The encrypted packet.
+	 * @throws PacketException
+	 *             If something went wrong.
+	 * @throws IOException
+	 *             If something went wrong.
+	 */
 	public static Packet encryptBlock(Packet packet) throws PacketException,
 			IOException {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		packet.write(blockEncryptCipher, output);
+		packet.write(blockEncrypt, output);
 		// Remove first two bytes
 		byte[] data = output.toByteArray();
 		byte[] res = new byte[data.length - 2];
@@ -101,6 +143,17 @@ public class Misc {
 		return new Packet(res, true);
 	}
 
+	/**
+	 * Encrypts a packet with the secure cipher.
+	 * 
+	 * @param packet
+	 *            The packet to encrypt.
+	 * @return The encrypted packet.
+	 * @throws PacketException
+	 *             If something went wrong.
+	 * @throws IOException
+	 *             If something went wrong.
+	 */
 	public static Packet encryptSecure(Packet packet) throws PacketException,
 			IOException {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();

@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -16,27 +15,49 @@ import remote.api.commands.MouseMove;
 import remote.api.commands.MousePress;
 import remote.api.exceptions.PacketException;
 
+/**
+ * Test class for {@link MousePress}.
+ */
 @RunWith(Parameterized.class)
 public class TestMousePress {
+	/**
+	 * The buttons parameter.
+	 */
 	private int buttons;
 
+	/**
+	 * The mouse press constructed by the parameter.
+	 */
 	private MousePress mp;
 
+	/**
+	 * Constructs the mouse press from the parameter.
+	 * 
+	 * @param buttons
+	 *            The buttons.
+	 */
 	public TestMousePress(int buttons) {
 		this.buttons = buttons;
+		mp = new MousePress(buttons);
 	}
 
+	/**
+	 * Creates input parameters.
+	 * 
+	 * @return The parameters.
+	 */
 	@Parameters
 	public static Collection<Object[]> data() {
 		return Arrays.asList(new Object[][] { { 0 }, { Integer.MIN_VALUE },
 				{ Integer.MAX_VALUE } });
 	}
 
-	@Before
-	public void setUp() throws Exception {
-		mp = new MousePress(buttons);
-	}
-
+	/**
+	 * Tests writing and reading the command.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testWriteRead() throws PacketException {
 		for (int i = 0; i < 10; i++) {
@@ -50,6 +71,9 @@ public class TestMousePress {
 		}
 	}
 
+	/**
+	 * Test method for {@link MousePress#write(byte[], int)}.
+	 */
 	@Test
 	public void testWrite() {
 		byte[] data = new byte[mp.getLength()];
@@ -74,6 +98,9 @@ public class TestMousePress {
 		}
 	}
 
+	/**
+	 * Test method for {@link MousePress#read(byte[], int)}.
+	 */
 	@Test
 	public void testRead() {
 		byte[] data = new byte[mp.getLength()];
@@ -98,20 +125,32 @@ public class TestMousePress {
 		}
 	}
 
+	/**
+	 * Test method for {@link MousePress#getLength()}.
+	 */
 	public void testGetLength() {
 		assertEquals(MousePress.LENGTH, mp.getLength());
 	}
 
+	/**
+	 * Test method for {@link MousePress#getType()}.
+	 */
 	@Test
 	public void testGetType() {
 		assertEquals(Command.MOUSE_PRESS, mp.getType());
 	}
 
+	/**
+	 * Test method for {@link MousePress#getButtons()}.
+	 */
 	@Test
 	public void testGetButtons() {
 		assertEquals(buttons, mp.getButtons());
 	}
 
+	/**
+	 * Test method for {@link MousePress#compareTo(Command)}.
+	 */
 	@Test
 	public void testCompareTo() {
 		try {

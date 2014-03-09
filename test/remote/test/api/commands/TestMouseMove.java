@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -16,18 +15,44 @@ import remote.api.commands.MouseMove;
 import remote.api.commands.MousePress;
 import remote.api.exceptions.PacketException;
 
+/**
+ * Test class for {@link MouseMove}.
+ */
 @RunWith(Parameterized.class)
 public class TestMouseMove {
+	/**
+	 * The dx parameter.
+	 */
 	private short dx;
+	/**
+	 * The dy parameter.
+	 */
 	private short dy;
 
+	/**
+	 * The mouse move constructed by the parameters.
+	 */
 	private MouseMove mm;
 
+	/**
+	 * Constructs the mouse move from the parameters.
+	 * 
+	 * @param dx
+	 *            The dx.
+	 * @param dy
+	 *            The dy.
+	 */
 	public TestMouseMove(short dx, short dy) {
 		this.dx = dx;
 		this.dy = dy;
+		mm = new MouseMove(dx, dy);
 	}
 
+	/**
+	 * Creates input parameters.
+	 * 
+	 * @return The parameters.
+	 */
 	@Parameters
 	public static Collection<Object[]> data() {
 		return Arrays.asList(new Object[][] { { (short) 0, (short) 0 },
@@ -36,11 +61,12 @@ public class TestMouseMove {
 				{ Short.MAX_VALUE, Short.MAX_VALUE } });
 	}
 
-	@Before
-	public void setUp() throws Exception {
-		mm = new MouseMove(dx, dy);
-	}
-
+	/**
+	 * Tests writing and reading the command.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testWriteRead() throws PacketException {
 		for (int i = 0; i < 10; i++) {
@@ -56,6 +82,9 @@ public class TestMouseMove {
 		}
 	}
 
+	/**
+	 * Test method for {@link MouseMove#write(byte[], int)}.
+	 */
 	@Test
 	public void testWrite() {
 		byte[] data = new byte[mm.getLength()];
@@ -80,6 +109,9 @@ public class TestMouseMove {
 		}
 	}
 
+	/**
+	 * Test method for {@link MouseMove#read(byte[], int)}.
+	 */
 	@Test
 	public void testRead() {
 		byte[] data = new byte[mm.getLength()];
@@ -104,25 +136,40 @@ public class TestMouseMove {
 		}
 	}
 
+	/**
+	 * Test method for {@link MouseMove#getLength()}.
+	 */
 	public void testGetLength() {
 		assertEquals(MouseMove.LENGTH, mm.getLength());
 	}
 
+	/**
+	 * Test method for {@link MouseMove#getType()}.
+	 */
 	@Test
 	public void testGetType() {
 		assertEquals(Command.MOUSE_MOVE, mm.getType());
 	}
 
+	/**
+	 * Test method for {@link MouseMove#getDx()}.
+	 */
 	@Test
 	public void testGetDx() {
 		assertEquals(dx, mm.getDx());
 	}
 
+	/**
+	 * Test method for {@link MouseMove#getDy()}.
+	 */
 	@Test
 	public void testGetDy() {
 		assertEquals(dy, mm.getDy());
 	}
 
+	/**
+	 * Test method for {@link MouseMove#compareTo(Command)}.
+	 */
 	@Test
 	public void testCompareTo() {
 		try {

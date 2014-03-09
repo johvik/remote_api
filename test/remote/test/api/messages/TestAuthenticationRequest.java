@@ -18,18 +18,45 @@ import remote.api.messages.Message;
 import remote.api.messages.Ping;
 import remote.test.api.Misc;
 
+/**
+ * Test class for {@link AuthenticationRequest}.
+ */
 @RunWith(Parameterized.class)
 public class TestAuthenticationRequest {
+	/**
+	 * The key parameter.
+	 */
 	private byte[] key;
+	/**
+	 * The user parameter.
+	 */
 	private String user;
+	/**
+	 * The password parameter.
+	 */
 	private String password;
 
+	/**
+	 * Initializes the parameters.
+	 * 
+	 * @param key
+	 *            The key.
+	 * @param user
+	 *            The user.
+	 * @param password
+	 *            The password.
+	 */
 	public TestAuthenticationRequest(byte[] key, String user, String password) {
 		this.key = key;
 		this.user = user;
 		this.password = password;
 	}
 
+	/**
+	 * Creates input parameters.
+	 * 
+	 * @return The parameters.
+	 */
 	@Parameters
 	public static Collection<Object[]> data() {
 		return Arrays.asList(new Object[][] {
@@ -44,6 +71,11 @@ public class TestAuthenticationRequest {
 						Misc.repeat('b', 142 - Packet.BLOCK_KEY_SIZE) } });
 	}
 
+	/**
+	 * Test method for
+	 * {@link AuthenticationRequest#AuthenticationRequest(byte[], String, String)}
+	 * .
+	 */
 	@Test
 	public void testAuthenticationRequest() {
 		try {
@@ -77,6 +109,12 @@ public class TestAuthenticationRequest {
 		}
 	}
 
+	/**
+	 * Test method for {@link AuthenticationRequest#pack()}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testPack() throws PacketException {
 		// Test by packing followed by unpacking
@@ -108,6 +146,12 @@ public class TestAuthenticationRequest {
 		}
 	}
 
+	/**
+	 * Test method for {@link AuthenticationRequest#unpack(byte[])}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testUnpack() throws PacketException {
 		// Check that it throws when it is too short
@@ -146,6 +190,12 @@ public class TestAuthenticationRequest {
 		}
 	}
 
+	/**
+	 * Test method for {@link AuthenticationRequest#getType()}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testGetType() throws PacketException {
 		// Ensure it has the correct type
@@ -154,6 +204,12 @@ public class TestAuthenticationRequest {
 		assertEquals(Message.AUTHENTICATION_REQUEST, request.getType());
 	}
 
+	/**
+	 * Test method for {@link AuthenticationRequest#compareTo(Message)}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testCompareTo() throws PacketException {
 		AuthenticationRequest request = new AuthenticationRequest(key, user,
