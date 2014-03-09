@@ -13,20 +13,43 @@ import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
 import remote.api.messages.Ping;
 
+/**
+ * A class representing a data packet.
+ */
 public class Packet {
+	/**
+	 * The secure algorithm to use for authentication.
+	 */
 	public static final String SECURE_ALGORITHM = "RSA";
+	/**
+	 * Length of the secure algorithms key.
+	 */
 	public static final int SECURE_KEY_SIZE = 2048;
+	/**
+	 * The block cipher algorithm.
+	 */
 	public static final String BLOCK_CIPHER = "Blowfish";
+	/**
+	 * Length of the block algorithms key.
+	 */
 	public static final int BLOCK_KEY_SIZE = 8;
 
+	/**
+	 * Data of the packet.
+	 */
 	private byte[] data;
+	/**
+	 * Indicates if the packet is encrypted or decrypted.
+	 */
 	private boolean encrypted;
 
 	/**
-	 * Constructs a non encrypted.
+	 * Constructs a non encrypted packet.
 	 * 
 	 * @param data
+	 *            The data for the packet.
 	 * @throws PacketException
+	 *             If data is null.
 	 */
 	public Packet(byte[] data) throws PacketException {
 		this(data, false);
@@ -36,8 +59,11 @@ public class Packet {
 	 * Constructs a packet.
 	 * 
 	 * @param data
+	 *            The data for the packet.
 	 * @param encrypted
+	 *            True if the packet is encrypted.
 	 * @throws PacketException
+	 *             If data is null.
 	 */
 	public Packet(byte[] data, boolean encrypted) throws PacketException {
 		if (data == null) {
@@ -47,6 +73,14 @@ public class Packet {
 		this.encrypted = encrypted;
 	}
 
+	/**
+	 * Decrypts the packet if encrypted with the given cipher.
+	 * 
+	 * @param cipher
+	 *            Cipher to use for decryption.
+	 * @throws PacketException
+	 *             If decryption fails.
+	 */
 	private void decrypt(Cipher cipher) throws PacketException {
 		if (encrypted) {
 			try {
@@ -58,6 +92,14 @@ public class Packet {
 		}
 	}
 
+	/**
+	 * Encrypts the packet if decrypted with the given cipher.
+	 * 
+	 * @param cipher
+	 *            Cipher to use for encryption.
+	 * @throws PacketException
+	 *             If encryption fails.
+	 */
 	private void encrypt(Cipher cipher) throws PacketException {
 		if (!encrypted) {
 			try {
@@ -73,10 +115,14 @@ public class Packet {
 	 * Attempts to read a packet from the data.
 	 * 
 	 * @param data
+	 *            The data to read from.
 	 * @param off
+	 *            Start position in data.
 	 * @param len
+	 *            Length of the data.
 	 * @return A packet or null if not enough data.
 	 * @throws PacketException
+	 *             If the offset or length is invalid.
 	 */
 	public static Packet read(byte[] data, int off, int len)
 			throws PacketException {
@@ -98,11 +144,14 @@ public class Packet {
 	}
 
 	/**
-	 * Same as read with offset as 0 and length as data.length.
+	 * Same as {@link #read(byte[], int, int)} with offset as 0 and length as
+	 * data.length.
 	 * 
 	 * @param data
+	 *            The data to read from.
 	 * @return A packet or null if not enough data.
 	 * @throws PacketException
+	 *             If the offset or length is invalid.
 	 */
 	public static Packet read(byte[] data) throws PacketException {
 		return read(data, 0, data.length);
@@ -113,9 +162,13 @@ public class Packet {
 	 * needed.
 	 * 
 	 * @param cipher
+	 *            The cipher to use for encryption.
 	 * @param output
+	 *            Output stream where data is written.
 	 * @throws PacketException
+	 *             If it fails to encrypt.
 	 * @throws IOException
+	 *             If it fails to write to the output.
 	 */
 	public void write(Cipher cipher, OutputStream output)
 			throws PacketException, IOException {
@@ -130,8 +183,10 @@ public class Packet {
 	 * Transforms the packet to a message and decrypts if needed.
 	 * 
 	 * @param cipher
-	 * @return The transformed message
+	 *            The cipher used to decrypt the data.
+	 * @return The transformed message.
 	 * @throws PacketException
+	 *             If it fails to decrypt or unpack the packet.
 	 */
 	public Message decode(Cipher cipher) throws PacketException {
 		decrypt(cipher);
@@ -149,10 +204,20 @@ public class Packet {
 		throw new PacketException("Unknown message", data);
 	}
 
+	/**
+	 * Gets the length of the data in the packet.
+	 * 
+	 * @return Length of the data.
+	 */
 	public int length() {
 		return data.length;
 	}
 
+	/**
+	 * Returns the data of the packet.
+	 * 
+	 * @return The data.
+	 */
 	public byte[] getData() {
 		return data;
 	}

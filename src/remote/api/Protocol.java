@@ -17,7 +17,13 @@ import remote.api.exceptions.ProtocolException;
 import remote.api.messages.Message;
 import remote.api.messages.Ping;
 
+/**
+ * A base class for the protocols.
+ */
 public abstract class Protocol {
+	/**
+	 * An interface to handle ping callbacks.
+	 */
 	public interface PingCallback {
 		/**
 		 * Executed when a ping response is received.
@@ -28,15 +34,47 @@ public abstract class Protocol {
 		public void run(long diff);
 	}
 
+	/**
+	 * State if ping has been requested.
+	 */
 	private boolean pingRequested;
+	/**
+	 * Start of the measured ping time.
+	 */
 	private long pingTime;
+	/**
+	 * The ping callback.
+	 */
 	private PingCallback pingCallback;
+	/**
+	 * The output stream used to send responses and data.
+	 */
 	private OutputStream output;
+	/**
+	 * State if the user is authenticated.
+	 */
 	protected boolean authenticated;
+	/**
+	 * The cipher used for block encryption.
+	 */
 	protected Cipher blockEncryptCipher;
+	/**
+	 * The cipher used for block decryption.
+	 */
 	protected Cipher blockDecryptCipher;
+	/**
+	 * The cipher used to encrypt or decrypt secure data.
+	 */
 	protected Cipher secureCipher;
 
+	/**
+	 * Constructs a new protocol.
+	 * 
+	 * @param output
+	 *            The output stream.
+	 * @throws ProtocolException
+	 *             If output is null.
+	 */
 	private Protocol(OutputStream output) throws ProtocolException {
 		if (output == null) {
 			throw new ProtocolException("Output cannot be null");
@@ -51,10 +89,16 @@ public abstract class Protocol {
 	 * Constructor for a client protocol.
 	 * 
 	 * @param publicKey
+	 *            The public key for the secure algorithm.
 	 * @param key
+	 *            The key to use for the block cipher.
 	 * @param output
+	 *            The output stream.
 	 * @throws GeneralSecurityException
+	 *             If it fails to initialize the secure cipher.
 	 * @throws ProtocolException
+	 *             If it fails to initialize the block cipher, if the key is
+	 *             invalid or if output is null.
 	 */
 	protected Protocol(PublicKey publicKey, byte[] key, OutputStream output)
 			throws GeneralSecurityException, ProtocolException {
@@ -76,9 +120,13 @@ public abstract class Protocol {
 	 * Constructor for a server protocol.
 	 * 
 	 * @param privateKey
+	 *            The private key for the secure algorithm.
 	 * @param output
+	 *            The output stream.
 	 * @throws GeneralSecurityException
+	 *             If it fails to initialize the secure cipher.
 	 * @throws ProtocolException
+	 *             If output is null.
 	 */
 	protected Protocol(PrivateKey privateKey, OutputStream output)
 			throws GeneralSecurityException, ProtocolException {
@@ -93,7 +141,9 @@ public abstract class Protocol {
 	 * Initializes the block cipher given a key.
 	 * 
 	 * @param secretKey
-	 * @throws GeneralSecurityException
+	 *            The key to use for the block cipher.
+	 * @throws ProtocolException
+	 *             If it fails to initialize the cipher.
 	 */
 	protected void blockCipherInit(SecretKey secretKey)
 			throws ProtocolException {
@@ -108,13 +158,18 @@ public abstract class Protocol {
 	}
 
 	/**
-	 * Sends a ping request
+	 * Sends a ping request.
 	 * 
 	 * @param pingCallback
+	 *            The callback to use when receiving the response, may be null
+	 *            if response should be ignored.
 	 * 
 	 * @throws ProtocolException
+	 *             If ping already has been requested.
 	 * @throws PacketException
+	 *             If it fails to deliver the packet.
 	 * @throws IOException
+	 *             If it fails to write to the output stream.
 	 */
 	public synchronized void ping(PingCallback pingCallback)
 			throws ProtocolException, PacketException, IOException {
@@ -132,9 +187,13 @@ public abstract class Protocol {
 	 * Handles a ping message.
 	 * 
 	 * @param ping
+	 *            The ping message.
 	 * @throws PacketException
+	 *             If i fails to pack the response.
 	 * @throws ProtocolException
+	 *             If ping was not requested.
 	 * @throws IOException
+	 *             If it fails to write to the output stream.
 	 */
 	protected void processPing(Ping ping) throws PacketException,
 			ProtocolException, IOException {
@@ -158,9 +217,13 @@ public abstract class Protocol {
 	 * Delivers a block cipher message, checks if authenticated.
 	 * 
 	 * @param message
+	 *            The message to deliver.
 	 * @throws PacketException
+	 *             If it fails to pack the message.
 	 * @throws IOException
+	 *             If it fails to write to the output stream.
 	 * @throws ProtocolException
+	 *             If not authenticated.
 	 */
 	protected void deliver(Message message) throws PacketException,
 			IOException, ProtocolException {
@@ -174,8 +237,11 @@ public abstract class Protocol {
 	 * Writes a secure packet without any checks.
 	 * 
 	 * @param packet
+	 *            The packet to write.
 	 * @throws PacketException
+	 *             If it fails to pack the packet.
 	 * @throws IOException
+	 *             If it fails to write to the output stream.
 	 */
 	protected void writeSecure(Packet packet) throws PacketException,
 			IOException {
@@ -186,9 +252,13 @@ public abstract class Protocol {
 	 * Used to process an incoming packet.
 	 * 
 	 * @param packet
+	 *            The packet to process.
 	 * @throws PacketException
+	 *             If it fails to handle the packet for some reason.
 	 * @throws IOException
+	 *             If it fails to write to the output stream.
 	 * @throws ProtocolException
+	 *             If the packet is unexpected for some reason.
 	 */
 	public abstract void process(Packet packet) throws PacketException,
 			IOException, ProtocolException;
