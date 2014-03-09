@@ -2,14 +2,35 @@ package remote.api.commands;
 
 import remote.api.exceptions.PacketException;
 
+/**
+ * Class for a key release.
+ */
 public class KeyRelease extends Command {
+	/**
+	 * Number of bytes needed when writing.
+	 */
 	public static final int LENGTH = 5;
+
+	/**
+	 * Key code of the KeyRelease.
+	 */
 	private int keycode;
 
+	/**
+	 * Constructs a new KeyRelease.
+	 * 
+	 * @param keycode
+	 *            Key code of the release.
+	 */
 	public KeyRelease(int keycode) {
 		this.keycode = keycode;
 	}
 
+	/**
+	 * Retrieves the key code of the command.
+	 * 
+	 * @return The key code.
+	 */
 	public int getKeycode() {
 		return keycode;
 	}
@@ -32,6 +53,17 @@ public class KeyRelease extends Command {
 		data[offset + 4] = (byte) (keycode & 0xFF);
 	}
 
+	/**
+	 * Attempts to read a KeyRelease from data.
+	 * 
+	 * @param data
+	 *            The data to read.
+	 * @param offset
+	 *            Start offset in data.
+	 * @return The read command.
+	 * @throws PacketException
+	 *             If offset or length of data makes the read impossible.
+	 */
 	public static KeyRelease read(byte[] data, int offset)
 			throws PacketException {
 		if (offset < 0 || data.length < LENGTH + offset) {

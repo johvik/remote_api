@@ -2,12 +2,32 @@ package remote.api.commands;
 
 import remote.api.exceptions.PacketException;
 
+/**
+ * Command class for a mouse move.
+ */
 public class MouseMove extends Command {
+	/**
+	 * Number of bytes needed when writing.
+	 */
 	public static final int LENGTH = 5;
 
+	/**
+	 * Relative amount to move in the x-axis.
+	 */
 	private short dx;
+	/**
+	 * Relative amount to move in the y-axis.
+	 */
 	private short dy;
 
+	/**
+	 * Constructs a new mouse move.
+	 * 
+	 * @param dx
+	 *            Relative number of pixels to move in the x-axis.
+	 * @param dy
+	 *            Relative number of pixels to move in the y-axis.
+	 */
 	public MouseMove(short dx, short dy) {
 		this.dx = dx;
 		this.dy = dy;
@@ -25,6 +45,17 @@ public class MouseMove extends Command {
 		data[offset + 4] = (byte) (dy & 0xFF);
 	}
 
+	/**
+	 * Attempts to read a MouseMove from data.
+	 * 
+	 * @param data
+	 *            The data to read.
+	 * @param offset
+	 *            Start offset in data.
+	 * @return The read command.
+	 * @throws PacketException
+	 *             If offset or length of data makes the read impossible.
+	 */
 	public static MouseMove read(byte[] data, int offset)
 			throws PacketException {
 		if (offset < 0 || data.length < LENGTH + offset) {
@@ -46,10 +77,20 @@ public class MouseMove extends Command {
 		return MOUSE_MOVE;
 	}
 
+	/**
+	 * Relative amount to move in the x-axis.
+	 * 
+	 * @return The dx value.
+	 */
 	public short getDx() {
 		return dx;
 	}
 
+	/**
+	 * Relative amount to move in the y-axis.
+	 * 
+	 * @return The dy value.
+	 */
 	public short getDy() {
 		return dy;
 	}

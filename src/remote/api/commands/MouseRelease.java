@@ -2,14 +2,35 @@ package remote.api.commands;
 
 import remote.api.exceptions.PacketException;
 
+/**
+ * Command class for a mouse release.
+ */
 public class MouseRelease extends Command {
+	/**
+	 * Number of bytes needed when writing.
+	 */
 	public static final int LENGTH = 5;
+
+	/**
+	 * Button mask.
+	 */
 	private int buttons;
 
+	/**
+	 * Constructs a new mouse release.
+	 * 
+	 * @param buttons
+	 *            Mask for which buttons to be released.
+	 */
 	public MouseRelease(int buttons) {
 		this.buttons = buttons;
 	}
 
+	/**
+	 * Gets the button mask.
+	 * 
+	 * @return The mask.
+	 */
 	public int getButtons() {
 		return buttons;
 	}
@@ -32,6 +53,17 @@ public class MouseRelease extends Command {
 		data[offset + 4] = (byte) (buttons & 0xFF);
 	}
 
+	/**
+	 * Attempts to read a MouseRelease from data.
+	 * 
+	 * @param data
+	 *            The data to read.
+	 * @param offset
+	 *            Start offset in data.
+	 * @return The read command.
+	 * @throws PacketException
+	 *             If offset or length of data makes the read impossible.
+	 */
 	public static MouseRelease read(byte[] data, int offset)
 			throws PacketException {
 		if (offset < 0 || data.length < LENGTH + offset) {

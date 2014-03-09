@@ -2,14 +2,35 @@ package remote.api.commands;
 
 import remote.api.exceptions.PacketException;
 
+/**
+ * Command class for a mouse wheel.
+ */
 public class MouseWheel extends Command {
+	/**
+	 * Number of bytes needed when writing.
+	 */
 	public static final int LENGTH = 5;
+
+	/**
+	 * Number to turn.
+	 */
 	private int wheelAmt;
 
+	/**
+	 * Constructs a new mouse wheel.
+	 * 
+	 * @param wheelAmt
+	 *            Absolute number to turn.
+	 */
 	public MouseWheel(int wheelAmt) {
 		this.wheelAmt = wheelAmt;
 	}
 
+	/**
+	 * Gets the wheel amount.
+	 * 
+	 * @return Number to turn.
+	 */
 	public int getWheelAmt() {
 		return wheelAmt;
 	}
@@ -32,6 +53,17 @@ public class MouseWheel extends Command {
 		data[offset + 4] = (byte) (wheelAmt & 0xFF);
 	}
 
+	/**
+	 * Attempts to read a MouseWheel from data.
+	 * 
+	 * @param data
+	 *            The data to read.
+	 * @param offset
+	 *            Start offset in data.
+	 * @return The read command.
+	 * @throws PacketException
+	 *             If offset or length of data makes the read impossible.
+	 */
 	public static MouseWheel read(byte[] data, int offset)
 			throws PacketException {
 		if (offset < 0 || data.length < LENGTH + offset) {
