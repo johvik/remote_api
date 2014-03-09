@@ -3,10 +3,26 @@ package remote.api.messages;
 import remote.api.exceptions.PacketException;
 import remote.api.Packet;
 
+/**
+ * A class for a ping message.
+ */
 public class Ping extends Message {
+	/**
+	 * Number of bytes needed by the message.
+	 */
 	public static final int LENGTH = 2;
+
+	/**
+	 * Indicates if its a request or a response.
+	 */
 	private boolean request;
 
+	/**
+	 * Constructs a new ping.
+	 * 
+	 * @param request
+	 *            True if it is a request.
+	 */
 	public Ping(boolean request) {
 		this.request = request;
 	}
@@ -19,6 +35,15 @@ public class Ping extends Message {
 		return new Packet(data);
 	}
 
+	/**
+	 * Attempts to read a ping from data.
+	 * 
+	 * @param data
+	 *            The data to read from.
+	 * @return The ping read.
+	 * @throws PacketException
+	 *             If the length is incorrect.
+	 */
 	public static Ping unpack(byte[] data) throws PacketException {
 		if (data.length != LENGTH) {
 			throw new PacketException("Unexpected length", data);

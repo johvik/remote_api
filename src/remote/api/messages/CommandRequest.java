@@ -10,10 +10,28 @@ import remote.api.commands.MouseRelease;
 import remote.api.commands.MouseWheel;
 import remote.api.exceptions.PacketException;
 
+/**
+ * A class for sending commands to the server.
+ */
 public class CommandRequest extends Message {
+	/**
+	 * Static length of a message. This is the type byte of the command request.
+	 */
 	public static final int STATIC_LENGTH = 1;
+
+	/**
+	 * Command of the message.
+	 */
 	private Command command;
 
+	/**
+	 * Constructs a new command request.
+	 * 
+	 * @param command
+	 *            The command of the message.
+	 * @throws PacketException
+	 *             If the command is null.
+	 */
 	public CommandRequest(Command command) throws PacketException {
 		if (command == null) {
 			throw new PacketException("Command is null", null);
@@ -29,6 +47,15 @@ public class CommandRequest extends Message {
 		return new Packet(data);
 	}
 
+	/**
+	 * Attempts to read a command request from data.
+	 * 
+	 * @param data
+	 *            The data to read from.
+	 * @return The command request read.
+	 * @throws PacketException
+	 *             If the length is incorrect or an invalid command was sent.
+	 */
 	public static CommandRequest unpack(byte[] data) throws PacketException {
 		if (data.length <= STATIC_LENGTH) {
 			throw new PacketException("Unexpected length", data);
@@ -56,6 +83,11 @@ public class CommandRequest extends Message {
 		return COMMAND_REQUEST;
 	}
 
+	/**
+	 * Gets the command of the request.
+	 * 
+	 * @return The command.
+	 */
 	public Command getCommand() {
 		return command;
 	}

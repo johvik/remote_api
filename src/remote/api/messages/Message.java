@@ -3,13 +3,31 @@ package remote.api.messages;
 import remote.api.Packet;
 import remote.api.exceptions.PacketException;
 
+/**
+ * A class that represents a message sent between the client and the server.
+ */
 public abstract class Message implements Comparable<Message> {
-	// Number of type codes used.
+	/**
+	 * Number of type codes used for messages. This number has to be increased
+	 * when adding new messages.
+	 */
 	public static final int USED_CODES = 4;
 
+	/**
+	 * Type code for authentication request.
+	 */
 	public static final byte AUTHENTICATION_REQUEST = 0;
+	/**
+	 * Type code for authentication response.
+	 */
 	public static final byte AUTHENTICATION_RESPONSE = 1;
+	/**
+	 * Type code for ping.
+	 */
 	public static final byte PING = 2;
+	/**
+	 * Type code for command request.
+	 */
 	public static final byte COMMAND_REQUEST = 3;
 
 	/**

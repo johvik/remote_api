@@ -4,13 +4,45 @@ import remote.api.exceptions.PacketException;
 import remote.api.Packet;
 import remote.api.Utils;
 
+/**
+ * A class representing an authentication request containing a key to be used
+ * for the block cipher and a user and a password.
+ */
 public class AuthenticationRequest extends Message {
+	/**
+	 * The minimum length required if sending a empty user and password.
+	 */
 	private static final int MIN_LENGTH = calculateSize(0, 0);
+	/**
+	 * The maximum length of the message, limited by the secure algorithm.
+	 */
 	public static final int MAX_LENGTH = 245; // max size for 2048 bit RSA key
+
+	/**
+	 * Key for the block cipher.
+	 */
 	private byte[] key;
+	/**
+	 * User to authenticate.
+	 */
 	private String user;
+	/**
+	 * Password for the user.
+	 */
 	private String password;
 
+	/**
+	 * Constructs a new authentication request.
+	 * 
+	 * @param key
+	 *            Key to use for the block cipher.
+	 * @param user
+	 *            User to authenticate.
+	 * @param password
+	 *            Password for the user.
+	 * @throws PacketException
+	 *             If any of the arguments is null or the key has wrong length.
+	 */
 	public AuthenticationRequest(byte[] key, String user, String password)
 			throws PacketException {
 		if (key == null || user == null || password == null) {
@@ -24,6 +56,15 @@ public class AuthenticationRequest extends Message {
 		this.password = password;
 	}
 
+	/**
+	 * Calculates the size of a message.
+	 * 
+	 * @param user
+	 *            Length of the user.
+	 * @param password
+	 *            Length of the password.
+	 * @return The total length of the message.
+	 */
 	private static int calculateSize(int user, int password) {
 		// One byte for type
 		// BLOCK_KEY_SIZE for key
@@ -66,6 +107,16 @@ public class AuthenticationRequest extends Message {
 		return new Packet(data);
 	}
 
+	/**
+	 * Attempts to read an authentication request from data.
+	 * 
+	 * @param data
+	 *            The data to read from.
+	 * @return The authentication request read.
+	 * @throws PacketException
+	 *             If the length is incorrect or if the user plus password
+	 *             length is too large.
+	 */
 	public static AuthenticationRequest unpack(byte[] data)
 			throws PacketException {
 		int length = data.length;
@@ -109,14 +160,29 @@ public class AuthenticationRequest extends Message {
 		return AUTHENTICATION_REQUEST;
 	}
 
+	/**
+	 * Gets the block cipher key.
+	 * 
+	 * @return The key.
+	 */
 	public byte[] getKey() {
 		return key;
 	}
 
+	/**
+	 * Gets the user of the request.
+	 * 
+	 * @return The user.
+	 */
 	public String getUser() {
 		return user;
 	}
 
+	/**
+	 * Gets the password of the request.
+	 * 
+	 * @return The password.
+	 */
 	public String getPassword() {
 		return password;
 	}
