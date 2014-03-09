@@ -1,6 +1,7 @@
 package remote.api;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
@@ -69,6 +70,9 @@ public class ServerProtocol extends Protocol {
 	 *            The command handler.
 	 * @param privateKey
 	 *            The private key of the secure algorithm.
+	 * @param input
+	 *            The input stream of the server. This is used to receive data
+	 *            from the client.
 	 * @param output
 	 *            The output stream of the server. This is used to respond and
 	 *            send data to the client.
@@ -76,12 +80,14 @@ public class ServerProtocol extends Protocol {
 	 *             If it fails to initialize the secure cipher.
 	 * @throws ProtocolException
 	 *             If arguments is null.
+	 * @throws PacketException
+	 *             See {@link PacketScanner#PacketScanner(InputStream)}
 	 */
 	public ServerProtocol(AuthenticationCheck authentication,
 			CommandHandler commandHandler, PrivateKey privateKey,
-			OutputStream output) throws GeneralSecurityException,
-			ProtocolException {
-		super(privateKey, output);
+			InputStream input, OutputStream output)
+			throws GeneralSecurityException, ProtocolException, PacketException {
+		super(privateKey, input, output);
 		if (authentication == null) {
 			throw new ProtocolException("Authentication check cannot be null");
 		}

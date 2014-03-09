@@ -3,6 +3,7 @@ package remote.test.api;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -44,26 +45,29 @@ public class TestClientProtocol {
 
 	/**
 	 * Test method for
-	 * {@link ClientProtocol#ClientProtocol(java.security.PublicKey, byte[], java.io.OutputStream)}
+	 * {@link ClientProtocol#ClientProtocol(java.security.PublicKey, byte[], java.io.InputStream, java.io.OutputStream)}
 	 * .
 	 * 
 	 * @throws GeneralSecurityException
 	 *             If something went wrong.
 	 * @throws ProtocolException
 	 *             If something went wrong.
+	 * @throws PacketException
+	 *             If something went wrong.
 	 */
 	@Test
 	public void testClientProtocol() throws GeneralSecurityException,
-			ProtocolException {
+			ProtocolException, PacketException {
+		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
-			new ClientProtocol(null, Misc.key, output);
+			new ClientProtocol(null, Misc.key, input, output);
 			fail("Did not throw an exception");
 		} catch (InvalidKeyException e) {
 			// Skip checking this one
 		}
 		try {
-			new ClientProtocol(Misc.publicKey, null, output);
+			new ClientProtocol(Misc.publicKey, null, input, output);
 			fail("Did not throw an exception");
 		} catch (InvalidKeyException e) {
 			InvalidKeyException ex = new InvalidKeyException(
@@ -73,7 +77,7 @@ public class TestClientProtocol {
 		try {
 			// Wrong key size
 			new ClientProtocol(Misc.publicKey,
-					new byte[Packet.BLOCK_KEY_SIZE - 1], output);
+					new byte[Packet.BLOCK_KEY_SIZE - 1], input, output);
 			fail("Did not throw an exception");
 		} catch (InvalidKeyException e) {
 			InvalidKeyException ex = new InvalidKeyException(
@@ -81,7 +85,14 @@ public class TestClientProtocol {
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		try {
-			new ClientProtocol(Misc.publicKey, Misc.key, null);
+			new ClientProtocol(Misc.publicKey, Misc.key, null, output);
+			fail("Did not throw an exception");
+		} catch (ProtocolException e) {
+			ProtocolException ex = new ProtocolException("Input cannot be null");
+			assertEquals(ex.getMessage(), e.getMessage());
+		}
+		try {
+			new ClientProtocol(Misc.publicKey, Misc.key, input, null);
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException(
@@ -89,7 +100,7 @@ public class TestClientProtocol {
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		// Correct
-		new ClientProtocol(Misc.publicKey, Misc.key, output);
+		new ClientProtocol(Misc.publicKey, Misc.key, input, output);
 	}
 
 	/**
@@ -107,8 +118,10 @@ public class TestClientProtocol {
 	@Test
 	public void testNotAuthenticated() throws GeneralSecurityException,
 			ProtocolException, PacketException, IOException {
+		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, output);
+		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, input,
+				output);
 		// Not authenticated
 		try {
 			cp.ping(null);
@@ -136,8 +149,10 @@ public class TestClientProtocol {
 	@Test
 	public void testProcess() throws GeneralSecurityException,
 			ProtocolException, PacketException, IOException {
+		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, output);
+		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, input,
+				output);
 
 		// Try to process without authentication
 		try {
@@ -178,8 +193,10 @@ public class TestClientProtocol {
 	@Test
 	public void testAuthenticate() throws GeneralSecurityException,
 			ProtocolException, PacketException, IOException {
+		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, output);
+		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, input,
+				output);
 
 		// Send authenticate
 		String user = "user";
@@ -223,8 +240,10 @@ public class TestClientProtocol {
 	@Test
 	public void testCommandRequest() throws GeneralSecurityException,
 			ProtocolException, PacketException, IOException {
+		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, output);
+		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, input,
+				output);
 		// Authenticate
 		cp.process(Misc.encryptBlock(new AuthenticationResponse().pack()));
 
@@ -251,8 +270,10 @@ public class TestClientProtocol {
 	@Test
 	public void testPing() throws GeneralSecurityException, ProtocolException,
 			PacketException, IOException {
+		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, output);
+		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, input,
+				output);
 		// Authenticate
 		cp.process(Misc.encryptBlock(new AuthenticationResponse().pack()));
 
@@ -314,5 +335,28 @@ public class TestClientProtocol {
 		p = Packet.read(output.toByteArray());
 		ping = (Ping) p.decode(Misc.blockDecrypt);
 		assertEquals(0, ping.compareTo(new Ping(false)));
+	}
+
+	/**
+	 * Test method for {@link ClientProtocol#nextPacket()}.
+	 * 
+	 * @throws Exception
+	 *             If something went wrong.
+	 */
+	@Test(timeout = 1000)
+	public void testNextPacket() throws Exception {
+		ByteArrayOutputStream tmp = new ByteArrayOutputStream();
+		AuthenticationResponse r = new AuthenticationResponse();
+		r.pack().write(Misc.blockEncrypt, tmp);
+
+		ByteArrayInputStream input = new ByteArrayInputStream(tmp.toByteArray());
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, input,
+				output);
+
+		// Makes no sense to test more than one scenario, since it is a wrapper
+		// of the PacketScanner class
+		Packet p = cp.nextPacket();
+		assertEquals(0, r.compareTo(p.decode(Misc.blockDecrypt)));
 	}
 }

@@ -1,6 +1,7 @@
 package remote.api;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
@@ -51,6 +52,10 @@ public abstract class Protocol {
 	 */
 	private OutputStream output;
 	/**
+	 * Scans the input stream for packets.
+	 */
+	protected PacketScanner packetScanner;
+	/**
 	 * State if the user is authenticated.
 	 */
 	protected boolean authenticated;
@@ -70,18 +75,27 @@ public abstract class Protocol {
 	/**
 	 * Constructs a new protocol.
 	 * 
+	 * @param input
+	 *            The input stream.
 	 * @param output
 	 *            The output stream.
 	 * @throws ProtocolException
-	 *             If output is null.
+	 *             If input or output is null.
+	 * @throws PacketException
+	 *             See {@link PacketScanner#PacketScanner(InputStream)}
 	 */
-	private Protocol(OutputStream output) throws ProtocolException {
+	private Protocol(InputStream input, OutputStream output)
+			throws ProtocolException, PacketException {
+		if (input == null) {
+			throw new ProtocolException("Input cannot be null");
+		}
 		if (output == null) {
 			throw new ProtocolException("Output cannot be null");
 		}
 		pingRequested = false;
 		pingTime = 0;
 		this.output = output;
+		packetScanner = new PacketScanner(input);
 		authenticated = false;
 	}
 
@@ -92,6 +106,8 @@ public abstract class Protocol {
 	 *            The public key for the secure algorithm.
 	 * @param key
 	 *            The key to use for the block cipher.
+	 * @param input
+	 *            The input stream.
 	 * @param output
 	 *            The output stream.
 	 * @throws GeneralSecurityException
@@ -99,10 +115,13 @@ public abstract class Protocol {
 	 * @throws ProtocolException
 	 *             If it fails to initialize the block cipher, if the key is
 	 *             invalid or if output is null.
+	 * @throws PacketException
+	 *             See {@link PacketScanner#PacketScanner(InputStream)}
 	 */
-	protected Protocol(PublicKey publicKey, byte[] key, OutputStream output)
-			throws GeneralSecurityException, ProtocolException {
-		this(output);
+	protected Protocol(PublicKey publicKey, byte[] key, InputStream input,
+			OutputStream output) throws GeneralSecurityException,
+			ProtocolException, PacketException {
+		this(input, output);
 		if (key == null) {
 			throw new InvalidKeyException("Key cannot be null");
 		}
@@ -121,16 +140,21 @@ public abstract class Protocol {
 	 * 
 	 * @param privateKey
 	 *            The private key for the secure algorithm.
+	 * @param input
+	 *            The input stream.
 	 * @param output
 	 *            The output stream.
 	 * @throws GeneralSecurityException
 	 *             If it fails to initialize the secure cipher.
 	 * @throws ProtocolException
 	 *             If output is null.
+	 * @throws PacketException
+	 *             See {@link PacketScanner#PacketScanner(InputStream)}
 	 */
-	protected Protocol(PrivateKey privateKey, OutputStream output)
-			throws GeneralSecurityException, ProtocolException {
-		this(output);
+	protected Protocol(PrivateKey privateKey, InputStream input,
+			OutputStream output) throws GeneralSecurityException,
+			ProtocolException, PacketException {
+		this(input, output);
 		blockDecryptCipher = null;
 		blockEncryptCipher = null;
 		secureCipher = Cipher.getInstance(Packet.SECURE_ALGORITHM);
@@ -262,4 +286,17 @@ public abstract class Protocol {
 	 */
 	public abstract void process(Packet packet) throws PacketException,
 			IOException, ProtocolException;
+
+	/**
+	 * Blocks until a packet is found in the input stream.
+	 * 
+	 * @return The next packet or null if -1 is read.
+	 * @throws IOException
+	 *             If it fails while reading data.
+	 * @throws PacketException
+	 *             If it fails while reading the packet.
+	 */
+	public Packet nextPacket() throws IOException, PacketException {
+		return packetScanner.nextPacket();
+	}
 }

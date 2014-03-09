@@ -3,6 +3,7 @@ package remote.test.api;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -77,20 +78,24 @@ public class TestServerProtocol {
 
 	/**
 	 * Test method for
-	 * {@link ServerProtocol#ServerProtocol(AuthenticationCheck, CommandHandler, java.security.PrivateKey, java.io.OutputStream)}
+	 * {@link ServerProtocol#ServerProtocol(AuthenticationCheck, CommandHandler, java.security.PrivateKey, java.io.InputStream, java.io.OutputStream)}
 	 * .
 	 * 
 	 * @throws GeneralSecurityException
 	 *             If something went wrong.
 	 * @throws ProtocolException
 	 *             If something went wrong.
+	 * @throws PacketException
+	 *             If something went wrong.
 	 */
 	@Test
 	public void testServerProtocol() throws GeneralSecurityException,
-			ProtocolException {
+			ProtocolException, PacketException {
+		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
-			new ServerProtocol(null, commandHandler, Misc.privateKey, output);
+			new ServerProtocol(null, commandHandler, Misc.privateKey, input,
+					output);
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException(
@@ -98,7 +103,8 @@ public class TestServerProtocol {
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		try {
-			new ServerProtocol(authentication, null, Misc.privateKey, output);
+			new ServerProtocol(authentication, null, Misc.privateKey, input,
+					output);
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException(
@@ -106,14 +112,23 @@ public class TestServerProtocol {
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		try {
-			new ServerProtocol(authentication, commandHandler, null, output);
+			new ServerProtocol(authentication, commandHandler, null, input,
+					output);
 			fail("Did not throw an exception");
 		} catch (InvalidKeyException e) {
 			// Skip checking this one
 		}
 		try {
 			new ServerProtocol(authentication, commandHandler, Misc.privateKey,
-					null);
+					null, output);
+			fail("Did not throw an exception");
+		} catch (ProtocolException e) {
+			ProtocolException ex = new ProtocolException("Input cannot be null");
+			assertEquals(ex.getMessage(), e.getMessage());
+		}
+		try {
+			new ServerProtocol(authentication, commandHandler, Misc.privateKey,
+					input, null);
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException(
@@ -122,7 +137,7 @@ public class TestServerProtocol {
 		}
 		// Correct
 		new ServerProtocol(authentication, commandHandler, Misc.privateKey,
-				output);
+				input, output);
 	}
 
 	/**
@@ -140,9 +155,10 @@ public class TestServerProtocol {
 	@Test
 	public void testPing() throws GeneralSecurityException, ProtocolException,
 			PacketException, IOException {
+		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ServerProtocol sp = new ServerProtocol(authentication, commandHandler,
-				Misc.privateKey, output);
+				Misc.privateKey, input, output);
 		// Authenticate
 		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key, "",
 				"").pack()));
@@ -223,9 +239,10 @@ public class TestServerProtocol {
 	@Test
 	public void testCommandRequest() throws GeneralSecurityException,
 			ProtocolException, PacketException, IOException {
+		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ServerProtocol sp = new ServerProtocol(authentication, commandHandler,
-				Misc.privateKey, output);
+				Misc.privateKey, input, output);
 		// Authenticate
 		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key, "",
 				"").pack()));
@@ -255,9 +272,10 @@ public class TestServerProtocol {
 	@Test
 	public void testNotAuthenticated() throws GeneralSecurityException,
 			ProtocolException, PacketException, IOException {
+		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ServerProtocol sp = new ServerProtocol(authentication, commandHandler,
-				Misc.privateKey, output);
+				Misc.privateKey, input, output);
 		// Not authenticated
 		try {
 			sp.ping(null);
@@ -285,9 +303,10 @@ public class TestServerProtocol {
 	@Test
 	public void testProcess() throws GeneralSecurityException,
 			ProtocolException, PacketException, IOException {
+		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ServerProtocol sp = new ServerProtocol(authenticationFail,
-				commandHandler, Misc.privateKey, output);
+				commandHandler, Misc.privateKey, input, output);
 		// Fail to authenticate
 		try {
 			sp.process(Misc.encryptSecure(new AuthenticationRequest(
@@ -314,7 +333,7 @@ public class TestServerProtocol {
 
 		// Try to authenticate twice
 		sp = new ServerProtocol(authentication, commandHandler,
-				Misc.privateKey, output);
+				Misc.privateKey, input, output);
 		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key, "",
 				"").pack()));
 		Packet p = Packet.read(output.toByteArray());
@@ -336,5 +355,29 @@ public class TestServerProtocol {
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		assertArrayEquals(new byte[0], output.toByteArray());
+	}
+
+	/**
+	 * Test method for {@link ServerProtocol#nextPacket()}.
+	 * 
+	 * @throws Exception
+	 *             If something went wrong.
+	 */
+	@Test(timeout = 1000)
+	public void testNextPacket() throws Exception {
+		ByteArrayOutputStream tmp = new ByteArrayOutputStream();
+		AuthenticationRequest r = new AuthenticationRequest(Misc.key, "user",
+				"password");
+		r.pack().write(Misc.secureEncrypt, tmp);
+
+		ByteArrayInputStream input = new ByteArrayInputStream(tmp.toByteArray());
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		ServerProtocol sp = new ServerProtocol(authentication, commandHandler,
+				Misc.privateKey, input, output);
+
+		// Makes no sense to test more than one scenario, since it is a wrapper
+		// of the PacketScanner class
+		Packet p = sp.nextPacket();
+		assertEquals(0, r.compareTo(p.decode(Misc.secureDecrypt)));
 	}
 }

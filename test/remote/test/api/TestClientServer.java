@@ -14,7 +14,6 @@ import org.junit.Test;
 
 import remote.api.ClientProtocol;
 import remote.api.Packet;
-import remote.api.PacketScanner;
 import remote.api.ServerProtocol;
 import remote.api.ServerProtocol.AuthenticationCheck;
 import remote.api.ServerProtocol.CommandHandler;
@@ -79,13 +78,11 @@ public class TestClientServer {
 		PipedInputStream clientInput = new PipedInputStream(serverOutput);
 		// Redirect client output to server
 		PipedInputStream serverInput = new PipedInputStream(clientOutput);
-		PacketScanner clientPs = new PacketScanner(clientInput);
-		PacketScanner serverPs = new PacketScanner(serverInput);
 
 		final ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key,
-				clientOutput);
+				clientInput, clientOutput);
 		final ServerProtocol sp = new ServerProtocol(authentication,
-				commandHandler, Misc.privateKey, serverOutput);
+				commandHandler, Misc.privateKey, serverInput, serverOutput);
 
 		// Authenticate
 		es.execute(new Runnable() {
@@ -100,7 +97,7 @@ public class TestClientServer {
 		});
 		Thread.sleep(HELP_SLEEP);
 
-		final Packet authenticationPacket = serverPs.nextPacket();
+		final Packet authenticationPacket = sp.nextPacket();
 		es.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -113,7 +110,7 @@ public class TestClientServer {
 		});
 		Thread.sleep(HELP_SLEEP);
 
-		Packet p = clientPs.nextPacket();
+		Packet p = cp.nextPacket();
 		cp.process(p); // Does not write anything
 		assertEquals(Message.AUTHENTICATION_RESPONSE, p.decode(null).getType());
 
@@ -131,7 +128,7 @@ public class TestClientServer {
 		});
 		Thread.sleep(HELP_SLEEP);
 
-		p = serverPs.nextPacket();
+		p = sp.nextPacket();
 		sp.process(p); // Does not write anything
 		assertEquals(0,
 				mm.compareTo(((CommandRequest) p.decode(null)).getCommand()));
@@ -151,8 +148,8 @@ public class TestClientServer {
 		Thread.sleep(HELP_SLEEP);
 
 		// Respond to ping
-		final Packet clientPing = clientPs.nextPacket();
-		final Packet serverPing = serverPs.nextPacket();
+		final Packet clientPing = cp.nextPacket();
+		final Packet serverPing = sp.nextPacket();
 		es.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -167,10 +164,10 @@ public class TestClientServer {
 		Thread.sleep(HELP_SLEEP);
 
 		// Read ping response
-		p = clientPs.nextPacket();
+		p = cp.nextPacket();
 		cp.process(p);
 		assertEquals(Message.PING, p.decode(null).getType());
-		p = serverPs.nextPacket();
+		p = sp.nextPacket();
 		sp.process(p);
 		assertEquals(Message.PING, p.decode(null).getType());
 

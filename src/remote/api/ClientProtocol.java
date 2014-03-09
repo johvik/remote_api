@@ -1,6 +1,7 @@
 package remote.api;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
@@ -30,6 +31,9 @@ public class ClientProtocol extends Protocol {
 	 *            The public key for the secure algorithm.
 	 * @param key
 	 *            The block cipher key.
+	 * @param input
+	 *            The input stream of the client. This is used to receive data
+	 *            from the server.
 	 * @param output
 	 *            The output stream of the client. This is used to respond and
 	 *            send data to the server.
@@ -38,10 +42,13 @@ public class ClientProtocol extends Protocol {
 	 * @throws ProtocolException
 	 *             If it fails to initialize the block cipher or arguments are
 	 *             null.
+	 * @throws PacketException
+	 *             See {@link PacketScanner#PacketScanner(InputStream)}
 	 */
-	public ClientProtocol(PublicKey publicKey, byte[] key, OutputStream output)
-			throws GeneralSecurityException, ProtocolException {
-		super(publicKey, key, output);
+	public ClientProtocol(PublicKey publicKey, byte[] key, InputStream input,
+			OutputStream output) throws GeneralSecurityException,
+			ProtocolException, PacketException {
+		super(publicKey, key, input, output);
 		this.key = key;
 	}
 

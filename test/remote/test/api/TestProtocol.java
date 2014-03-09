@@ -3,6 +3,7 @@ package remote.test.api;
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.startsWith;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -25,12 +26,16 @@ public class TestProtocol {
 	 * 
 	 * @throws GeneralSecurityException
 	 *             If something went wrong.
+	 * @throws PacketException
+	 *             If something went wrong.
 	 */
 	@Test
-	public void testBlockCipherInit() throws GeneralSecurityException {
+	public void testBlockCipherInit() throws GeneralSecurityException,
+			PacketException {
+		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
-			new Protocol(Misc.privateKey, output) {
+			new Protocol(Misc.privateKey, input, output) {
 				@Override
 				public void process(Packet packet) throws PacketException,
 						IOException, ProtocolException {
