@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -16,27 +15,49 @@ import remote.api.commands.MouseMove;
 import remote.api.commands.MouseRelease;
 import remote.api.exceptions.PacketException;
 
+/**
+ * Test class for {@link MouseRelease}.
+ */
 @RunWith(Parameterized.class)
 public class TestMouseRelease {
+	/**
+	 * The buttons parameter.
+	 */
 	private int buttons;
 
+	/**
+	 * The mouse release constructed by the parameter.
+	 */
 	private MouseRelease mr;
 
+	/**
+	 * Constructs the mouse release from the parameter.
+	 * 
+	 * @param buttons
+	 *            The buttons.
+	 */
 	public TestMouseRelease(int buttons) {
 		this.buttons = buttons;
+		mr = new MouseRelease(buttons);
 	}
 
+	/**
+	 * Creates input parameters.
+	 * 
+	 * @return The parameters.
+	 */
 	@Parameters
 	public static Collection<Object[]> data() {
 		return Arrays.asList(new Object[][] { { 0 }, { Integer.MIN_VALUE },
 				{ Integer.MAX_VALUE } });
 	}
 
-	@Before
-	public void setUp() throws Exception {
-		mr = new MouseRelease(buttons);
-	}
-
+	/**
+	 * Tests writing and reading the command.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testWriteRead() throws PacketException {
 		for (int i = 0; i < 10; i++) {
@@ -50,6 +71,9 @@ public class TestMouseRelease {
 		}
 	}
 
+	/**
+	 * Test method for {@link MouseRelease#write(byte[], int)}.
+	 */
 	@Test
 	public void testWrite() {
 		byte[] data = new byte[mr.getLength()];
@@ -74,6 +98,9 @@ public class TestMouseRelease {
 		}
 	}
 
+	/**
+	 * Test method for {@link MouseRelease#read(byte[], int)}.
+	 */
 	@Test
 	public void testRead() {
 		byte[] data = new byte[mr.getLength()];
@@ -98,20 +125,32 @@ public class TestMouseRelease {
 		}
 	}
 
+	/**
+	 * Test method for {@link MouseRelease#getLength()}.
+	 */
 	public void testGetLength() {
 		assertEquals(MouseRelease.LENGTH, mr.getLength());
 	}
 
+	/**
+	 * Test method for {@link MouseRelease#getType()}.
+	 */
 	@Test
 	public void testGetType() {
 		assertEquals(Command.MOUSE_RELEASE, mr.getType());
 	}
 
+	/**
+	 * Test method for {@link MouseRelease#getButtons()}.
+	 */
 	@Test
 	public void testGetButtons() {
 		assertEquals(buttons, mr.getButtons());
 	}
 
+	/**
+	 * Test method for {@link MouseRelease#compareTo(Command)}.
+	 */
 	@Test
 	public void testCompareTo() {
 		try {
