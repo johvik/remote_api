@@ -23,6 +23,10 @@ public class AuthenticationRequest extends Message {
 	 */
 	private byte[] key;
 	/**
+	 * Initialization vector for block cipher.
+	 */
+	private byte[] iv;
+	/**
 	 * User to authenticate.
 	 */
 	private String user;
@@ -36,6 +40,8 @@ public class AuthenticationRequest extends Message {
 	 * 
 	 * @param key
 	 *            Key to use for the block cipher.
+	 * @param iv
+	 *            Initialization vector for the block cipher.
 	 * @param user
 	 *            User to authenticate.
 	 * @param password
@@ -43,15 +49,25 @@ public class AuthenticationRequest extends Message {
 	 * @throws PacketException
 	 *             If any of the arguments is null or the key has wrong length.
 	 */
-	public AuthenticationRequest(byte[] key, String user, String password)
-			throws PacketException {
-		if (key == null || user == null || password == null) {
-			throw new PacketException("Null input data", key);
+	public AuthenticationRequest(byte[] key, byte[] iv, String user,
+			String password) throws PacketException {
+		if (key == null) {
+			throw new PacketException("Key is null", key);
+		}
+		if (iv == null) {
+			throw new PacketException("Iv is null", iv);
+		}
+		if (user == null || password == null) {
+			throw new PacketException("User or password is null", null);
 		}
 		if (key.length != Packet.BLOCK_KEY_SIZE) {
-			throw new PacketException("Wrong key length", key);
+			throw new PacketException("Key has wrong length", key);
+		}
+		if (iv.length != Packet.BLOCK_SIZE) {
+			throw new PacketException("Iv has wrong length", iv);
 		}
 		this.key = key;
+		this.iv = iv;
 		this.user = user;
 		this.password = password;
 	}
@@ -68,9 +84,11 @@ public class AuthenticationRequest extends Message {
 	private static int calculateSize(int user, int password) {
 		// One byte for type
 		// BLOCK_KEY_SIZE for key
+		// BLOCK_SIZE for iv
 		// Two bytes for user + password length bytes
 		// Length of user + password
-		return 1 + Packet.BLOCK_KEY_SIZE + 2 + user + password;
+		return 1 + Packet.BLOCK_KEY_SIZE + Packet.BLOCK_SIZE + 2 + user
+				+ password;
 	}
 
 	@Override
@@ -91,6 +109,10 @@ public class AuthenticationRequest extends Message {
 		// Write key
 		System.arraycopy(key, 0, data, pos, Packet.BLOCK_KEY_SIZE);
 		pos += Packet.BLOCK_KEY_SIZE;
+
+		// Write iv
+		System.arraycopy(iv, 0, data, pos, Packet.BLOCK_SIZE);
+		pos += Packet.BLOCK_SIZE;
 
 		// Write lengths
 		data[pos++] = (byte) (userLength & 0xFF);
@@ -130,6 +152,11 @@ public class AuthenticationRequest extends Message {
 		System.arraycopy(data, pos, key, 0, Packet.BLOCK_KEY_SIZE);
 		pos += Packet.BLOCK_KEY_SIZE;
 
+		// Next BLOCK_SIZE contains the iv
+		byte[] iv = new byte[Packet.BLOCK_SIZE];
+		System.arraycopy(data, pos, iv, 0, Packet.BLOCK_SIZE);
+		pos += Packet.BLOCK_SIZE;
+
 		// One byte with user length
 		int userLength = data[pos++] & 0xFF;
 		// One byte with password length
@@ -152,7 +179,7 @@ public class AuthenticationRequest extends Message {
 
 		String userString = new String(user);
 		String passwordString = new String(password);
-		return new AuthenticationRequest(key, userString, passwordString);
+		return new AuthenticationRequest(key, iv, userString, passwordString);
 	}
 
 	@Override
@@ -167,6 +194,15 @@ public class AuthenticationRequest extends Message {
 	 */
 	public byte[] getKey() {
 		return key;
+	}
+
+	/**
+	 * Gets the initialization vector for the block cipher.
+	 * 
+	 * @return The iv.
+	 */
+	public byte[] getIv() {
+		return iv;
 	}
 
 	/**
@@ -192,9 +228,12 @@ public class AuthenticationRequest extends Message {
 		AuthenticationRequest other = (AuthenticationRequest) o;
 		int cmp = Utils.compare(key, other.key);
 		if (cmp == 0) {
-			cmp = user.compareTo(other.user);
+			cmp = Utils.compare(iv, other.iv);
 			if (cmp == 0) {
-				cmp = password.compareTo(other.password);
+				cmp = user.compareTo(other.user);
+				if (cmp == 0) {
+					cmp = password.compareTo(other.password);
+				}
 			}
 		}
 		return cmp;

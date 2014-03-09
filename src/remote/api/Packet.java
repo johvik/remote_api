@@ -18,21 +18,35 @@ import remote.api.messages.Ping;
  */
 public class Packet {
 	/**
+	 * Only the name of the secure algorithm.
+	 */
+	public static final String SECURE_ALGORITHM_NAME = "RSA";
+	/**
 	 * The secure algorithm to use for authentication.
 	 */
-	public static final String SECURE_ALGORITHM = "RSA";
+	public static final String SECURE_ALGORITHM = SECURE_ALGORITHM_NAME
+			+ "/ECB/PKCS1Padding";
 	/**
 	 * Length of the secure algorithms key.
 	 */
 	public static final int SECURE_KEY_SIZE = 2048;
 	/**
+	 * Only the name of the block algorithm.
+	 */
+	public static final String BLOCK_CIPHER_NAME = "Blowfish";
+	/**
 	 * The block cipher algorithm.
 	 */
-	public static final String BLOCK_CIPHER = "Blowfish";
+	public static final String BLOCK_CIPHER = BLOCK_CIPHER_NAME
+			+ "/CBC/PKCS5Padding";
 	/**
 	 * Length of the block algorithms key.
 	 */
 	public static final int BLOCK_KEY_SIZE = 8;
+	/**
+	 * Block size of the block algorithm.
+	 */
+	public static final int BLOCK_SIZE = 8;
 
 	/**
 	 * Data of the packet.

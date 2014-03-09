@@ -42,7 +42,7 @@ public class TestClientProtocol {
 
 	/**
 	 * Test method for
-	 * {@link ClientProtocol#ClientProtocol(java.security.PublicKey, byte[], java.io.InputStream, java.io.OutputStream)}
+	 * {@link ClientProtocol#ClientProtocol(java.security.PublicKey, byte[], byte[], java.io.InputStream, java.io.OutputStream)}
 	 * .
 	 * 
 	 * @throws Exception
@@ -53,13 +53,13 @@ public class TestClientProtocol {
 		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
-			new ClientProtocol(null, Misc.key, input, output);
+			new ClientProtocol(null, Misc.key, Misc.iv, input, output);
 			fail("Did not throw an exception");
 		} catch (InvalidKeyException e) {
 			// Skip checking this one
 		}
 		try {
-			new ClientProtocol(Misc.publicKey, null, input, output);
+			new ClientProtocol(Misc.publicKey, null, Misc.iv, input, output);
 			fail("Did not throw an exception");
 		} catch (InvalidKeyException e) {
 			InvalidKeyException ex = new InvalidKeyException(
@@ -67,9 +67,17 @@ public class TestClientProtocol {
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		try {
+			new ClientProtocol(Misc.publicKey, Misc.key, null, input, output);
+			fail("Did not throw an exception");
+		} catch (ProtocolException e) {
+			ProtocolException ex = new ProtocolException("Iv cannot be null");
+			assertEquals(ex.getMessage(), e.getMessage());
+		}
+		try {
 			// Wrong key size
 			new ClientProtocol(Misc.publicKey,
-					new byte[Packet.BLOCK_KEY_SIZE - 1], input, output);
+					new byte[Packet.BLOCK_KEY_SIZE - 1], Misc.iv, input,
+					output);
 			fail("Did not throw an exception");
 		} catch (InvalidKeyException e) {
 			InvalidKeyException ex = new InvalidKeyException(
@@ -77,14 +85,24 @@ public class TestClientProtocol {
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		try {
-			new ClientProtocol(Misc.publicKey, Misc.key, null, output);
+			// Wrong iv size
+			new ClientProtocol(Misc.publicKey, Misc.key,
+					new byte[Packet.BLOCK_SIZE - 1], input, output);
+			fail("Did not throw an exception");
+		} catch (InvalidKeyException e) {
+			InvalidKeyException ex = new InvalidKeyException(
+					"Iv has wrong length");
+			assertEquals(ex.getMessage(), e.getMessage());
+		}
+		try {
+			new ClientProtocol(Misc.publicKey, Misc.key, Misc.iv, null, output);
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException("Input cannot be null");
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		try {
-			new ClientProtocol(Misc.publicKey, Misc.key, input, null);
+			new ClientProtocol(Misc.publicKey, Misc.key, Misc.iv, input, null);
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException(
@@ -92,7 +110,8 @@ public class TestClientProtocol {
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		// Correct
-		new ClientProtocol(Misc.publicKey, Misc.key, input, output);
+		new ClientProtocol(Misc.publicKey, Misc.key, Misc.iv, input, output);
+		new ClientProtocol(Misc.publicKey, input, output);
 	}
 
 	/**
@@ -105,8 +124,8 @@ public class TestClientProtocol {
 	public void testNotAuthenticated() throws Exception {
 		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, input,
-				output);
+		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key,
+				Misc.iv, input, output);
 		// Not authenticated
 		try {
 			cp.ping(null);
@@ -129,8 +148,8 @@ public class TestClientProtocol {
 	public void testProcess() throws Exception {
 		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, input,
-				output);
+		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key,
+				Misc.iv, input, output);
 
 		// Try to process without authentication
 		try {
@@ -166,8 +185,8 @@ public class TestClientProtocol {
 	public void testAuthenticate() throws Exception {
 		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, input,
-				output);
+		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key,
+				Misc.iv, input, output);
 
 		// Send authenticate
 		String user = "user";
@@ -206,8 +225,8 @@ public class TestClientProtocol {
 	public void testCommandRequest() throws Exception {
 		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, input,
-				output);
+		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key,
+				Misc.iv, input, output);
 		// Authenticate
 		cp.process(Misc.encryptBlock(new AuthenticationResponse().pack()));
 
@@ -229,8 +248,8 @@ public class TestClientProtocol {
 	public void testPing() throws Exception {
 		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, input,
-				output);
+		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key,
+				Misc.iv, input, output);
 		// Authenticate
 		cp.process(Misc.encryptBlock(new AuthenticationResponse().pack()));
 
@@ -308,8 +327,8 @@ public class TestClientProtocol {
 
 		ByteArrayInputStream input = new ByteArrayInputStream(tmp.toByteArray());
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, input,
-				output);
+		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key,
+				Misc.iv, input, output);
 
 		// Makes no sense to test more than one scenario, since it is a wrapper
 		// of the PacketScanner class

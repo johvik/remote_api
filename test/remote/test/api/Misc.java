@@ -11,6 +11,7 @@ import java.security.spec.RSAPublicKeySpec;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import remote.api.Packet;
@@ -31,6 +32,10 @@ public class Misc {
 	 * The key for the block cipher.
 	 */
 	public static byte[] key;
+	/**
+	 * The initialization vector.
+	 */
+	public static byte[] iv;
 	/**
 	 * The secret key for the block cipher.
 	 */
@@ -54,7 +59,7 @@ public class Misc {
 	static {
 		try {
 			KeyFactory keyFactory = KeyFactory
-					.getInstance(Packet.SECURE_ALGORITHM);
+					.getInstance(Packet.SECURE_ALGORITHM_NAME);
 			privateKey = keyFactory
 					.generatePrivate(new RSAPrivateKeySpec(
 							new BigInteger(
@@ -67,12 +72,14 @@ public class Misc {
 									"20134254310111876361202866314108968204981698707023098174509848016538361340068154080221226903152716741691177544895582833095778498831876368737541275589258904991959335097305652778429500233652186048642106165566875887303812745872719282270778593126721035827645927529200997010332320430882912795400722363957922171201073586391455742845187637472867650716140231631789758124448338078779761585213985819898061474683944417595284592829909793640245683782387335764464247466037661435457674665761288297726118193971702941050422552088863500561512935220236008069590989430679869890388141102277549511231670670042034121251923449954590575254103"),
 							new BigInteger("65537")));
 			key = Misc.getSequence(1, Packet.BLOCK_KEY_SIZE);
-			secretKey = new SecretKeySpec(key, Packet.BLOCK_CIPHER);
+			secretKey = new SecretKeySpec(key, Packet.BLOCK_CIPHER_NAME);
 
+			iv = Misc.getSequence(1, Packet.BLOCK_SIZE);
+			IvParameterSpec ivSpec = new IvParameterSpec(iv);
 			blockDecrypt = Cipher.getInstance(Packet.BLOCK_CIPHER);
-			blockDecrypt.init(Cipher.DECRYPT_MODE, Misc.secretKey);
+			blockDecrypt.init(Cipher.DECRYPT_MODE, Misc.secretKey, ivSpec);
 			blockEncrypt = Cipher.getInstance(Packet.BLOCK_CIPHER);
-			blockEncrypt.init(Cipher.ENCRYPT_MODE, Misc.secretKey);
+			blockEncrypt.init(Cipher.ENCRYPT_MODE, Misc.secretKey, ivSpec);
 
 			secureDecrypt = Cipher.getInstance(Packet.SECURE_ALGORITHM);
 			secureDecrypt.init(Cipher.DECRYPT_MODE, Misc.privateKey);

@@ -10,6 +10,7 @@ import java.security.PublicKey;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import remote.api.exceptions.AuthenticationException;
@@ -71,21 +72,30 @@ public abstract class Protocol {
 	 * The cipher used to encrypt or decrypt secure data.
 	 */
 	protected Cipher secureCipher;
+	/**
+	 * Initialization vector for the cipher.
+	 */
+	protected byte[] iv;
 
 	/**
 	 * Constructs a new protocol.
 	 * 
+	 * @param iv
+	 *            The initialization vector for the block cipher.
 	 * @param input
 	 *            The input stream.
 	 * @param output
 	 *            The output stream.
 	 * @throws ProtocolException
-	 *             If input or output is null.
+	 *             If iv, input or output is null.
 	 * @throws PacketException
 	 *             See {@link PacketScanner#PacketScanner(InputStream)}
 	 */
-	private Protocol(InputStream input, OutputStream output)
+	private Protocol(byte[] iv, InputStream input, OutputStream output)
 			throws ProtocolException, PacketException {
+		if (iv == null) {
+			throw new ProtocolException("Iv cannot be null");
+		}
 		if (input == null) {
 			throw new ProtocolException("Input cannot be null");
 		}
@@ -94,6 +104,7 @@ public abstract class Protocol {
 		}
 		pingRequested = false;
 		pingTime = 0;
+		this.iv = iv;
 		this.output = output;
 		packetScanner = new PacketScanner(input);
 		authenticated = false;
@@ -106,6 +117,8 @@ public abstract class Protocol {
 	 *            The public key for the secure algorithm.
 	 * @param key
 	 *            The key to use for the block cipher.
+	 * @param iv
+	 *            The initialization vector for the block cipher.
 	 * @param input
 	 *            The input stream.
 	 * @param output
@@ -118,17 +131,20 @@ public abstract class Protocol {
 	 * @throws PacketException
 	 *             See {@link PacketScanner#PacketScanner(InputStream)}
 	 */
-	protected Protocol(PublicKey publicKey, byte[] key, InputStream input,
-			OutputStream output) throws GeneralSecurityException,
-			ProtocolException, PacketException {
-		this(input, output);
+	protected Protocol(PublicKey publicKey, byte[] key, byte[] iv,
+			InputStream input, OutputStream output)
+			throws GeneralSecurityException, ProtocolException, PacketException {
+		this(iv, input, output);
 		if (key == null) {
 			throw new InvalidKeyException("Key cannot be null");
 		}
 		if (key.length != Packet.BLOCK_KEY_SIZE) {
 			throw new InvalidKeyException("Key has wrong length");
 		}
-		SecretKey secretKey = new SecretKeySpec(key, Packet.BLOCK_CIPHER);
+		if (iv.length != Packet.BLOCK_SIZE) {
+			throw new InvalidKeyException("Iv has wrong length");
+		}
+		SecretKey secretKey = new SecretKeySpec(key, Packet.BLOCK_CIPHER_NAME);
 		// Initialize ciphers
 		blockCipherInit(secretKey);
 		secureCipher = Cipher.getInstance(Packet.SECURE_ALGORITHM);
@@ -154,7 +170,7 @@ public abstract class Protocol {
 	protected Protocol(PrivateKey privateKey, InputStream input,
 			OutputStream output) throws GeneralSecurityException,
 			ProtocolException, PacketException {
-		this(input, output);
+		this(new byte[Packet.BLOCK_SIZE], input, output);
 		blockDecryptCipher = null;
 		blockEncryptCipher = null;
 		secureCipher = Cipher.getInstance(Packet.SECURE_ALGORITHM);
@@ -172,10 +188,11 @@ public abstract class Protocol {
 	protected void blockCipherInit(SecretKey secretKey)
 			throws ProtocolException {
 		try {
+			IvParameterSpec ivSpec = new IvParameterSpec(iv);
 			blockDecryptCipher = Cipher.getInstance(Packet.BLOCK_CIPHER);
-			blockDecryptCipher.init(Cipher.DECRYPT_MODE, secretKey);
+			blockDecryptCipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec);
 			blockEncryptCipher = Cipher.getInstance(Packet.BLOCK_CIPHER);
-			blockEncryptCipher.init(Cipher.ENCRYPT_MODE, secretKey);
+			blockEncryptCipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec);
 		} catch (GeneralSecurityException e) {
 			throw new ProtocolException("Failed to set block cipher", e);
 		}

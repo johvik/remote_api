@@ -125,8 +125,10 @@ public class ServerProtocol extends Protocol {
 						authentication.getPassword())) {
 					// Set the block key
 					byte[] key = authentication.getKey();
+					// Change initialization vector
+					iv = authentication.getIv();
 					SecretKey secretKey = new SecretKeySpec(key,
-							Packet.BLOCK_CIPHER);
+							Packet.BLOCK_CIPHER_NAME);
 					// Initialize the block cipher
 					blockCipherInit(secretKey);
 					authenticated = true;

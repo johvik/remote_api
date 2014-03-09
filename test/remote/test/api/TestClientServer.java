@@ -67,7 +67,7 @@ public class TestClientServer {
 		PipedInputStream serverInput = new PipedInputStream(clientOutput);
 
 		final ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key,
-				clientInput, clientOutput);
+				Misc.iv, clientInput, clientOutput);
 		final ServerProtocol sp = new ServerProtocol(authentication,
 				commandHandler, Misc.privateKey, serverInput, serverOutput);
 

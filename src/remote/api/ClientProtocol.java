@@ -23,14 +23,16 @@ public class ClientProtocol extends Protocol {
 	 * Key for the block cipher.
 	 */
 	private byte[] key;
+	/**
+	 * Initialization vector for block cipher.
+	 */
+	private byte[] iv;
 
 	/**
 	 * Constructs a new client protocol.
 	 * 
 	 * @param publicKey
 	 *            The public key for the secure algorithm.
-	 * @param key
-	 *            The block cipher key.
 	 * @param input
 	 *            The input stream of the client. This is used to receive data
 	 *            from the server.
@@ -45,11 +47,42 @@ public class ClientProtocol extends Protocol {
 	 * @throws PacketException
 	 *             See {@link PacketScanner#PacketScanner(InputStream)}
 	 */
-	public ClientProtocol(PublicKey publicKey, byte[] key, InputStream input,
+	public ClientProtocol(PublicKey publicKey, InputStream input,
 			OutputStream output) throws GeneralSecurityException,
 			ProtocolException, PacketException {
-		super(publicKey, key, input, output);
+		this(publicKey, Utils.generateRandom(Packet.BLOCK_KEY_SIZE), Utils
+				.generateRandom(Packet.BLOCK_SIZE), input, output);
+	}
+
+	/**
+	 * Constructs a new client protocol.
+	 * 
+	 * @param publicKey
+	 *            The public key for the secure algorithm.
+	 * @param key
+	 *            The block cipher key.
+	 * @param iv
+	 *            The initialization vector for the block cipher.
+	 * @param input
+	 *            The input stream of the client. This is used to receive data
+	 *            from the server.
+	 * @param output
+	 *            The output stream of the client. This is used to respond and
+	 *            send data to the server.
+	 * @throws GeneralSecurityException
+	 *             If it fails to initialize the secure cipher.
+	 * @throws ProtocolException
+	 *             If it fails to initialize the block cipher or arguments are
+	 *             null.
+	 * @throws PacketException
+	 *             See {@link PacketScanner#PacketScanner(InputStream)}
+	 */
+	public ClientProtocol(PublicKey publicKey, byte[] key, byte[] iv,
+			InputStream input, OutputStream output)
+			throws GeneralSecurityException, ProtocolException, PacketException {
+		super(publicKey, key, iv, input, output);
 		this.key = key;
+		this.iv = iv;
 	}
 
 	/**
@@ -71,7 +104,7 @@ public class ClientProtocol extends Protocol {
 		if (authenticated) {
 			throw new AuthenticationException("Already authenticated");
 		}
-		writeSecure(new AuthenticationRequest(key, user, password).pack());
+		writeSecure(new AuthenticationRequest(key, iv, user, password).pack());
 	}
 
 	/**

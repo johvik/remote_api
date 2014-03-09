@@ -166,10 +166,11 @@ public class TestPacket {
 	public void testSecureEncryption() throws Exception {
 		// Write the data
 		byte[] key = Misc.getSequence(1, Packet.BLOCK_KEY_SIZE);
+		byte[] iv = Misc.getSequence(Packet.BLOCK_SIZE + 1, Packet.BLOCK_SIZE);
 		String user = "user";
 		String password = "password";
-		AuthenticationRequest request = new AuthenticationRequest(key, user,
-				password);
+		AuthenticationRequest request = new AuthenticationRequest(key, iv,
+				user, password);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		Packet packet = request.pack();
 		byte[] oldData = packet.getData();
@@ -341,5 +342,15 @@ public class TestPacket {
 		byte[] data = Misc.getSequence(1, length);
 		Packet packet = new Packet(data);
 		assertEquals(Utils.toHex(data), packet.toString());
+	}
+
+	/**
+	 * Test method for {@link Packet} cipher names.
+	 */
+	@Test
+	public void testCipherNames() {
+		assertThat(Packet.BLOCK_CIPHER, startsWith(Packet.BLOCK_CIPHER_NAME));
+		assertThat(Packet.SECURE_ALGORITHM,
+				startsWith(Packet.SECURE_ALGORITHM_NAME));
 	}
 }

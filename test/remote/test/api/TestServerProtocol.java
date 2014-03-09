@@ -145,8 +145,8 @@ public class TestServerProtocol {
 		ServerProtocol sp = new ServerProtocol(authentication, commandHandler,
 				Misc.privateKey, input, output);
 		// Authenticate
-		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key, "",
-				"").pack()));
+		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key,
+				Misc.iv, "", "").pack()));
 		output.reset();
 
 		// Send a ping
@@ -222,8 +222,8 @@ public class TestServerProtocol {
 		ServerProtocol sp = new ServerProtocol(authentication, commandHandler,
 				Misc.privateKey, input, output);
 		// Authenticate
-		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key, "",
-				"").pack()));
+		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key,
+				Misc.iv, "", "").pack()));
 
 		output.reset();
 		assertEquals(false, commandHandled);
@@ -273,8 +273,8 @@ public class TestServerProtocol {
 				commandHandler, Misc.privateKey, input, output);
 		// Fail to authenticate
 		try {
-			sp.process(Misc.encryptSecure(new AuthenticationRequest(
-					new byte[Packet.BLOCK_KEY_SIZE], "", "").pack()));
+			sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key,
+					Misc.iv, "", "").pack()));
 			fail("Did not throw an exception");
 		} catch (AuthenticationException e) {
 			AuthenticationException ex = new AuthenticationException(
@@ -298,8 +298,8 @@ public class TestServerProtocol {
 		// Try to authenticate twice
 		sp = new ServerProtocol(authentication, commandHandler,
 				Misc.privateKey, input, output);
-		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key, "",
-				"").pack()));
+		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key,
+				Misc.iv, "", "").pack()));
 		Packet p = Packet.read(output.toByteArray());
 		AuthenticationResponse r = (AuthenticationResponse) p
 				.decode(Misc.blockDecrypt);
@@ -309,8 +309,8 @@ public class TestServerProtocol {
 		// Not allowed to do it twice
 		try {
 			// Block encryption to allow decode
-			sp.process(Misc.encryptBlock(new AuthenticationRequest(
-					new byte[Packet.BLOCK_KEY_SIZE], "", "").pack()));
+			sp.process(Misc.encryptBlock(new AuthenticationRequest(Misc.key,
+					Misc.iv, "", "").pack()));
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException(
@@ -330,8 +330,8 @@ public class TestServerProtocol {
 	@Test(timeout = 1000)
 	public void testNextPacket() throws Exception {
 		ByteArrayOutputStream tmp = new ByteArrayOutputStream();
-		AuthenticationRequest r = new AuthenticationRequest(Misc.key, "user",
-				"password");
+		AuthenticationRequest r = new AuthenticationRequest(Misc.key, Misc.iv,
+				"user", "password");
 		r.pack().write(Misc.secureEncrypt, tmp);
 
 		ByteArrayInputStream input = new ByteArrayInputStream(tmp.toByteArray());
