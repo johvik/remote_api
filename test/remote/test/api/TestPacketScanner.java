@@ -92,11 +92,11 @@ public class TestPacketScanner {
 	/**
 	 * Test method for {@link PacketScanner#PacketScanner(java.io.InputStream)}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testPacketScanner() throws PacketException {
+	public void testPacketScanner() throws Exception {
 		try {
 			new PacketScanner(null);
 			fail("Did not throw an exception");
@@ -112,16 +112,11 @@ public class TestPacketScanner {
 	/**
 	 * Test method for {@link PacketScanner#nextPacket()}.
 	 * 
-	 * @throws PacketException
-	 *             If something went wrong.
-	 * @throws IOException
-	 *             If something went wrong.
-	 * @throws InterruptedException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test(timeout = 10000)
-	public void testNextPacket() throws PacketException, IOException,
-			InterruptedException {
+	public void testNextPacket() throws Exception {
 		PipedOutputStream output = new PipedOutputStream();
 		PipedInputStream input = new PipedInputStream(output);
 		PacketScanner ps = new PacketScanner(input);

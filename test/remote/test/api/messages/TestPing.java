@@ -48,11 +48,11 @@ public class TestPing {
 	/**
 	 * Test method for {@link Ping#pack()}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testPack() throws PacketException {
+	public void testPack() throws Exception {
 		// Test by packing followed by unpacking
 		Ping ping1 = new Ping(request);
 		byte[] data = ping1.pack().getData();
@@ -68,11 +68,11 @@ public class TestPing {
 	/**
 	 * Test method for {@link Ping#unpack(byte[])}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testUnpack() throws PacketException {
+	public void testUnpack() throws Exception {
 		// Check that it throws when it has wrong length
 		byte[] data = new byte[0];
 		try {

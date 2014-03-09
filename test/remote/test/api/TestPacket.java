@@ -6,8 +6,6 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsEqual.equalTo;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 
 import org.junit.Test;
 
@@ -26,11 +24,11 @@ public class TestPacket {
 	/**
 	 * Test method for {@link Packet#Packet(byte[])}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testPacket() throws PacketException {
+	public void testPacket() throws Exception {
 		try {
 			new Packet(null);
 			fail("Did not throw an exception");
@@ -46,11 +44,11 @@ public class TestPacket {
 	 * Test method for {@link Packet#read(byte[])} and
 	 * {@link Packet#read(byte[], int, int)}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testRead() throws PacketException {
+	public void testRead() throws Exception {
 		byte[] reference = Misc.getSequence(1, 8);
 		byte[] buffer = new byte[10];
 		System.arraycopy(reference, 0, buffer, 2, reference.length);
@@ -115,13 +113,11 @@ public class TestPacket {
 	 * Test method for
 	 * {@link Packet#write(javax.crypto.Cipher, java.io.OutputStream)}.
 	 * 
-	 * @throws PacketException
-	 *             If something went wrong.
-	 * @throws IOException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testWrite() throws PacketException, IOException {
+	public void testWrite() throws Exception {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		byte[] data = Misc.getSequence(1, 8);
 		byte[] reference = new byte[10];
@@ -136,17 +132,11 @@ public class TestPacket {
 	/**
 	 * Test method for block encryption in {@link Packet}.
 	 * 
-	 * @throws GeneralSecurityException
-	 *             If something went wrong.
-	 * 
-	 * @throws PacketException
-	 *             If something went wrong.
-	 * @throws IOException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testBlockEncryption() throws GeneralSecurityException,
-			PacketException, IOException {
+	public void testBlockEncryption() throws Exception {
 		// Write the data
 		Ping ping = new Ping(true);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -169,17 +159,11 @@ public class TestPacket {
 	/**
 	 * Test method for secure encryption in {@link Packet}.
 	 * 
-	 * @throws GeneralSecurityException
-	 *             If something went wrong.
-	 * 
-	 * @throws PacketException
-	 *             If something went wrong.
-	 * @throws IOException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testSecureEncryption() throws GeneralSecurityException,
-			PacketException, IOException {
+	public void testSecureEncryption() throws Exception {
 		// Write the data
 		byte[] key = Misc.getSequence(1, Packet.BLOCK_KEY_SIZE);
 		String user = "user";
@@ -208,11 +192,11 @@ public class TestPacket {
 	/**
 	 * Test method for when encoding fails in {@link Packet}.
 	 * 
-	 * @throws IOException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testEncodeFail() throws IOException {
+	public void testEncodeFail() throws Exception {
 		byte[] data = new byte[1];
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
@@ -245,11 +229,11 @@ public class TestPacket {
 	/**
 	 * Test method for {@link Packet#decode(javax.crypto.Cipher)}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testDecodeAuthenticationRequest() throws PacketException {
+	public void testDecodeAuthenticationRequest() throws Exception {
 		byte[] data = new byte[AuthenticationRequest.MAX_LENGTH];
 		data[0] = Message.AUTHENTICATION_REQUEST;
 		Message message = new Packet(data).decode(null);
@@ -260,11 +244,11 @@ public class TestPacket {
 	/**
 	 * Test method for {@link Packet#decode(javax.crypto.Cipher)}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testDecodeAuthenticationResponse() throws PacketException {
+	public void testDecodeAuthenticationResponse() throws Exception {
 		byte[] data = new byte[AuthenticationResponse.LENGTH];
 		data[0] = Message.AUTHENTICATION_RESPONSE;
 		Message message = new Packet(data).decode(null);
@@ -275,11 +259,11 @@ public class TestPacket {
 	/**
 	 * Test method for {@link Packet#decode(javax.crypto.Cipher)}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testDecodePing() throws PacketException {
+	public void testDecodePing() throws Exception {
 		byte[] data = new byte[Ping.LENGTH];
 		data[0] = Message.PING;
 		Message message = new Packet(data).decode(null);
@@ -320,11 +304,11 @@ public class TestPacket {
 	/**
 	 * Test method for {@link Packet#length()}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testLength() throws PacketException {
+	public void testLength() throws Exception {
 		int length = 8;
 		byte[] data = new byte[length];
 		Packet packet = new Packet(data);
@@ -334,11 +318,11 @@ public class TestPacket {
 	/**
 	 * Test method for {@link Packet#getData()}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testGetData() throws PacketException {
+	public void testGetData() throws Exception {
 		int length = 8;
 		byte[] data = Misc.getSequence(1, length);
 		Packet packet = new Packet(data);
@@ -348,11 +332,11 @@ public class TestPacket {
 	/**
 	 * Test method for {@link Packet#toString()}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testToString() throws PacketException {
+	public void testToString() throws Exception {
 		int length = 8;
 		byte[] data = Misc.getSequence(1, length);
 		Packet packet = new Packet(data);

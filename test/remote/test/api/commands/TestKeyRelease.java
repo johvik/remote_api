@@ -55,11 +55,11 @@ public class TestKeyRelease {
 	/**
 	 * Tests writing and reading the command.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testWriteRead() throws PacketException {
+	public void testWriteRead() throws Exception {
 		for (int i = 0; i < 10; i++) {
 			byte[] data = new byte[kr.getLength() + i];
 			kr.write(data, i);

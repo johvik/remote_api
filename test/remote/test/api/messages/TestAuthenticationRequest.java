@@ -112,11 +112,11 @@ public class TestAuthenticationRequest {
 	/**
 	 * Test method for {@link AuthenticationRequest#pack()}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testPack() throws PacketException {
+	public void testPack() throws Exception {
 		// Test by packing followed by unpacking
 		AuthenticationRequest request1 = new AuthenticationRequest(key, user,
 				password);
@@ -149,11 +149,11 @@ public class TestAuthenticationRequest {
 	/**
 	 * Test method for {@link AuthenticationRequest#unpack(byte[])}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testUnpack() throws PacketException {
+	public void testUnpack() throws Exception {
 		// Check that it throws when it is too short
 		byte[] data = new byte[0];
 		try {
@@ -193,11 +193,11 @@ public class TestAuthenticationRequest {
 	/**
 	 * Test method for {@link AuthenticationRequest#getType()}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testGetType() throws PacketException {
+	public void testGetType() throws Exception {
 		// Ensure it has the correct type
 		AuthenticationRequest request = new AuthenticationRequest(key, user,
 				password);
@@ -207,11 +207,11 @@ public class TestAuthenticationRequest {
 	/**
 	 * Test method for {@link AuthenticationRequest#compareTo(Message)}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testCompareTo() throws PacketException {
+	public void testCompareTo() throws Exception {
 		AuthenticationRequest request = new AuthenticationRequest(key, user,
 				password);
 		try {

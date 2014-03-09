@@ -5,8 +5,6 @@ import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 
 import org.junit.Test;
@@ -17,7 +15,6 @@ import remote.api.Protocol.PingCallback;
 import remote.api.commands.Command;
 import remote.api.commands.MouseMove;
 import remote.api.exceptions.AuthenticationException;
-import remote.api.exceptions.PacketException;
 import remote.api.exceptions.ProtocolException;
 import remote.api.messages.AuthenticationRequest;
 import remote.api.messages.AuthenticationResponse;
@@ -48,16 +45,11 @@ public class TestClientProtocol {
 	 * {@link ClientProtocol#ClientProtocol(java.security.PublicKey, byte[], java.io.InputStream, java.io.OutputStream)}
 	 * .
 	 * 
-	 * @throws GeneralSecurityException
-	 *             If something went wrong.
-	 * @throws ProtocolException
-	 *             If something went wrong.
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testClientProtocol() throws GeneralSecurityException,
-			ProtocolException, PacketException {
+	public void testClientProtocol() throws Exception {
 		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
@@ -106,18 +98,11 @@ public class TestClientProtocol {
 	/**
 	 * Test method for {@link ClientProtocol#authenticate(String, String)}.
 	 * 
-	 * @throws GeneralSecurityException
-	 *             If something went wrong.
-	 * @throws ProtocolException
-	 *             If something went wrong.
-	 * @throws PacketException
-	 *             If something went wrong.
-	 * @throws IOException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testNotAuthenticated() throws GeneralSecurityException,
-			ProtocolException, PacketException, IOException {
+	public void testNotAuthenticated() throws Exception {
 		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, input,
@@ -137,18 +122,11 @@ public class TestClientProtocol {
 	/**
 	 * Test method for {@link ClientProtocol#process(Packet)}.
 	 * 
-	 * @throws GeneralSecurityException
-	 *             If something went wrong.
-	 * @throws ProtocolException
-	 *             If something went wrong.
-	 * @throws PacketException
-	 *             If something went wrong.
-	 * @throws IOException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testProcess() throws GeneralSecurityException,
-			ProtocolException, PacketException, IOException {
+	public void testProcess() throws Exception {
 		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, input,
@@ -181,18 +159,11 @@ public class TestClientProtocol {
 	/**
 	 * Test method for {@link ClientProtocol#authenticate(String, String)}.
 	 * 
-	 * @throws GeneralSecurityException
-	 *             If something went wrong.
-	 * @throws ProtocolException
-	 *             If something went wrong.
-	 * @throws PacketException
-	 *             If something went wrong.
-	 * @throws IOException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testAuthenticate() throws GeneralSecurityException,
-			ProtocolException, PacketException, IOException {
+	public void testAuthenticate() throws Exception {
 		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, input,
@@ -228,18 +199,11 @@ public class TestClientProtocol {
 	/**
 	 * Test method for {@link ClientProtocol#commandRequest(Command)}.
 	 * 
-	 * @throws GeneralSecurityException
-	 *             If something went wrong.
-	 * @throws ProtocolException
-	 *             If something went wrong.
-	 * @throws PacketException
-	 *             If something went wrong.
-	 * @throws IOException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testCommandRequest() throws GeneralSecurityException,
-			ProtocolException, PacketException, IOException {
+	public void testCommandRequest() throws Exception {
 		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, input,
@@ -258,18 +222,11 @@ public class TestClientProtocol {
 	/**
 	 * Test method for {@link ClientProtocol#ping(PingCallback)}.
 	 * 
-	 * @throws GeneralSecurityException
-	 *             If something went wrong.
-	 * @throws ProtocolException
-	 *             If something went wrong.
-	 * @throws PacketException
-	 *             If something went wrong.
-	 * @throws IOException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testPing() throws GeneralSecurityException, ProtocolException,
-			PacketException, IOException {
+	public void testPing() throws Exception {
 		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key, input,

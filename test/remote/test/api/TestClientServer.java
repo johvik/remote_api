@@ -2,10 +2,8 @@ package remote.test.api;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.security.GeneralSecurityException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -19,8 +17,6 @@ import remote.api.ServerProtocol.AuthenticationCheck;
 import remote.api.ServerProtocol.CommandHandler;
 import remote.api.commands.Command;
 import remote.api.commands.MouseMove;
-import remote.api.exceptions.PacketException;
-import remote.api.exceptions.ProtocolException;
 import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
 
@@ -58,20 +54,11 @@ public class TestClientServer {
 	/**
 	 * Tests client server interaction.
 	 * 
-	 * @throws GeneralSecurityException
-	 *             If something went wrong.
-	 * @throws ProtocolException
-	 *             If something went wrong.
-	 * @throws PacketException
-	 *             If something went wrong.
-	 * @throws IOException
-	 *             If something went wrong.
-	 * @throws InterruptedException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test(timeout = 10000)
-	public void test() throws GeneralSecurityException, ProtocolException,
-			PacketException, IOException, InterruptedException {
+	public void test() throws Exception {
 		PipedOutputStream clientOutput = new PipedOutputStream();
 		PipedOutputStream serverOutput = new PipedOutputStream();
 		// Redirect server output to client

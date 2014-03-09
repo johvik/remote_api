@@ -42,10 +42,10 @@ public class TestCommandRequest {
 	 * 
 	 * @param command
 	 *            The command.
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
-	public TestCommandRequest(Command command) throws PacketException {
+	public TestCommandRequest(Command command) throws Exception {
 		this.command = command;
 		request = new CommandRequest(command);
 	}
@@ -70,11 +70,11 @@ public class TestCommandRequest {
 	/**
 	 * Test method for {@link CommandRequest#pack()}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testPack() throws PacketException {
+	public void testPack() throws Exception {
 		// Test by packing followed by unpacking
 		byte[] data = request.pack().getData();
 		CommandRequest r = CommandRequest.unpack(data);
@@ -119,11 +119,11 @@ public class TestCommandRequest {
 	/**
 	 * Test method for {@link CommandRequest#getType()}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testGetType() throws PacketException {
+	public void testGetType() throws Exception {
 		// Ensure it has the correct type
 		assertEquals(Message.COMMAND_REQUEST, request.getType());
 	}
@@ -131,11 +131,11 @@ public class TestCommandRequest {
 	/**
 	 * Test method for {@link CommandRequest#CommandRequest(Command)}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testCommandRequest() throws PacketException {
+	public void testCommandRequest() throws Exception {
 		try {
 			new CommandRequest(null);
 			fail("Did not throw an exception");
@@ -149,11 +149,11 @@ public class TestCommandRequest {
 	/**
 	 * Test method for {@link CommandRequest#unpack(byte[])}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testUnpack() throws PacketException {
+	public void testUnpack() throws Exception {
 		// Check that it throws when it has wrong static length
 		byte[] data = new byte[0];
 		try {
@@ -227,11 +227,11 @@ public class TestCommandRequest {
 	/**
 	 * Test method for {@link CommandRequest#compareTo(Message)}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testCompareTo() throws PacketException {
+	public void testCompareTo() throws Exception {
 		try {
 			request.compareTo(null);
 			fail("Did not throw an exception");

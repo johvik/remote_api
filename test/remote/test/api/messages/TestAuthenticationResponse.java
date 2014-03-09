@@ -16,11 +16,11 @@ public class TestAuthenticationResponse {
 	/**
 	 * Test method for {@link AuthenticationResponse#pack()}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testPack() throws PacketException {
+	public void testPack() throws Exception {
 		AuthenticationResponse response = new AuthenticationResponse();
 		byte[] data = response.pack().getData();
 		assertEquals(Message.AUTHENTICATION_RESPONSE, data[0]);
@@ -29,11 +29,11 @@ public class TestAuthenticationResponse {
 	/**
 	 * Test method for {@link AuthenticationResponse#unpack(byte[])}.
 	 * 
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testUnpack() throws PacketException {
+	public void testUnpack() throws Exception {
 		// Check that it throws when it has wrong length
 		byte[] data = new byte[0];
 		try {

@@ -1,7 +1,6 @@
 package remote.test.api;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
@@ -15,7 +14,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import remote.api.Packet;
-import remote.api.exceptions.PacketException;
 
 /**
  * A helper class for the tests.
@@ -126,13 +124,10 @@ public class Misc {
 	 * @param packet
 	 *            The packet to encrypt.
 	 * @return The encrypted packet.
-	 * @throws PacketException
-	 *             If something went wrong.
-	 * @throws IOException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
-	public static Packet encryptBlock(Packet packet) throws PacketException,
-			IOException {
+	public static Packet encryptBlock(Packet packet) throws Exception {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		packet.write(blockEncrypt, output);
 		// Remove first two bytes
@@ -149,13 +144,10 @@ public class Misc {
 	 * @param packet
 	 *            The packet to encrypt.
 	 * @return The encrypted packet.
-	 * @throws PacketException
-	 *             If something went wrong.
-	 * @throws IOException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
-	public static Packet encryptSecure(Packet packet) throws PacketException,
-			IOException {
+	public static Packet encryptSecure(Packet packet) throws Exception {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		packet.write(secureEncrypt, output);
 		// Remove first two bytes

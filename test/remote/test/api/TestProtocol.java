@@ -6,7 +6,6 @@ import static org.hamcrest.CoreMatchers.startsWith;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 
 import javax.crypto.SecretKey;
 
@@ -24,14 +23,11 @@ public class TestProtocol {
 	/**
 	 * Test method for blockCipherInit in {@link Protocol}.
 	 * 
-	 * @throws GeneralSecurityException
-	 *             If something went wrong.
-	 * @throws PacketException
+	 * @throws Exception
 	 *             If something went wrong.
 	 */
 	@Test
-	public void testBlockCipherInit() throws GeneralSecurityException,
-			PacketException {
+	public void testBlockCipherInit() throws Exception {
 		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
