@@ -19,8 +19,17 @@ import remote.api.messages.AuthenticationResponse;
 import remote.api.messages.Message;
 import remote.api.messages.Ping;
 
+/**
+ * Test class for {@link Packet}.
+ */
 public class TestPacket {
 
+	/**
+	 * Test method for {@link Packet#Packet(byte[])}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testPacket() throws PacketException {
 		try {
@@ -34,6 +43,13 @@ public class TestPacket {
 		new Packet(new byte[] { 0 });
 	}
 
+	/**
+	 * Test method for {@link Packet#read(byte[])} and
+	 * {@link Packet#read(byte[], int, int)}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testRead() throws PacketException {
 		byte[] reference = Misc.getSequence(1, 8);
@@ -96,6 +112,15 @@ public class TestPacket {
 		}
 	}
 
+	/**
+	 * Test method for
+	 * {@link Packet#write(javax.crypto.Cipher, java.io.OutputStream)}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 * @throws IOException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testWrite() throws PacketException, IOException {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -109,6 +134,17 @@ public class TestPacket {
 		assertArrayEquals(reference, output.toByteArray());
 	}
 
+	/**
+	 * Test method for block encryption in {@link Packet}.
+	 * 
+	 * @throws GeneralSecurityException
+	 *             If something went wrong.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 * @throws IOException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testBlockEncryption() throws GeneralSecurityException,
 			PacketException, IOException {
@@ -117,7 +153,7 @@ public class TestPacket {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		Packet packet = ping.pack();
 		byte[] oldData = packet.getData();
-		packet.write(Misc.blockEncryptCipher, output);
+		packet.write(Misc.blockEncrypt, output);
 
 		byte[] outData = output.toByteArray();
 		// Should not be the same after encrypting
@@ -125,12 +161,23 @@ public class TestPacket {
 
 		// Read the data
 		packet = Packet.read(outData);
-		Message message = packet.decode(Misc.blockDecryptCipher);
+		Message message = packet.decode(Misc.blockDecrypt);
 		assertArrayEquals(packet.getData(), oldData);
 		assertEquals(Ping.class, message.getClass());
 		assertEquals(true, ((Ping) message).isRequest());
 	}
 
+	/**
+	 * Test method for secure encryption in {@link Packet}.
+	 * 
+	 * @throws GeneralSecurityException
+	 *             If something went wrong.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 * @throws IOException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testSecureEncryption() throws GeneralSecurityException,
 			PacketException, IOException {
@@ -159,13 +206,19 @@ public class TestPacket {
 		assertEquals(password, ((AuthenticationRequest) message).getPassword());
 	}
 
+	/**
+	 * Test method for when encoding fails in {@link Packet}.
+	 * 
+	 * @throws IOException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testEncodeFail() throws IOException {
 		byte[] data = new byte[1];
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
 			// Try with decryption cipher...
-			new Packet(data).write(Misc.blockDecryptCipher, output);
+			new Packet(data).write(Misc.blockDecrypt, output);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
 			PacketException ex = new PacketException(
@@ -174,11 +227,14 @@ public class TestPacket {
 		}
 	}
 
+	/**
+	 * Test method for when decoding fails in {@link Packet}.
+	 */
 	@Test
 	public void testDecodeFail() {
 		byte[] data = new byte[1];
 		try {
-			new Packet(data, true).decode(Misc.blockDecryptCipher);
+			new Packet(data, true).decode(Misc.blockDecrypt);
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
 			PacketException ex = new PacketException(
@@ -187,6 +243,12 @@ public class TestPacket {
 		}
 	}
 
+	/**
+	 * Test method for {@link Packet#decode(javax.crypto.Cipher)}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testDecodeAuthenticationRequest() throws PacketException {
 		byte[] data = new byte[AuthenticationRequest.MAX_LENGTH];
@@ -196,6 +258,12 @@ public class TestPacket {
 		assertEquals(Message.AUTHENTICATION_REQUEST, message.getType());
 	}
 
+	/**
+	 * Test method for {@link Packet#decode(javax.crypto.Cipher)}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testDecodeAuthenticationResponse() throws PacketException {
 		byte[] data = new byte[AuthenticationResponse.LENGTH];
@@ -205,6 +273,12 @@ public class TestPacket {
 		assertEquals(Message.AUTHENTICATION_RESPONSE, message.getType());
 	}
 
+	/**
+	 * Test method for {@link Packet#decode(javax.crypto.Cipher)}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testDecodePing() throws PacketException {
 		byte[] data = new byte[Ping.LENGTH];
@@ -214,6 +288,9 @@ public class TestPacket {
 		assertEquals(Message.PING, message.getType());
 	}
 
+	/**
+	 * Test method for {@link Packet#decode(javax.crypto.Cipher)}.
+	 */
 	@Test
 	public void testDecodeUnknown() {
 		int codes = 0; // Count number of correct codes
@@ -241,6 +318,12 @@ public class TestPacket {
 		assertEquals(Message.USED_CODES, codes);
 	}
 
+	/**
+	 * Test method for {@link Packet#length()}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testLength() throws PacketException {
 		int length = 8;
@@ -249,6 +332,12 @@ public class TestPacket {
 		assertEquals(length, packet.length());
 	}
 
+	/**
+	 * Test method for {@link Packet#getData()}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testGetData() throws PacketException {
 		int length = 8;
@@ -257,6 +346,12 @@ public class TestPacket {
 		assertArrayEquals(data, packet.getData());
 	}
 
+	/**
+	 * Test method for {@link Packet#toString()}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testToString() throws PacketException {
 		int length = 8;

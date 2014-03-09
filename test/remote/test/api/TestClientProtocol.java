@@ -24,8 +24,17 @@ import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
 import remote.api.messages.Ping;
 
+/**
+ * Test class for {@link ClientProtocol}.
+ */
 public class TestClientProtocol {
+	/**
+	 * Stores the ping callback results.
+	 */
 	private long pingDiff = -1;
+	/**
+	 * The ping callback.
+	 */
 	private PingCallback pingCallback = new PingCallback() {
 		@Override
 		public void run(long diff) {
@@ -33,6 +42,16 @@ public class TestClientProtocol {
 		}
 	};
 
+	/**
+	 * Test method for
+	 * {@link ClientProtocol#ClientProtocol(java.security.PublicKey, byte[], java.io.OutputStream)}
+	 * .
+	 * 
+	 * @throws GeneralSecurityException
+	 *             If something went wrong.
+	 * @throws ProtocolException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testClientProtocol() throws GeneralSecurityException,
 			ProtocolException {
@@ -73,6 +92,18 @@ public class TestClientProtocol {
 		new ClientProtocol(Misc.publicKey, Misc.key, output);
 	}
 
+	/**
+	 * Test method for {@link ClientProtocol#authenticate(String, String)}.
+	 * 
+	 * @throws GeneralSecurityException
+	 *             If something went wrong.
+	 * @throws ProtocolException
+	 *             If something went wrong.
+	 * @throws PacketException
+	 *             If something went wrong.
+	 * @throws IOException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testNotAuthenticated() throws GeneralSecurityException,
 			ProtocolException, PacketException, IOException {
@@ -90,6 +121,18 @@ public class TestClientProtocol {
 		assertArrayEquals(new byte[0], output.toByteArray());
 	}
 
+	/**
+	 * Test method for {@link ClientProtocol#process(Packet)}.
+	 * 
+	 * @throws GeneralSecurityException
+	 *             If something went wrong.
+	 * @throws ProtocolException
+	 *             If something went wrong.
+	 * @throws PacketException
+	 *             If something went wrong.
+	 * @throws IOException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testProcess() throws GeneralSecurityException,
 			ProtocolException, PacketException, IOException {
@@ -120,6 +163,18 @@ public class TestClientProtocol {
 		assertArrayEquals(new byte[0], output.toByteArray());
 	}
 
+	/**
+	 * Test method for {@link ClientProtocol#authenticate(String, String)}.
+	 * 
+	 * @throws GeneralSecurityException
+	 *             If something went wrong.
+	 * @throws ProtocolException
+	 *             If something went wrong.
+	 * @throws PacketException
+	 *             If something went wrong.
+	 * @throws IOException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testAuthenticate() throws GeneralSecurityException,
 			ProtocolException, PacketException, IOException {
@@ -153,6 +208,18 @@ public class TestClientProtocol {
 		assertArrayEquals(new byte[0], output.toByteArray());
 	}
 
+	/**
+	 * Test method for {@link ClientProtocol#commandRequest(Command)}.
+	 * 
+	 * @throws GeneralSecurityException
+	 *             If something went wrong.
+	 * @throws ProtocolException
+	 *             If something went wrong.
+	 * @throws PacketException
+	 *             If something went wrong.
+	 * @throws IOException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testCommandRequest() throws GeneralSecurityException,
 			ProtocolException, PacketException, IOException {
@@ -165,10 +232,22 @@ public class TestClientProtocol {
 		Command command = new MouseMove((short) 1, (short) -1);
 		cp.commandRequest(command);
 		Packet p = Packet.read(output.toByteArray());
-		CommandRequest r = (CommandRequest) p.decode(Misc.blockDecryptCipher);
+		CommandRequest r = (CommandRequest) p.decode(Misc.blockDecrypt);
 		assertEquals(0, command.compareTo(r.getCommand()));
 	}
 
+	/**
+	 * Test method for {@link ClientProtocol#ping(PingCallback)}.
+	 * 
+	 * @throws GeneralSecurityException
+	 *             If something went wrong.
+	 * @throws ProtocolException
+	 *             If something went wrong.
+	 * @throws PacketException
+	 *             If something went wrong.
+	 * @throws IOException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testPing() throws GeneralSecurityException, ProtocolException,
 			PacketException, IOException {
@@ -181,7 +260,7 @@ public class TestClientProtocol {
 		cp.ping(null);
 		// Check that it was written
 		Packet p = Packet.read(output.toByteArray());
-		Ping ping = (Ping) p.decode(Misc.blockDecryptCipher);
+		Ping ping = (Ping) p.decode(Misc.blockDecrypt);
 		assertEquals(0, ping.compareTo(new Ping(true)));
 
 		// Try to ping twice (not allowed)
@@ -217,7 +296,7 @@ public class TestClientProtocol {
 			cp.ping(pingCallback);
 			// Check that it was written
 			p = Packet.read(output.toByteArray());
-			ping = (Ping) p.decode(Misc.blockDecryptCipher);
+			ping = (Ping) p.decode(Misc.blockDecrypt);
 			assertEquals(0, ping.compareTo(new Ping(true)));
 			// Check that the callback wasn't called before the response
 			assertEquals(-1, pingDiff);
@@ -233,7 +312,7 @@ public class TestClientProtocol {
 		cp.process(Misc.encryptBlock(new Ping(true).pack()));
 		// Check that it was written
 		p = Packet.read(output.toByteArray());
-		ping = (Ping) p.decode(Misc.blockDecryptCipher);
+		ping = (Ping) p.decode(Misc.blockDecrypt);
 		assertEquals(0, ping.compareTo(new Ping(false)));
 	}
 }

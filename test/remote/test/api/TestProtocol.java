@@ -16,8 +16,17 @@ import remote.api.Protocol;
 import remote.api.exceptions.PacketException;
 import remote.api.exceptions.ProtocolException;
 
+/**
+ * Test class for {@link Protocol}.
+ */
 public class TestProtocol {
 
+	/**
+	 * Test method for blockCipherInit in {@link Protocol}.
+	 * 
+	 * @throws GeneralSecurityException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testBlockCipherInit() throws GeneralSecurityException {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();

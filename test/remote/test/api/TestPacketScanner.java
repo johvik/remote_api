@@ -17,9 +17,23 @@ import remote.api.PacketScanner;
 import remote.api.exceptions.PacketException;
 import remote.api.messages.Ping;
 
+/**
+ * Test class for {@link PacketScanner}.
+ */
 public class TestPacketScanner {
+	/**
+	 * Executor to run in another thread.
+	 */
 	private ExecutorService es = Executors.newFixedThreadPool(1);
 
+	/**
+	 * Writes data in another thread.
+	 * 
+	 * @param output
+	 *            The destination.
+	 * @param data
+	 *            The data to write.
+	 */
 	private void write(final PipedOutputStream output, final byte[] data) {
 		es.execute(new Runnable() {
 			@Override
@@ -34,10 +48,28 @@ public class TestPacketScanner {
 		});
 	}
 
+	/**
+	 * Writes data in another thread.
+	 * 
+	 * @param output
+	 *            The destination.
+	 * @param packet
+	 *            The data to write.
+	 */
 	private void write(final PipedOutputStream output, final Packet packet) {
 		write(output, packet, 1);
 	}
 
+	/**
+	 * Writes data in another thread.
+	 * 
+	 * @param output
+	 *            The destination.
+	 * @param packet
+	 *            The data to write.
+	 * @param times
+	 *            Number of times to write the data.
+	 */
 	private void write(final PipedOutputStream output, final Packet packet,
 			final int times) {
 		es.execute(new Runnable() {
@@ -45,7 +77,7 @@ public class TestPacketScanner {
 			public void run() {
 				try {
 					for (int i = 0; i < times; i++) {
-						packet.write(Misc.blockEncryptCipher, output);
+						packet.write(Misc.blockEncrypt, output);
 					}
 					output.flush();
 				} catch (PacketException e) {
@@ -57,6 +89,12 @@ public class TestPacketScanner {
 		});
 	}
 
+	/**
+	 * Test method for {@link PacketScanner#PacketScanner(java.io.InputStream)}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testPacketScanner() throws PacketException {
 		try {
@@ -71,6 +109,16 @@ public class TestPacketScanner {
 		new PacketScanner(new ByteArrayInputStream(new byte[0]));
 	}
 
+	/**
+	 * Test method for {@link PacketScanner#nextPacket()}.
+	 * 
+	 * @throws PacketException
+	 *             If something went wrong.
+	 * @throws IOException
+	 *             If something went wrong.
+	 * @throws InterruptedException
+	 *             If something went wrong.
+	 */
 	@Test(timeout = 10000)
 	public void testNextPacket() throws PacketException, IOException,
 			InterruptedException {
@@ -87,14 +135,14 @@ public class TestPacketScanner {
 		Ping ping = new Ping(true);
 		write(output, ping.pack());
 		p = ps.nextPacket();
-		assertEquals(0, ping.compareTo(p.decode(Misc.blockDecryptCipher)));
+		assertEquals(0, ping.compareTo(p.decode(Misc.blockDecrypt)));
 
 		// Write enough data to cause it to wrap
 		int count = (PacketScanner.BUFFER_SIZE / Ping.LENGTH) + 1;
 		write(output, ping.pack(), count);
 		for (int i = 0; i < count; i++) {
 			p = ps.nextPacket();
-			assertEquals(0, ping.compareTo(p.decode(Misc.blockDecryptCipher)));
+			assertEquals(0, ping.compareTo(p.decode(Misc.blockDecrypt)));
 		}
 
 		// Make sure write thread has stopped
@@ -108,5 +156,4 @@ public class TestPacketScanner {
 		assertEquals(null, p);
 		input.close();
 	}
-
 }

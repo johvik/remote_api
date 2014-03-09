@@ -26,27 +26,48 @@ import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
 import remote.api.messages.Ping;
 
+/**
+ * Test class for {@link ServerProtocol}.
+ */
 public class TestServerProtocol {
+	/**
+	 * The authentication check that always passes.
+	 */
 	private AuthenticationCheck authentication = new AuthenticationCheck() {
 		@Override
 		public boolean check(String user, String password) {
 			return true;
 		}
 	};
+	/**
+	 * The authentication check that always fails.
+	 */
 	private AuthenticationCheck authenticationFail = new AuthenticationCheck() {
 		@Override
 		public boolean check(String user, String password) {
 			return false;
 		}
 	};
+	/**
+	 * State to see if command has been handled.
+	 */
 	private boolean commandHandled = false;
+	/**
+	 * The command handler.
+	 */
 	private CommandHandler commandHandler = new CommandHandler() {
 		@Override
 		public void handle(Command command) {
 			commandHandled = true;
 		}
 	};
+	/**
+	 * Stores the ping callback results.
+	 */
 	private long pingDiff = -1;
+	/**
+	 * The ping callback.
+	 */
 	private PingCallback pingCallback = new PingCallback() {
 		@Override
 		public void run(long diff) {
@@ -54,6 +75,16 @@ public class TestServerProtocol {
 		}
 	};
 
+	/**
+	 * Test method for
+	 * {@link ServerProtocol#ServerProtocol(AuthenticationCheck, CommandHandler, java.security.PrivateKey, java.io.OutputStream)}
+	 * .
+	 * 
+	 * @throws GeneralSecurityException
+	 *             If something went wrong.
+	 * @throws ProtocolException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testServerProtocol() throws GeneralSecurityException,
 			ProtocolException {
@@ -94,6 +125,18 @@ public class TestServerProtocol {
 				output);
 	}
 
+	/**
+	 * Test method for {@link ServerProtocol#ping(PingCallback)}.
+	 * 
+	 * @throws GeneralSecurityException
+	 *             If something went wrong.
+	 * @throws ProtocolException
+	 *             If something went wrong.
+	 * @throws PacketException
+	 *             If something went wrong.
+	 * @throws IOException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testPing() throws GeneralSecurityException, ProtocolException,
 			PacketException, IOException {
@@ -109,7 +152,7 @@ public class TestServerProtocol {
 		sp.ping(null);
 		// Check that it was written
 		Packet p = Packet.read(output.toByteArray());
-		Ping ping = (Ping) p.decode(Misc.blockDecryptCipher);
+		Ping ping = (Ping) p.decode(Misc.blockDecrypt);
 		assertEquals(0, ping.compareTo(new Ping(true)));
 
 		// Try to ping twice (not allowed)
@@ -145,7 +188,7 @@ public class TestServerProtocol {
 			sp.ping(pingCallback);
 			// Check that it was written
 			p = Packet.read(output.toByteArray());
-			ping = (Ping) p.decode(Misc.blockDecryptCipher);
+			ping = (Ping) p.decode(Misc.blockDecrypt);
 			assertEquals(0, ping.compareTo(new Ping(true)));
 			// Check that the callback wasn't called before the response
 			assertEquals(-1, pingDiff);
@@ -161,10 +204,22 @@ public class TestServerProtocol {
 		sp.process(Misc.encryptBlock(new Ping(true).pack()));
 		// Check that it was written
 		p = Packet.read(output.toByteArray());
-		ping = (Ping) p.decode(Misc.blockDecryptCipher);
+		ping = (Ping) p.decode(Misc.blockDecrypt);
 		assertEquals(0, ping.compareTo(new Ping(false)));
 	}
 
+	/**
+	 * Test method for handling command requests in {@link ServerProtocol}.
+	 * 
+	 * @throws GeneralSecurityException
+	 *             If something went wrong.
+	 * @throws ProtocolException
+	 *             If something went wrong.
+	 * @throws PacketException
+	 *             If something went wrong.
+	 * @throws IOException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testCommandRequest() throws GeneralSecurityException,
 			ProtocolException, PacketException, IOException {
@@ -185,6 +240,18 @@ public class TestServerProtocol {
 		commandHandled = false;
 	}
 
+	/**
+	 * Test method for authentication in {@link ServerProtocol}.
+	 * 
+	 * @throws GeneralSecurityException
+	 *             If something went wrong.
+	 * @throws ProtocolException
+	 *             If something went wrong.
+	 * @throws PacketException
+	 *             If something went wrong.
+	 * @throws IOException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testNotAuthenticated() throws GeneralSecurityException,
 			ProtocolException, PacketException, IOException {
@@ -203,6 +270,18 @@ public class TestServerProtocol {
 		assertArrayEquals(new byte[0], output.toByteArray());
 	}
 
+	/**
+	 * Test method for {@link ServerProtocol#process(Packet)}.
+	 * 
+	 * @throws GeneralSecurityException
+	 *             If something went wrong.
+	 * @throws ProtocolException
+	 *             If something went wrong.
+	 * @throws PacketException
+	 *             If something went wrong.
+	 * @throws IOException
+	 *             If something went wrong.
+	 */
 	@Test
 	public void testProcess() throws GeneralSecurityException,
 			ProtocolException, PacketException, IOException {
@@ -240,7 +319,7 @@ public class TestServerProtocol {
 				"").pack()));
 		Packet p = Packet.read(output.toByteArray());
 		AuthenticationResponse r = (AuthenticationResponse) p
-				.decode(Misc.blockDecryptCipher);
+				.decode(Misc.blockDecrypt);
 		assertEquals(0, r.compareTo(new AuthenticationResponse()));
 
 		output.reset();

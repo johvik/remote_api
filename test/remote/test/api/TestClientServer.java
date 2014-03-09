@@ -25,22 +25,51 @@ import remote.api.exceptions.ProtocolException;
 import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
 
+/**
+ * Test class to handle client server interaction.
+ */
 public class TestClientServer {
+	/**
+	 * Executor to run in another thread.
+	 */
 	private ExecutorService es = Executors.newFixedThreadPool(1);
-	private static final int HELP_SLEEP = 50; // Time to let pool thread run
+	/**
+	 * Time to let pool thread run.
+	 */
+	private static final int HELP_SLEEP = 50;
 
+	/**
+	 * The authentication check that always passes.
+	 */
 	private AuthenticationCheck authentication = new AuthenticationCheck() {
 		@Override
 		public boolean check(String user, String password) {
 			return true; // Accept all
 		}
 	};
+	/**
+	 * The command handler.
+	 */
 	private CommandHandler commandHandler = new CommandHandler() {
 		@Override
 		public void handle(Command command) {
 		}
 	};
 
+	/**
+	 * Tests client server interaction.
+	 * 
+	 * @throws GeneralSecurityException
+	 *             If something went wrong.
+	 * @throws ProtocolException
+	 *             If something went wrong.
+	 * @throws PacketException
+	 *             If something went wrong.
+	 * @throws IOException
+	 *             If something went wrong.
+	 * @throws InterruptedException
+	 *             If something went wrong.
+	 */
 	@Test(timeout = 10000)
 	public void test() throws GeneralSecurityException, ProtocolException,
 			PacketException, IOException, InterruptedException {
