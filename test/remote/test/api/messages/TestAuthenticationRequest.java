@@ -39,6 +39,10 @@ public class TestAuthenticationRequest {
 	 * The password parameter.
 	 */
 	private String password;
+	/**
+	 * The authentication request constructed by the parameters.
+	 */
+	private AuthenticationRequest ar;
 
 	/**
 	 * Initializes the parameters.
@@ -51,13 +55,16 @@ public class TestAuthenticationRequest {
 	 *            The user.
 	 * @param password
 	 *            The password.
+	 * @throws PacketException
+	 *             If something went wrong.
 	 */
 	public TestAuthenticationRequest(byte[] key, byte[] iv, String user,
-			String password) {
+			String password) throws PacketException {
 		this.key = key;
 		this.iv = iv;
 		this.user = user;
 		this.password = password;
+		ar = new AuthenticationRequest(key, iv, user, password);
 	}
 
 	/**
@@ -155,20 +162,18 @@ public class TestAuthenticationRequest {
 	@Test
 	public void testPack() throws Exception {
 		// Test by packing followed by unpacking
-		AuthenticationRequest request1 = new AuthenticationRequest(key, iv,
-				user, password);
-		byte[] data = request1.pack().getData();
-		AuthenticationRequest request2 = AuthenticationRequest.unpack(data);
+		byte[] data = ar.pack().getData();
+		AuthenticationRequest other = AuthenticationRequest.unpack(data);
 		assertEquals(Message.AUTHENTICATION_REQUEST, data[0]);
-		assertEquals(user, request1.getUser());
-		assertEquals(password, request1.getPassword());
-		assertArrayEquals(key, request1.getKey());
-		assertArrayEquals(iv, request1.getIv());
+		assertEquals(user, ar.getUser());
+		assertEquals(password, ar.getPassword());
+		assertArrayEquals(key, ar.getKey());
+		assertArrayEquals(iv, ar.getIv());
 		// Check that they are the same
-		assertEquals(request1.getUser(), request2.getUser());
-		assertEquals(request1.getPassword(), request2.getPassword());
-		assertArrayEquals(request1.getKey(), request2.getKey());
-		assertArrayEquals(request1.getIv(), request2.getIv());
+		assertEquals(ar.getUser(), other.getUser());
+		assertEquals(ar.getPassword(), other.getPassword());
+		assertArrayEquals(ar.getKey(), other.getKey());
+		assertArrayEquals(ar.getIv(), other.getIv());
 
 		// Try to pack with too long lengths
 		try {
@@ -176,9 +181,9 @@ public class TestAuthenticationRequest {
 			for (int i = 0; i < 30; i++) {
 				buffer.append("too long");
 			}
-			AuthenticationRequest request3 = new AuthenticationRequest(key, iv,
+			AuthenticationRequest ar = new AuthenticationRequest(key, iv,
 					buffer.toString(), password);
-			request3.pack();
+			ar.pack();
 			fail("Did not throw an exception");
 		} catch (PacketException e) {
 			assertThat(e.getMessage(), startsWith("Length sum too big "));
@@ -239,9 +244,7 @@ public class TestAuthenticationRequest {
 	@Test
 	public void testGetType() throws Exception {
 		// Ensure it has the correct type
-		AuthenticationRequest request = new AuthenticationRequest(key, iv,
-				user, password);
-		assertEquals(Message.AUTHENTICATION_REQUEST, request.getType());
+		assertEquals(Message.AUTHENTICATION_REQUEST, ar.getType());
 	}
 
 	/**
@@ -252,15 +255,13 @@ public class TestAuthenticationRequest {
 	 */
 	@Test
 	public void testCompareTo() throws Exception {
-		AuthenticationRequest request = new AuthenticationRequest(key, iv,
-				user, password);
 		try {
-			request.compareTo(null);
+			ar.compareTo(null);
 			fail("Did not throw an exception");
 		} catch (NullPointerException e) {
 		}
 		try {
-			request.compareTo(new Ping(false));
+			ar.compareTo(new Ping(false));
 			fail("Did not throw an exception");
 		} catch (ClassCastException e) {
 		}
@@ -269,34 +270,34 @@ public class TestAuthenticationRequest {
 		AuthenticationRequest other = new AuthenticationRequest(
 				Misc.getSequence(500, Packet.BLOCK_KEY_SIZE), iv, user,
 				password);
-		assertArrayEquals(request.getIv(), other.getIv());
-		assertEquals(request.getUser(), other.getUser());
-		assertEquals(request.getPassword(), other.getPassword());
-		assertNotEquals(0, request.compareTo(other));
+		assertArrayEquals(ar.getIv(), other.getIv());
+		assertEquals(ar.getUser(), other.getUser());
+		assertEquals(ar.getPassword(), other.getPassword());
+		assertNotEquals(0, ar.compareTo(other));
 
 		// Check against object with another iv
 		other = new AuthenticationRequest(key, Misc.getSequence(500,
 				Packet.BLOCK_SIZE), user, password);
-		assertArrayEquals(request.getKey(), other.getKey());
-		assertEquals(request.getUser(), other.getUser());
-		assertEquals(request.getPassword(), other.getPassword());
-		assertNotEquals(0, request.compareTo(other));
+		assertArrayEquals(ar.getKey(), other.getKey());
+		assertEquals(ar.getUser(), other.getUser());
+		assertEquals(ar.getPassword(), other.getPassword());
+		assertNotEquals(0, ar.compareTo(other));
 
 		// Check against object with another user
 		other = new AuthenticationRequest(key, iv, user + "a", password);
-		assertArrayEquals(request.getKey(), other.getKey());
-		assertArrayEquals(request.getIv(), other.getIv());
-		assertEquals(request.getPassword(), other.getPassword());
-		assertNotEquals(0, request.compareTo(other));
+		assertArrayEquals(ar.getKey(), other.getKey());
+		assertArrayEquals(ar.getIv(), other.getIv());
+		assertEquals(ar.getPassword(), other.getPassword());
+		assertNotEquals(0, ar.compareTo(other));
 
 		// Check against object with another password
 		other = new AuthenticationRequest(key, iv, user, password + "a");
-		assertArrayEquals(request.getKey(), other.getKey());
-		assertArrayEquals(request.getIv(), other.getIv());
-		assertEquals(request.getUser(), other.getUser());
-		assertNotEquals(0, request.compareTo(other));
+		assertArrayEquals(ar.getKey(), other.getKey());
+		assertArrayEquals(ar.getIv(), other.getIv());
+		assertEquals(ar.getUser(), other.getUser());
+		assertNotEquals(0, ar.compareTo(other));
 
 		// Compare to self
-		assertEquals(0, request.compareTo(request));
+		assertEquals(0, ar.compareTo(ar));
 	}
 }

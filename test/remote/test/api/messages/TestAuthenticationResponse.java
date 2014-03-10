@@ -14,6 +14,18 @@ import remote.api.messages.Ping;
  */
 public class TestAuthenticationResponse {
 	/**
+	 * The authentication response constructed for the test.
+	 */
+	private AuthenticationResponse ar;
+
+	/**
+	 * Initializes the test
+	 */
+	public TestAuthenticationResponse() {
+		ar = new AuthenticationResponse();
+	}
+
+	/**
 	 * Test method for {@link AuthenticationResponse#pack()}.
 	 * 
 	 * @throws Exception
@@ -21,8 +33,7 @@ public class TestAuthenticationResponse {
 	 */
 	@Test
 	public void testPack() throws Exception {
-		AuthenticationResponse response = new AuthenticationResponse();
-		byte[] data = response.pack().getData();
+		byte[] data = ar.pack().getData();
 		assertEquals(Message.AUTHENTICATION_RESPONSE, data[0]);
 	}
 
@@ -54,8 +65,7 @@ public class TestAuthenticationResponse {
 	@Test
 	public void testGetType() {
 		// Ensure it has the correct type
-		AuthenticationResponse response = new AuthenticationResponse();
-		assertEquals(Message.AUTHENTICATION_RESPONSE, response.getType());
+		assertEquals(Message.AUTHENTICATION_RESPONSE, ar.getType());
 	}
 
 	/**
@@ -63,19 +73,18 @@ public class TestAuthenticationResponse {
 	 */
 	@Test
 	public void testCompareTo() {
-		AuthenticationResponse response = new AuthenticationResponse();
 		try {
-			response.compareTo(null);
+			ar.compareTo(null);
 			fail("Did not throw an exception");
 		} catch (NullPointerException e) {
 		}
 		try {
-			response.compareTo(new Ping(false));
+			ar.compareTo(new Ping(false));
 			fail("Did not throw an exception");
 		} catch (ClassCastException e) {
 		}
 
 		// Compare to self
-		assertEquals(0, response.compareTo(response));
+		assertEquals(0, ar.compareTo(ar));
 	}
 }

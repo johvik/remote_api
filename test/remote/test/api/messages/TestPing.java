@@ -24,6 +24,10 @@ public class TestPing {
 	 * The request parameter.
 	 */
 	private boolean request;
+	/**
+	 * The ping constructed by the parameter.
+	 */
+	private Ping p;
 
 	/**
 	 * Constructs the ping from the parameter.
@@ -33,6 +37,7 @@ public class TestPing {
 	 */
 	public TestPing(boolean request) {
 		this.request = request;
+		p = new Ping(request);
 	}
 
 	/**
@@ -54,15 +59,14 @@ public class TestPing {
 	@Test
 	public void testPack() throws Exception {
 		// Test by packing followed by unpacking
-		Ping ping1 = new Ping(request);
-		byte[] data = ping1.pack().getData();
-		Ping ping2 = Ping.unpack(data);
+		byte[] data = p.pack().getData();
+		Ping other = Ping.unpack(data);
 		assertEquals(Message.PING, data[0]);
-		assertEquals(request, ping1.isRequest());
-		assertEquals(Message.PING, ping1.getType());
+		assertEquals(request, p.isRequest());
+		assertEquals(Message.PING, p.getType());
 		// Check that they are the same
-		assertEquals(ping1.isRequest(), ping2.isRequest());
-		assertEquals(ping1.getType(), ping2.getType());
+		assertEquals(p.isRequest(), other.isRequest());
+		assertEquals(p.getType(), other.getType());
 	}
 
 	/**
@@ -94,8 +98,7 @@ public class TestPing {
 	 */
 	@Test
 	public void testIsRequest() {
-		Ping ping = new Ping(request);
-		assertEquals(request, ping.isRequest());
+		assertEquals(request, p.isRequest());
 	}
 
 	/**
@@ -104,8 +107,7 @@ public class TestPing {
 	@Test
 	public void testGetType() {
 		// Ensure it has the correct type
-		Ping ping = new Ping(request);
-		assertEquals(Message.PING, ping.getType());
+		assertEquals(Message.PING, p.getType());
 	}
 
 	/**
@@ -113,23 +115,22 @@ public class TestPing {
 	 */
 	@Test
 	public void testCompareTo() {
-		Ping ping = new Ping(request);
 		try {
-			ping.compareTo(null);
+			p.compareTo(null);
 			fail("Did not throw an exception");
 		} catch (NullPointerException e) {
 		}
 		try {
-			ping.compareTo(new AuthenticationResponse());
+			p.compareTo(new AuthenticationResponse());
 			fail("Did not throw an exception");
 		} catch (ClassCastException e) {
 		}
 
 		// Check against object with another request
 		Ping other = new Ping(!request);
-		assertNotEquals(0, ping.compareTo(other));
+		assertNotEquals(0, p.compareTo(other));
 
 		// Compare to self
-		assertEquals(0, ping.compareTo(ping));
+		assertEquals(0, p.compareTo(p));
 	}
 }
