@@ -11,7 +11,7 @@ public abstract class Message implements Comparable<Message> {
 	 * Number of type codes used for messages. This number has to be increased
 	 * when adding new messages.
 	 */
-	public static final int USED_CODES = 4;
+	public static final int USED_CODES = 5;
 
 	/**
 	 * Type code for authentication request.
@@ -29,6 +29,10 @@ public abstract class Message implements Comparable<Message> {
 	 * Type code for command request.
 	 */
 	public static final byte COMMAND_REQUEST = 3;
+	/**
+	 * Type code for terminate request.
+	 */
+	public static final byte TERMINATE_REQUESET = 4;
 
 	/**
 	 * Packet will throw exception if this length is exceeded.

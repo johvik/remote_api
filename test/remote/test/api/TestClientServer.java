@@ -15,10 +15,12 @@ import remote.api.Packet;
 import remote.api.ServerProtocol;
 import remote.api.ServerProtocol.AuthenticationCheck;
 import remote.api.ServerProtocol.CommandHandler;
+import remote.api.ServerProtocol.TerminateHandler;
 import remote.api.commands.Command;
 import remote.api.commands.MouseMove;
 import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
+import remote.api.messages.TerminateRequest;
 
 /**
  * Test class to handle client server interaction.
@@ -50,6 +52,14 @@ public class TestClientServer {
 		public void handle(Command command) {
 		}
 	};
+	/**
+	 * The terminate handler.
+	 */
+	private TerminateHandler terminateHandler = new TerminateHandler() {
+		@Override
+		public void handle(boolean shutdown) {
+		}
+	};
 
 	/**
 	 * Tests client server interaction.
@@ -69,7 +79,8 @@ public class TestClientServer {
 		final ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key,
 				Misc.iv, clientInput, clientOutput);
 		final ServerProtocol sp = new ServerProtocol(authentication,
-				commandHandler, Misc.privateKey, serverInput, serverOutput);
+				commandHandler, terminateHandler, Misc.privateKey, serverInput,
+				serverOutput);
 
 		// Authenticate
 		es.execute(new Runnable() {
@@ -119,6 +130,24 @@ public class TestClientServer {
 		sp.process(p); // Does not write anything
 		assertEquals(0,
 				mm.compareTo(((CommandRequest) p.decode(null)).getCommand()));
+
+		// Send terminate
+		final boolean shutdown = false;
+		es.execute(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					cp.terminateRequest(shutdown);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		Thread.sleep(HELP_SLEEP);
+
+		p = sp.nextPacket();
+		sp.process(p); // Does not write anything
+		assertEquals(shutdown, ((TerminateRequest) p.decode(null)).isShutdown());
 
 		// Ping in both directions
 		es.execute(new Runnable() {

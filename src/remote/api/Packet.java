@@ -12,6 +12,7 @@ import remote.api.messages.AuthenticationResponse;
 import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
 import remote.api.messages.Ping;
+import remote.api.messages.TerminateRequest;
 
 /**
  * A class representing a data packet.
@@ -214,6 +215,8 @@ public class Packet {
 			return Ping.unpack(data);
 		case Message.COMMAND_REQUEST:
 			return CommandRequest.unpack(data);
+		case Message.TERMINATE_REQUESET:
+			return TerminateRequest.unpack(data);
 		}
 		throw new PacketException("Unknown message", data);
 	}

@@ -14,6 +14,7 @@ import remote.api.messages.AuthenticationRequest;
 import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
 import remote.api.messages.Ping;
+import remote.api.messages.TerminateRequest;
 
 /**
  * Client side of the protocol.
@@ -122,6 +123,23 @@ public class ClientProtocol extends Protocol {
 	public synchronized void commandRequest(Command command)
 			throws PacketException, IOException, ProtocolException {
 		deliver(new CommandRequest(command));
+	}
+
+	/**
+	 * Sends a terminate request to the server.
+	 * 
+	 * @param shutdown
+	 *            If shutdown should be reuqested.
+	 * @throws PacketException
+	 *             If it fails to pack or encrypt the data.
+	 * @throws IOException
+	 *             If it fails to send the data to the server.
+	 * @throws ProtocolException
+	 *             If not authenticated.
+	 */
+	public synchronized void terminateRequest(boolean shutdown)
+			throws PacketException, IOException, ProtocolException {
+		deliver(new TerminateRequest(shutdown));
 	}
 
 	@Override

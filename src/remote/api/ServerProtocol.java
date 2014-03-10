@@ -18,6 +18,7 @@ import remote.api.messages.AuthenticationResponse;
 import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
 import remote.api.messages.Ping;
+import remote.api.messages.TerminateRequest;
 
 /**
  * Server side of the protocol.
@@ -53,6 +54,19 @@ public class ServerProtocol extends Protocol {
 	}
 
 	/**
+	 * Interface to handle terminate requests.
+	 */
+	public interface TerminateHandler {
+		/**
+		 * Handles the termination.
+		 * 
+		 * @param shutdown
+		 *            If it should shutdown as well.
+		 */
+		public void handle(boolean shutdown);
+	}
+
+	/**
 	 * The authentication checker.
 	 */
 	private AuthenticationCheck authentication;
@@ -60,6 +74,10 @@ public class ServerProtocol extends Protocol {
 	 * The command handler.
 	 */
 	private CommandHandler commandHandler;
+	/**
+	 * The terminate handler.
+	 */
+	private TerminateHandler terminateHandler;
 
 	/**
 	 * Constructs a new server protocol.
@@ -68,6 +86,8 @@ public class ServerProtocol extends Protocol {
 	 *            The authentication checker.
 	 * @param commandHandler
 	 *            The command handler.
+	 * @param terminateHandler
+	 *            The terminate handler.
 	 * @param privateKey
 	 *            The private key of the secure algorithm.
 	 * @param input
@@ -84,8 +104,8 @@ public class ServerProtocol extends Protocol {
 	 *             See {@link PacketScanner#PacketScanner(InputStream)}
 	 */
 	public ServerProtocol(AuthenticationCheck authentication,
-			CommandHandler commandHandler, PrivateKey privateKey,
-			InputStream input, OutputStream output)
+			CommandHandler commandHandler, TerminateHandler terminateHandler,
+			PrivateKey privateKey, InputStream input, OutputStream output)
 			throws GeneralSecurityException, ProtocolException, PacketException {
 		super(privateKey, input, output);
 		if (authentication == null) {
@@ -94,8 +114,12 @@ public class ServerProtocol extends Protocol {
 		if (commandHandler == null) {
 			throw new ProtocolException("Command handler cannot be null");
 		}
+		if (terminateHandler == null) {
+			throw new ProtocolException("Terminate handler cannot be null");
+		}
 		this.authentication = authentication;
 		this.commandHandler = commandHandler;
+		this.terminateHandler = terminateHandler;
 	}
 
 	@Override
@@ -110,6 +134,10 @@ public class ServerProtocol extends Protocol {
 				return;
 			case Message.COMMAND_REQUEST:
 				commandHandler.handle(((CommandRequest) message).getCommand());
+				return;
+			case Message.TERMINATE_REQUESET:
+				terminateHandler.handle(((TerminateRequest) message)
+						.isShutdown());
 				return;
 			}
 			throw new ProtocolException("Unexpected message type: " + type);

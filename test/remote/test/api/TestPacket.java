@@ -11,11 +11,14 @@ import org.junit.Test;
 
 import remote.api.Packet;
 import remote.api.Utils;
+import remote.api.commands.MouseRelease;
 import remote.api.exceptions.PacketException;
 import remote.api.messages.AuthenticationRequest;
 import remote.api.messages.AuthenticationResponse;
+import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
 import remote.api.messages.Ping;
+import remote.api.messages.TerminateRequest;
 
 /**
  * Test class for {@link Packet}.
@@ -235,11 +238,12 @@ public class TestPacket {
 	 */
 	@Test
 	public void testDecodeAuthenticationRequest() throws Exception {
-		byte[] data = new byte[AuthenticationRequest.MAX_LENGTH];
-		data[0] = Message.AUTHENTICATION_REQUEST;
-		Message message = new Packet(data).decode(null);
+		AuthenticationRequest ar = new AuthenticationRequest(Misc.key, Misc.iv,
+				"user", "password");
+		Message message = new Packet(ar.pack().getData()).decode(null);
 		assertEquals(AuthenticationRequest.class, message.getClass());
 		assertEquals(Message.AUTHENTICATION_REQUEST, message.getType());
+		assertEquals(0, ar.compareTo(message));
 	}
 
 	/**
@@ -250,11 +254,11 @@ public class TestPacket {
 	 */
 	@Test
 	public void testDecodeAuthenticationResponse() throws Exception {
-		byte[] data = new byte[AuthenticationResponse.LENGTH];
-		data[0] = Message.AUTHENTICATION_RESPONSE;
-		Message message = new Packet(data).decode(null);
+		AuthenticationResponse ar = new AuthenticationResponse();
+		Message message = new Packet(ar.pack().getData()).decode(null);
 		assertEquals(AuthenticationResponse.class, message.getClass());
 		assertEquals(Message.AUTHENTICATION_RESPONSE, message.getType());
+		assertEquals(0, ar.compareTo(message));
 	}
 
 	/**
@@ -265,11 +269,41 @@ public class TestPacket {
 	 */
 	@Test
 	public void testDecodePing() throws Exception {
-		byte[] data = new byte[Ping.LENGTH];
-		data[0] = Message.PING;
-		Message message = new Packet(data).decode(null);
+		Ping ping = new Ping(true);
+		Message message = new Packet(ping.pack().getData()).decode(null);
 		assertEquals(Ping.class, message.getClass());
 		assertEquals(Message.PING, message.getType());
+		assertEquals(0, ping.compareTo(message));
+	}
+
+	/**
+	 * Test method for {@link Packet#decode(javax.crypto.Cipher)}.
+	 * 
+	 * @throws Exception
+	 *             If something went wrong.
+	 */
+	@Test
+	public void testDecodeCommandRequest() throws Exception {
+		CommandRequest cr = new CommandRequest(new MouseRelease(-1));
+		Message message = new Packet(cr.pack().getData()).decode(null);
+		assertEquals(CommandRequest.class, message.getClass());
+		assertEquals(Message.COMMAND_REQUEST, message.getType());
+		assertEquals(0, cr.compareTo(message));
+	}
+
+	/**
+	 * Test method for {@link Packet#decode(javax.crypto.Cipher)}.
+	 * 
+	 * @throws Exception
+	 *             If something went wrong.
+	 */
+	@Test
+	public void testDecodeTerminateRequest() throws Exception {
+		TerminateRequest tr = new TerminateRequest(true);
+		Message message = new Packet(tr.pack().getData()).decode(null);
+		assertEquals(TerminateRequest.class, message.getClass());
+		assertEquals(Message.TERMINATE_REQUESET, message.getType());
+		assertEquals(0, tr.compareTo(message));
 	}
 
 	/**

@@ -14,6 +14,7 @@ import remote.api.ServerProtocol;
 import remote.api.Protocol.PingCallback;
 import remote.api.ServerProtocol.AuthenticationCheck;
 import remote.api.ServerProtocol.CommandHandler;
+import remote.api.ServerProtocol.TerminateHandler;
 import remote.api.commands.Command;
 import remote.api.commands.MouseMove;
 import remote.api.exceptions.AuthenticationException;
@@ -23,6 +24,7 @@ import remote.api.messages.AuthenticationResponse;
 import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
 import remote.api.messages.Ping;
+import remote.api.messages.TerminateRequest;
 
 /**
  * Test class for {@link ServerProtocol}.
@@ -49,14 +51,27 @@ public class TestServerProtocol {
 	/**
 	 * State to see if command has been handled.
 	 */
-	private boolean commandHandled = false;
+	private Command command = null;
 	/**
 	 * The command handler.
 	 */
 	private CommandHandler commandHandler = new CommandHandler() {
 		@Override
 		public void handle(Command command) {
-			commandHandled = true;
+			TestServerProtocol.this.command = command;
+		}
+	};
+	/**
+	 * State to see if terminate has been handled.
+	 */
+	private Boolean shutdown = null;
+	/**
+	 * The terminate handler.
+	 */
+	private TerminateHandler terminateHandler = new TerminateHandler() {
+		@Override
+		public void handle(boolean shutdown) {
+			TestServerProtocol.this.shutdown = shutdown;
 		}
 	};
 	/**
@@ -75,7 +90,7 @@ public class TestServerProtocol {
 
 	/**
 	 * Test method for
-	 * {@link ServerProtocol#ServerProtocol(AuthenticationCheck, CommandHandler, java.security.PrivateKey, java.io.InputStream, java.io.OutputStream)}
+	 * {@link ServerProtocol#ServerProtocol(AuthenticationCheck, CommandHandler,TerminateHandler, java.security.PrivateKey, java.io.InputStream, java.io.OutputStream)}
 	 * .
 	 * 
 	 * @throws Exception
@@ -86,8 +101,8 @@ public class TestServerProtocol {
 		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
-			new ServerProtocol(null, commandHandler, Misc.privateKey, input,
-					output);
+			new ServerProtocol(null, commandHandler, terminateHandler,
+					Misc.privateKey, input, output);
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException(
@@ -95,8 +110,8 @@ public class TestServerProtocol {
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		try {
-			new ServerProtocol(authentication, null, Misc.privateKey, input,
-					output);
+			new ServerProtocol(authentication, null, terminateHandler,
+					Misc.privateKey, input, output);
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException(
@@ -104,23 +119,32 @@ public class TestServerProtocol {
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		try {
-			new ServerProtocol(authentication, commandHandler, null, input,
-					output);
+			new ServerProtocol(authentication, commandHandler, null,
+					Misc.privateKey, input, output);
+			fail("Did not throw an exception");
+		} catch (ProtocolException e) {
+			ProtocolException ex = new ProtocolException(
+					"Terminate handler cannot be null");
+			assertEquals(ex.getMessage(), e.getMessage());
+		}
+		try {
+			new ServerProtocol(authentication, commandHandler,
+					terminateHandler, null, input, output);
 			fail("Did not throw an exception");
 		} catch (InvalidKeyException e) {
 			// Skip checking this one
 		}
 		try {
-			new ServerProtocol(authentication, commandHandler, Misc.privateKey,
-					null, output);
+			new ServerProtocol(authentication, commandHandler,
+					terminateHandler, Misc.privateKey, null, output);
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException("Input cannot be null");
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		try {
-			new ServerProtocol(authentication, commandHandler, Misc.privateKey,
-					input, null);
+			new ServerProtocol(authentication, commandHandler,
+					terminateHandler, Misc.privateKey, input, null);
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException(
@@ -128,8 +152,8 @@ public class TestServerProtocol {
 			assertEquals(ex.getMessage(), e.getMessage());
 		}
 		// Correct
-		new ServerProtocol(authentication, commandHandler, Misc.privateKey,
-				input, output);
+		new ServerProtocol(authentication, commandHandler, terminateHandler,
+				Misc.privateKey, input, output);
 	}
 
 	/**
@@ -143,7 +167,7 @@ public class TestServerProtocol {
 		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ServerProtocol sp = new ServerProtocol(authentication, commandHandler,
-				Misc.privateKey, input, output);
+				terminateHandler, Misc.privateKey, input, output);
 		// Authenticate
 		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key,
 				Misc.iv, "", "").pack()));
@@ -220,19 +244,45 @@ public class TestServerProtocol {
 		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ServerProtocol sp = new ServerProtocol(authentication, commandHandler,
-				Misc.privateKey, input, output);
+				terminateHandler, Misc.privateKey, input, output);
 		// Authenticate
 		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key,
 				Misc.iv, "", "").pack()));
 
 		output.reset();
-		assertEquals(false, commandHandled);
+		assertEquals(null, command);
 		// Send a command request
-		sp.process(Misc.encryptBlock(new CommandRequest(new MouseMove(
-				(short) 0, (short) 0)).pack()));
+		MouseMove mm = new MouseMove((short) 0, (short) 0);
+		sp.process(Misc.encryptBlock(new CommandRequest(mm).pack()));
 		assertArrayEquals(new byte[0], output.toByteArray());
-		assertEquals(true, commandHandled);
-		commandHandled = false;
+		assertEquals(0, mm.compareTo(command));
+		command = null;
+	}
+
+	/**
+	 * Test method for handling terminate requests in {@link ServerProtocol}.
+	 * 
+	 * @throws Exception
+	 *             If something went wrong.
+	 */
+	@Test
+	public void testTerminateRequest() throws Exception {
+		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		ServerProtocol sp = new ServerProtocol(authentication, commandHandler,
+				terminateHandler, Misc.privateKey, input, output);
+		// Authenticate
+		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key,
+				Misc.iv, "", "").pack()));
+
+		output.reset();
+		assertEquals(null, shutdown);
+		// Send a terminate request
+		boolean s = false;
+		sp.process(Misc.encryptBlock(new TerminateRequest(s).pack()));
+		assertArrayEquals(new byte[0], output.toByteArray());
+		assertEquals(s, shutdown);
+		shutdown = null;
 	}
 
 	/**
@@ -246,7 +296,7 @@ public class TestServerProtocol {
 		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ServerProtocol sp = new ServerProtocol(authentication, commandHandler,
-				Misc.privateKey, input, output);
+				terminateHandler, Misc.privateKey, input, output);
 		// Not authenticated
 		try {
 			sp.ping(null);
@@ -270,7 +320,8 @@ public class TestServerProtocol {
 		ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ServerProtocol sp = new ServerProtocol(authenticationFail,
-				commandHandler, Misc.privateKey, input, output);
+				commandHandler, terminateHandler, Misc.privateKey, input,
+				output);
 		// Fail to authenticate
 		try {
 			sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key,
@@ -297,7 +348,7 @@ public class TestServerProtocol {
 
 		// Try to authenticate twice
 		sp = new ServerProtocol(authentication, commandHandler,
-				Misc.privateKey, input, output);
+				terminateHandler, Misc.privateKey, input, output);
 		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key,
 				Misc.iv, "", "").pack()));
 		Packet p = Packet.read(output.toByteArray());
@@ -337,7 +388,7 @@ public class TestServerProtocol {
 		ByteArrayInputStream input = new ByteArrayInputStream(tmp.toByteArray());
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ServerProtocol sp = new ServerProtocol(authentication, commandHandler,
-				Misc.privateKey, input, output);
+				terminateHandler, Misc.privateKey, input, output);
 
 		// Makes no sense to test more than one scenario, since it is a wrapper
 		// of the PacketScanner class
