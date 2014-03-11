@@ -340,7 +340,7 @@ public class TestServerProtocol {
 	 * @throws Exception
 	 *             If something went wrong.
 	 */
-	@Test(timeout = 1000)
+	@Test
 	public void testNextPacket() throws Exception {
 		ByteArrayOutputStream tmp = new ByteArrayOutputStream();
 		AuthenticationRequest r = new AuthenticationRequest(Misc.key, Misc.iv,

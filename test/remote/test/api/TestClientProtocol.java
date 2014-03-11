@@ -319,7 +319,7 @@ public class TestClientProtocol {
 	 * @throws Exception
 	 *             If something went wrong.
 	 */
-	@Test(timeout = 1000)
+	@Test
 	public void testNextPacket() throws Exception {
 		ByteArrayOutputStream tmp = new ByteArrayOutputStream();
 		AuthenticationResponse r = new AuthenticationResponse();
