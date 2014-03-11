@@ -13,9 +13,7 @@ import org.junit.Test;
 import remote.api.ClientProtocol;
 import remote.api.Packet;
 import remote.api.ServerProtocol;
-import remote.api.ServerProtocol.AuthenticationCheck;
-import remote.api.ServerProtocol.CommandHandler;
-import remote.api.ServerProtocol.TerminateHandler;
+import remote.api.ServerProtocol.Handler;
 import remote.api.commands.Command;
 import remote.api.commands.MouseMove;
 import remote.api.messages.CommandRequest;
@@ -36,28 +34,20 @@ public class TestClientServer {
 	private static final int HELP_SLEEP = 50;
 
 	/**
-	 * The authentication check that always passes.
+	 * The handler.
 	 */
-	private AuthenticationCheck authentication = new AuthenticationCheck() {
+	private Handler handler = new Handler() {
 		@Override
-		public boolean check(String user, String password) {
-			return true; // Accept all
+		public boolean authentication(String user, String password) {
+			return true; // Always accept
 		}
-	};
-	/**
-	 * The command handler.
-	 */
-	private CommandHandler commandHandler = new CommandHandler() {
+
 		@Override
-		public void handle(Command command) {
+		public void command(Command command) {
 		}
-	};
-	/**
-	 * The terminate handler.
-	 */
-	private TerminateHandler terminateHandler = new TerminateHandler() {
+
 		@Override
-		public void handle(boolean shutdown) {
+		public void terminate(boolean shutdown) {
 		}
 	};
 
@@ -78,9 +68,8 @@ public class TestClientServer {
 
 		final ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key,
 				Misc.iv, clientInput, clientOutput);
-		final ServerProtocol sp = new ServerProtocol(authentication,
-				commandHandler, terminateHandler, Misc.privateKey, serverInput,
-				serverOutput);
+		final ServerProtocol sp = new ServerProtocol(handler, Misc.privateKey,
+				serverInput, serverOutput);
 
 		// Authenticate
 		es.execute(new Runnable() {

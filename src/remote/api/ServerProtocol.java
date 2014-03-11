@@ -25,9 +25,9 @@ import remote.api.messages.TerminateRequest;
  */
 public class ServerProtocol extends Protocol {
 	/**
-	 * Interface to check authentication.
+	 * Interface to handle important events.
 	 */
-	public interface AuthenticationCheck {
+	public interface Handler {
 		/**
 		 * Checks if the user with password is allowed to authenticate.
 		 * 
@@ -37,57 +37,35 @@ public class ServerProtocol extends Protocol {
 		 *            The password.
 		 * @return True if user and password is allowed to authenticate.
 		 */
-		public boolean check(String user, String password);
-	}
+		public boolean authentication(String user, String password);
 
-	/**
-	 * Interface to handle commands.
-	 */
-	public interface CommandHandler {
 		/**
 		 * Handles the command.
 		 * 
 		 * @param command
 		 *            The command to handle.
 		 */
-		public void handle(Command command);
-	}
+		public void command(Command command);
 
-	/**
-	 * Interface to handle terminate requests.
-	 */
-	public interface TerminateHandler {
 		/**
 		 * Handles the termination.
 		 * 
 		 * @param shutdown
 		 *            If it should shutdown as well.
 		 */
-		public void handle(boolean shutdown);
+		public void terminate(boolean shutdown);
 	}
 
 	/**
-	 * The authentication checker.
+	 * The handler.
 	 */
-	private AuthenticationCheck authentication;
-	/**
-	 * The command handler.
-	 */
-	private CommandHandler commandHandler;
-	/**
-	 * The terminate handler.
-	 */
-	private TerminateHandler terminateHandler;
+	private Handler handler;
 
 	/**
 	 * Constructs a new server protocol.
 	 * 
-	 * @param authentication
-	 *            The authentication checker.
-	 * @param commandHandler
-	 *            The command handler.
-	 * @param terminateHandler
-	 *            The terminate handler.
+	 * @param handler
+	 *            The handler.
 	 * @param privateKey
 	 *            The private key of the secure algorithm.
 	 * @param input
@@ -103,23 +81,14 @@ public class ServerProtocol extends Protocol {
 	 * @throws PacketException
 	 *             See {@link PacketScanner#PacketScanner(InputStream)}
 	 */
-	public ServerProtocol(AuthenticationCheck authentication,
-			CommandHandler commandHandler, TerminateHandler terminateHandler,
-			PrivateKey privateKey, InputStream input, OutputStream output)
+	public ServerProtocol(Handler handler, PrivateKey privateKey,
+			InputStream input, OutputStream output)
 			throws GeneralSecurityException, ProtocolException, PacketException {
 		super(privateKey, input, output);
-		if (authentication == null) {
-			throw new ProtocolException("Authentication check cannot be null");
+		if (handler == null) {
+			throw new ProtocolException("Handler cannot be null");
 		}
-		if (commandHandler == null) {
-			throw new ProtocolException("Command handler cannot be null");
-		}
-		if (terminateHandler == null) {
-			throw new ProtocolException("Terminate handler cannot be null");
-		}
-		this.authentication = authentication;
-		this.commandHandler = commandHandler;
-		this.terminateHandler = terminateHandler;
+		this.handler = handler;
 	}
 
 	@Override
@@ -133,11 +102,10 @@ public class ServerProtocol extends Protocol {
 				processPing((Ping) message);
 				return;
 			case Message.COMMAND_REQUEST:
-				commandHandler.handle(((CommandRequest) message).getCommand());
+				handler.command(((CommandRequest) message).getCommand());
 				return;
 			case Message.TERMINATE_REQUESET:
-				terminateHandler.handle(((TerminateRequest) message)
-						.isShutdown());
+				handler.terminate(((TerminateRequest) message).isShutdown());
 				return;
 			}
 			throw new ProtocolException("Unexpected message type: " + type);
@@ -149,7 +117,7 @@ public class ServerProtocol extends Protocol {
 			case Message.AUTHENTICATION_REQUEST:
 				AuthenticationRequest authentication = (AuthenticationRequest) message;
 				// Check if user is allowed
-				if (this.authentication.check(authentication.getUser(),
+				if (handler.authentication(authentication.getUser(),
 						authentication.getPassword())) {
 					// Set the block key
 					byte[] key = authentication.getKey();
