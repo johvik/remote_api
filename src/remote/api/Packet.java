@@ -192,6 +192,7 @@ public class Packet {
 		output.write((length >> 8) & 0xFF);
 		output.write(length & 0xFF);
 		output.write(data);
+		output.flush();
 	}
 
 	/**
