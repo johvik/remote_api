@@ -9,6 +9,7 @@ import org.junit.Test;
 import remote.api.ClientProtocol;
 import remote.api.Packet;
 import remote.api.ServerProtocol;
+import remote.api.ServerProtocol.ConnectionHandler;
 import remote.api.ServerProtocol.Handler;
 import remote.api.commands.Command;
 import remote.api.commands.MouseMove;
@@ -37,6 +38,14 @@ public class TestClientServer {
 		public void terminate(boolean shutdown) {
 		}
 	};
+	/**
+	 * The connection handler.
+	 */
+	private ConnectionHandler connectionHandler = new ConnectionHandler() {
+		@Override
+		public void onAuthenticated() {
+		}
+	};
 
 	/**
 	 * Tests client server interaction.
@@ -55,8 +64,8 @@ public class TestClientServer {
 
 		ClientProtocol cp = new ClientProtocol(Misc.publicKey, Misc.key,
 				Misc.iv, clientInput, clientOutput);
-		ServerProtocol sp = new ServerProtocol(handler, Misc.privateKey,
-				serverInput, serverOutput);
+		ServerProtocol sp = new ServerProtocol(handler, connectionHandler,
+				Misc.privateKey, serverInput, serverOutput);
 
 		// Authenticate
 		cp.authenticate("user", "password");

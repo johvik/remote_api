@@ -57,15 +57,32 @@ public class ServerProtocol extends Protocol {
 	}
 
 	/**
+	 * Interface that handles important state changes in the protocol.
+	 */
+	public interface ConnectionHandler {
+		/**
+		 * Callback when the client has successfully authenticated.
+		 */
+		public void onAuthenticated();
+	}
+
+	/**
 	 * The handler.
 	 */
 	private Handler handler;
+
+	/**
+	 * The connection state handler.
+	 */
+	private ConnectionHandler connectionHandler;
 
 	/**
 	 * Constructs a new server protocol.
 	 * 
 	 * @param handler
 	 *            The handler.
+	 * @param connectionHandler
+	 *            The connection state handler.
 	 * @param privateKey
 	 *            The private key of the secure algorithm.
 	 * @param input
@@ -81,14 +98,18 @@ public class ServerProtocol extends Protocol {
 	 * @throws PacketException
 	 *             See {@link PacketScanner#PacketScanner(InputStream)}
 	 */
-	public ServerProtocol(Handler handler, PrivateKey privateKey,
-			InputStream input, OutputStream output)
+	public ServerProtocol(Handler handler, ConnectionHandler connectionHandler,
+			PrivateKey privateKey, InputStream input, OutputStream output)
 			throws GeneralSecurityException, ProtocolException, PacketException {
 		super(privateKey, input, output);
 		if (handler == null) {
 			throw new ProtocolException("Handler cannot be null");
 		}
+		if (connectionHandler == null) {
+			throw new ProtocolException("Connection handler cannot be null");
+		}
 		this.handler = handler;
+		this.connectionHandler = connectionHandler;
 	}
 
 	@Override
@@ -129,6 +150,7 @@ public class ServerProtocol extends Protocol {
 					blockCipherInit(secretKey);
 					authenticated = true;
 					deliver(new AuthenticationResponse());
+					connectionHandler.onAuthenticated();
 				} else {
 					throw new AuthenticationException("Bad login");
 				}
