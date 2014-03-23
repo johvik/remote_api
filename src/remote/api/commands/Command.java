@@ -11,7 +11,7 @@ public abstract class Command implements Comparable<Command> {
 	 * Number of type codes used for commands. This number has to be increased
 	 * when adding new commands.
 	 */
-	public static final int USED_CODES = 6;
+	public static final int USED_CODES = 7;
 
 	/**
 	 * Type code for mouse move.
@@ -37,6 +37,10 @@ public abstract class Command implements Comparable<Command> {
 	 * Type code for key release.
 	 */
 	public static final byte KEY_RELEASE = 5;
+	/**
+	 * Type code for text input.
+	 */
+	public static final byte TEXT_INPUT = 6;
 
 	/**
 	 * Write the command bytes into data. Note that the first byte is reserved

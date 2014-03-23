@@ -14,6 +14,7 @@ import remote.api.Packet;
 import remote.api.Protocol.PingCallback;
 import remote.api.commands.Command;
 import remote.api.commands.MouseMove;
+import remote.api.commands.TextInput;
 import remote.api.exceptions.AuthenticationException;
 import remote.api.exceptions.ProtocolException;
 import remote.api.messages.AuthenticationRequest;
@@ -76,8 +77,7 @@ public class TestClientProtocol {
 		try {
 			// Wrong key size
 			new ClientProtocol(Misc.publicKey,
-					new byte[Packet.BLOCK_KEY_SIZE - 1], Misc.iv, input,
-					output);
+					new byte[Packet.BLOCK_KEY_SIZE - 1], Misc.iv, input, output);
 			fail("Did not throw an exception");
 		} catch (InvalidKeyException e) {
 			InvalidKeyException ex = new InvalidKeyException(
@@ -235,6 +235,14 @@ public class TestClientProtocol {
 		cp.commandRequest(command);
 		Packet p = Packet.read(output.toByteArray());
 		CommandRequest r = (CommandRequest) p.decode(Misc.blockDecrypt);
+		assertEquals(0, command.compareTo(r.getCommand()));
+
+		output.reset();
+		// Send text input
+		command = new TextInput("Abc 123");
+		cp.commandRequest(command);
+		p = Packet.read(output.toByteArray());
+		r = (CommandRequest) p.decode(Misc.blockDecrypt);
 		assertEquals(0, command.compareTo(r.getCommand()));
 	}
 
