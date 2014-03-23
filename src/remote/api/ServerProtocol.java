@@ -32,12 +32,12 @@ public class ServerProtocol extends Protocol {
 		 * Checks if the user with password is allowed to authenticate.
 		 * 
 		 * @param user
-		 *            The user.
+		 *            The base64 encoded user.
 		 * @param password
-		 *            The password.
+		 *            The base64 encoded password.
 		 * @return True if user and password is allowed to authenticate.
 		 */
-		public boolean authentication(String user, String password);
+		public boolean authentication(byte[] user, byte[] password);
 
 		/**
 		 * Handles the command.

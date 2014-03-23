@@ -90,9 +90,9 @@ public class ClientProtocol extends Protocol {
 	 * Sends an authentication request to the server.
 	 * 
 	 * @param user
-	 *            User to authenticate.
+	 *            Base64 encoded user to authenticate.
 	 * @param password
-	 *            Password for the user.
+	 *            Base64 encoded password for the user.
 	 * @throws ProtocolException
 	 *             If already authenticated.
 	 * @throws PacketException
@@ -100,7 +100,7 @@ public class ClientProtocol extends Protocol {
 	 * @throws IOException
 	 *             If it fails to send the data to the server.
 	 */
-	public synchronized void authenticate(String user, String password)
+	public synchronized void authenticate(byte[] user, byte[] password)
 			throws ProtocolException, PacketException, IOException {
 		if (authenticated) {
 			throw new AuthenticationException("Already authenticated");

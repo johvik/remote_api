@@ -26,7 +26,7 @@ public class TestClientServer {
 	 */
 	private Handler handler = new Handler() {
 		@Override
-		public boolean authentication(String user, String password) {
+		public boolean authentication(byte[] user, byte[] password) {
 			return true; // Always accept
 		}
 
@@ -68,7 +68,7 @@ public class TestClientServer {
 				Misc.privateKey, serverInput, serverOutput);
 
 		// Authenticate
-		cp.authenticate("user", "password");
+		cp.authenticate(Misc.getSequence(10, 10), Misc.getSequence(5, 5));
 
 		serverInput.update();
 		Packet p = sp.nextPacket();

@@ -170,8 +170,8 @@ public class TestPacket {
 		// Write the data
 		byte[] key = Misc.getSequence(1, Packet.BLOCK_KEY_SIZE);
 		byte[] iv = Misc.getSequence(Packet.BLOCK_SIZE + 1, Packet.BLOCK_SIZE);
-		String user = "user";
-		String password = "password";
+		byte[] user = Misc.getSequence(10, 10);
+		byte[] password = Misc.getSequence(5, 5);
 		AuthenticationRequest request = new AuthenticationRequest(key, iv,
 				user, password);
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -189,8 +189,9 @@ public class TestPacket {
 		assertArrayEquals(packet.getData(), oldData);
 		assertEquals(AuthenticationRequest.class, message.getClass());
 		assertArrayEquals(key, ((AuthenticationRequest) message).getKey());
-		assertEquals(user, ((AuthenticationRequest) message).getUser());
-		assertEquals(password, ((AuthenticationRequest) message).getPassword());
+		assertArrayEquals(user, ((AuthenticationRequest) message).getUser());
+		assertArrayEquals(password,
+				((AuthenticationRequest) message).getPassword());
 	}
 
 	/**
@@ -239,7 +240,7 @@ public class TestPacket {
 	@Test
 	public void testDecodeAuthenticationRequest() throws Exception {
 		AuthenticationRequest ar = new AuthenticationRequest(Misc.key, Misc.iv,
-				"user", "password");
+				Misc.getSequence(10, 10), Misc.getSequence(5, 5));
 		Message message = new Packet(ar.pack().getData()).decode(null);
 		assertEquals(AuthenticationRequest.class, message.getClass());
 		assertEquals(Message.AUTHENTICATION_REQUEST, message.getType());

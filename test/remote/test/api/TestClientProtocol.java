@@ -115,7 +115,7 @@ public class TestClientProtocol {
 	}
 
 	/**
-	 * Test method for {@link ClientProtocol#authenticate(String, String)}.
+	 * Test method for {@link ClientProtocol#authenticate(byte[], byte[])}.
 	 * 
 	 * @throws Exception
 	 *             If something went wrong.
@@ -176,7 +176,7 @@ public class TestClientProtocol {
 	}
 
 	/**
-	 * Test method for {@link ClientProtocol#authenticate(String, String)}.
+	 * Test method for {@link ClientProtocol#authenticate(byte[], byte[])}.
 	 * 
 	 * @throws Exception
 	 *             If something went wrong.
@@ -189,16 +189,16 @@ public class TestClientProtocol {
 				Misc.iv, input, output);
 
 		// Send authenticate
-		String user = "user";
-		String password = "password";
+		byte[] user = Misc.getSequence(10, 10);
+		byte[] password = Misc.getSequence(5, 5);
 		cp.authenticate(user, password);
 
 		Packet p = Packet.read(output.toByteArray());
 		AuthenticationRequest r = (AuthenticationRequest) p
 				.decode(Misc.secureDecrypt);
 		assertArrayEquals(Misc.key, r.getKey());
-		assertEquals(user, r.getUser());
-		assertEquals(password, r.getPassword());
+		assertArrayEquals(user, r.getUser());
+		assertArrayEquals(password, r.getPassword());
 
 		output.reset();
 		// Authenticate

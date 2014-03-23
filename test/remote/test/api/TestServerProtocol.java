@@ -46,7 +46,7 @@ public class TestServerProtocol {
 	 */
 	private Handler handler = new Handler() {
 		@Override
-		public boolean authentication(String user, String password) {
+		public boolean authentication(byte[] user, byte[] password) {
 			return !authenticationFail;
 		}
 
@@ -159,7 +159,7 @@ public class TestServerProtocol {
 				Misc.privateKey, input, output);
 		// Authenticate
 		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key,
-				Misc.iv, "", "").pack()));
+				Misc.iv, new byte[0], new byte[0]).pack()));
 		output.reset();
 
 		// Send a ping
@@ -236,7 +236,7 @@ public class TestServerProtocol {
 				Misc.privateKey, input, output);
 		// Authenticate
 		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key,
-				Misc.iv, "", "").pack()));
+				Misc.iv, new byte[0], new byte[0]).pack()));
 
 		output.reset();
 		assertEquals(null, command);
@@ -262,7 +262,7 @@ public class TestServerProtocol {
 				Misc.privateKey, input, output);
 		// Authenticate
 		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key,
-				Misc.iv, "", "").pack()));
+				Misc.iv, new byte[0], new byte[0]).pack()));
 
 		output.reset();
 		assertEquals(null, shutdown);
@@ -314,7 +314,7 @@ public class TestServerProtocol {
 		// Fail to authenticate
 		try {
 			sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key,
-					Misc.iv, "", "").pack()));
+					Misc.iv, new byte[0], new byte[0]).pack()));
 			fail("Did not throw an exception");
 		} catch (AuthenticationException e) {
 			AuthenticationException ex = new AuthenticationException(
@@ -342,7 +342,7 @@ public class TestServerProtocol {
 				input, output);
 		assertEquals(false, onAuthenticatedCalled);
 		sp.process(Misc.encryptSecure(new AuthenticationRequest(Misc.key,
-				Misc.iv, "", "").pack()));
+				Misc.iv, new byte[0], new byte[0]).pack()));
 		assertEquals(true, onAuthenticatedCalled);
 		Packet p = Packet.read(output.toByteArray());
 		AuthenticationResponse r = (AuthenticationResponse) p
@@ -354,7 +354,7 @@ public class TestServerProtocol {
 		try {
 			// Block encryption to allow decode
 			sp.process(Misc.encryptBlock(new AuthenticationRequest(Misc.key,
-					Misc.iv, "", "").pack()));
+					Misc.iv, new byte[0], new byte[0]).pack()));
 			fail("Did not throw an exception");
 		} catch (ProtocolException e) {
 			ProtocolException ex = new ProtocolException(
@@ -375,7 +375,7 @@ public class TestServerProtocol {
 	public void testNextPacket() throws Exception {
 		ByteArrayOutputStream tmp = new ByteArrayOutputStream();
 		AuthenticationRequest r = new AuthenticationRequest(Misc.key, Misc.iv,
-				"user", "password");
+				Misc.getSequence(10, 10), Misc.getSequence(5, 5));
 		r.pack().write(Misc.secureEncrypt, tmp);
 
 		ByteArrayInputStream input = new ByteArrayInputStream(tmp.toByteArray());

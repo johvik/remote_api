@@ -27,13 +27,13 @@ public class AuthenticationRequest extends Message {
 	 */
 	private byte[] iv;
 	/**
-	 * User to authenticate.
+	 * Base64 encoded user to authenticate.
 	 */
-	private String user;
+	private byte[] user;
 	/**
-	 * Password for the user.
+	 * Base64 encoded password for the user.
 	 */
-	private String password;
+	private byte[] password;
 
 	/**
 	 * Constructs a new authentication request.
@@ -43,14 +43,14 @@ public class AuthenticationRequest extends Message {
 	 * @param iv
 	 *            Initialization vector for the block cipher.
 	 * @param user
-	 *            User to authenticate.
+	 *            Base64 encoded user to authenticate.
 	 * @param password
-	 *            Password for the user.
+	 *            Base64 encoded password for the user.
 	 * @throws PacketException
 	 *             If any of the arguments is null or the key has wrong length.
 	 */
-	public AuthenticationRequest(byte[] key, byte[] iv, String user,
-			String password) throws PacketException {
+	public AuthenticationRequest(byte[] key, byte[] iv, byte[] user,
+			byte[] password) throws PacketException {
 		if (key == null) {
 			throw new PacketException("Key is null", key);
 		}
@@ -93,10 +93,8 @@ public class AuthenticationRequest extends Message {
 
 	@Override
 	public Packet pack() throws PacketException {
-		byte[] userBytes = user.getBytes();
-		byte[] passwordBytes = password.getBytes();
-		int userLength = userBytes.length;
-		int passwordLength = passwordBytes.length;
+		int userLength = user.length;
+		int passwordLength = password.length;
 		// Check length
 		int size = calculateSize(userLength, passwordLength);
 		if (size > MAX_LENGTH) {
@@ -119,11 +117,11 @@ public class AuthenticationRequest extends Message {
 		data[pos++] = (byte) (passwordLength & 0xFF);
 
 		// Write user
-		System.arraycopy(userBytes, 0, data, pos, userLength);
+		System.arraycopy(user, 0, data, pos, userLength);
 		pos += userLength;
 
 		// Write password
-		System.arraycopy(passwordBytes, 0, data, pos, passwordLength);
+		System.arraycopy(password, 0, data, pos, passwordLength);
 		pos += passwordLength;
 
 		return new Packet(data);
@@ -177,9 +175,7 @@ public class AuthenticationRequest extends Message {
 		System.arraycopy(data, pos, password, 0, passwordLength);
 		pos += passwordLength;
 
-		String userString = new String(user);
-		String passwordString = new String(password);
-		return new AuthenticationRequest(key, iv, userString, passwordString);
+		return new AuthenticationRequest(key, iv, user, password);
 	}
 
 	@Override
@@ -210,7 +206,7 @@ public class AuthenticationRequest extends Message {
 	 * 
 	 * @return The user.
 	 */
-	public String getUser() {
+	public byte[] getUser() {
 		return user;
 	}
 
@@ -219,7 +215,7 @@ public class AuthenticationRequest extends Message {
 	 * 
 	 * @return The password.
 	 */
-	public String getPassword() {
+	public byte[] getPassword() {
 		return password;
 	}
 
@@ -230,9 +226,9 @@ public class AuthenticationRequest extends Message {
 		if (cmp == 0) {
 			cmp = Utils.compare(iv, other.iv);
 			if (cmp == 0) {
-				cmp = user.compareTo(other.user);
+				cmp = Utils.compare(user, other.user);
 				if (cmp == 0) {
-					cmp = password.compareTo(other.password);
+					cmp = Utils.compare(password, other.password);
 				}
 			}
 		}
