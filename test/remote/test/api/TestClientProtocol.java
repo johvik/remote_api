@@ -239,7 +239,7 @@ public class TestClientProtocol {
 
 		output.reset();
 		// Send text input
-		command = new TextInput("Abc 123");
+		command = new TextInput(Misc.getSequence(1, 10));
 		cp.commandRequest(command);
 		p = Packet.read(output.toByteArray());
 		r = (CommandRequest) p.decode(Misc.blockDecrypt);

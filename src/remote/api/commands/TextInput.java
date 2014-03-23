@@ -1,5 +1,6 @@
 package remote.api.commands;
 
+import remote.api.Utils;
 import remote.api.exceptions.PacketException;
 
 /**
@@ -17,7 +18,7 @@ public class TextInput extends Command {
 	/**
 	 * Text for the input.
 	 */
-	private String text;
+	private byte[] text;
 
 	/**
 	 * Constructs a new text input. Note that the text will be clipped of if
@@ -26,7 +27,7 @@ public class TextInput extends Command {
 	 * @param text
 	 *            The input text.
 	 */
-	public TextInput(String text) {
+	public TextInput(byte[] text) {
 		this.text = text;
 	}
 
@@ -35,28 +36,25 @@ public class TextInput extends Command {
 	 * 
 	 * @return The text.
 	 */
-	public String getText() {
+	public byte[] getText() {
 		return text;
 	}
 
 	@Override
 	public int compareTo(Command o) {
 		TextInput other = (TextInput) o;
-		return text.compareTo(other.text);
+		return Utils.compare(text, other.text);
 	}
 
 	@Override
 	public void write(byte[] data, int offset) throws PacketException {
-		int length = text.length();
+		int length = text.length;
 		if (offset < 0 || data.length < STATIC_LENGTH + length + offset) {
 			throw new PacketException("Invalid write " + offset, data);
 		}
 		data[offset] = TEXT_INPUT;
 		data[offset + 1] = (byte) (length & 0xFF);
-		int pos = offset + 2;
-		for (int i = 0; i < length; i++) {
-			data[pos++] = (byte) text.charAt(i);
-		}
+		System.arraycopy(text, 0, data, offset + 2, length);
 	}
 
 	/**
@@ -79,17 +77,14 @@ public class TextInput extends Command {
 		if (data.length < STATIC_LENGTH + length + offset) {
 			throw new PacketException("Invalid read " + offset, data);
 		}
-		char[] text = new char[length];
-		int pos = offset + 2;
-		for (int i = 0; i < length; i++) {
-			text[i] = (char) data[pos++];
-		}
-		return new TextInput(new String(text));
+		byte[] text = new byte[length];
+		System.arraycopy(data, offset + 2, text, 0, length);
+		return new TextInput(text);
 	}
 
 	@Override
 	public int getLength() {
-		return STATIC_LENGTH + Math.min(text.length(), MAX_TEXT_LENGTH);
+		return STATIC_LENGTH + Math.min(text.length, MAX_TEXT_LENGTH);
 	}
 
 	@Override

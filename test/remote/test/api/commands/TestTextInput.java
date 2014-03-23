@@ -24,7 +24,7 @@ public class TestTextInput {
 	/**
 	 * The text parameter.
 	 */
-	private String text;
+	private byte[] text;
 
 	/**
 	 * The text input constructed by the parameter.
@@ -37,7 +37,7 @@ public class TestTextInput {
 	 * @param text
 	 *            The text.
 	 */
-	public TestTextInput(String text) {
+	public TestTextInput(byte[] text) {
 		this.text = text;
 		ti = new TextInput(text);
 	}
@@ -49,8 +49,9 @@ public class TestTextInput {
 	 */
 	@Parameters
 	public static Collection<Object[]> data() {
-		return Arrays.asList(new Object[][] { { "a" }, { "test string" },
-				{ "" }, { Misc.repeat('A', TextInput.MAX_TEXT_LENGTH) } });
+		return Arrays.asList(new Object[][] { { Misc.getSequence(1, 10) },
+				{ new byte[0] },
+				{ Misc.getSequence(0, TextInput.MAX_TEXT_LENGTH) } });
 	}
 
 	/**
@@ -66,9 +67,9 @@ public class TestTextInput {
 			ti.write(data, i);
 			TextInput read = TextInput.read(data, i);
 			assertEquals(Command.TEXT_INPUT, read.getType());
-			assertEquals(text, read.getText());
+			assertArrayEquals(text, read.getText());
 			assertEquals(ti.getType(), read.getType());
-			assertEquals(ti.getText(), read.getText());
+			assertArrayEquals(ti.getText(), read.getText());
 		}
 	}
 
@@ -135,7 +136,7 @@ public class TestTextInput {
 	 * Test method for {@link TextInput#getLength()}.
 	 */
 	public void testGetLength() {
-		assertEquals(text.length() + TextInput.STATIC_LENGTH, ti.getLength());
+		assertEquals(text.length + TextInput.STATIC_LENGTH, ti.getLength());
 	}
 
 	/**
@@ -151,7 +152,7 @@ public class TestTextInput {
 	 */
 	@Test
 	public void testGetButtons() {
-		assertEquals(text, ti.getText());
+		assertArrayEquals(text, ti.getText());
 	}
 
 	/**
@@ -171,7 +172,7 @@ public class TestTextInput {
 		}
 
 		// Check against object with another text
-		TextInput other = new TextInput(text + 'a');
+		TextInput other = new TextInput(Misc.getSequence(-15, 2));
 		assertNotEquals(0, ti.compareTo(other));
 
 		// Compare to object with same parameters

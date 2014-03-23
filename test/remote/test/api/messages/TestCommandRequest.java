@@ -23,6 +23,7 @@ import remote.api.exceptions.PacketException;
 import remote.api.messages.CommandRequest;
 import remote.api.messages.Message;
 import remote.api.messages.Ping;
+import remote.test.api.Misc;
 
 /**
  * Test class for {@link CommandRequest}.
@@ -63,7 +64,8 @@ public class TestCommandRequest {
 				{ new MousePress(0x12345678) },
 				{ new MouseRelease(0x87654321) },
 				{ new MouseWheel(0xFFFFFFFF) }, { new KeyPress(1) },
-				{ new KeyRelease(-1234567890) }, { new TextInput("abc") } });
+				{ new KeyRelease(-1234567890) },
+				{ new TextInput(Misc.getSequence(-1, 2)) } });
 		assertEquals(Command.USED_CODES, list.size());
 		return list;
 	}
