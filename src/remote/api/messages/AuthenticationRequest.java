@@ -27,11 +27,11 @@ public class AuthenticationRequest extends Message {
 	 */
 	private byte[] iv;
 	/**
-	 * Base64 encoded user to authenticate.
+	 * Encoded user to authenticate.
 	 */
 	private byte[] user;
 	/**
-	 * Base64 encoded password for the user.
+	 * Encoded password for the user.
 	 */
 	private byte[] password;
 
@@ -43,9 +43,9 @@ public class AuthenticationRequest extends Message {
 	 * @param iv
 	 *            Initialization vector for the block cipher.
 	 * @param user
-	 *            Base64 encoded user to authenticate.
+	 *            Encoded user to authenticate.
 	 * @param password
-	 *            Base64 encoded password for the user.
+	 *            Encoded password for the user.
 	 * @throws PacketException
 	 *             If any of the arguments is null or the key has wrong length.
 	 */

@@ -90,9 +90,9 @@ public class ClientProtocol extends Protocol {
 	 * Sends an authentication request to the server.
 	 * 
 	 * @param user
-	 *            Base64 encoded user to authenticate.
+	 *            Encoded user to authenticate.
 	 * @param password
-	 *            Base64 encoded password for the user.
+	 *            Encoded password for the user.
 	 * @throws ProtocolException
 	 *             If already authenticated.
 	 * @throws PacketException
